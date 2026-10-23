@@ -1,0 +1,9 @@
+streamlit>=1.37
+groq
+supabase
+pillow
+pypdf
+fpdf2
+python-docx
+edge-tts
+gTTS
