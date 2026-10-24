@@ -117,7 +117,7 @@ export default function App() {
       </header>
 
       {/* Main Container */}
-      <main className="flex-1 max-w-7xl w-full mx-auto p-4 md:p-8 space-y-6">
+      <main className="flex-1 w-full max-w-[1700px] mx-auto p-2 sm:p-4 md:p-6 space-y-4">
         {currentView === 'portal' && (
           <DevPortal
             onGoToProd={() => setCurrentView('prod')}

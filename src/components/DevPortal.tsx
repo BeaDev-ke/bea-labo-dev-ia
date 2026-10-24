@@ -160,7 +160,7 @@ export const DevPortal: React.FC<DevPortalProps> = ({
             <div className="pt-2 space-y-1.5 text-xs text-zinc-400">
               <div className="flex items-center gap-2">
                 <span className="w-1.5 h-1.5 rounded-full bg-cyan-400" />
-                <span>Chat ChatGPT / Claude / Gemini redesign</span>
+                <span>Chat & Expérience conversationnelle Bea</span>
               </div>
               <div className="flex items-center gap-2">
                 <span className="w-1.5 h-1.5 rounded-full bg-cyan-400" />

@@ -87,7 +87,8 @@ export type PageView =
   | 'compte' 
   | 'profil' 
   | 'securite' 
-  | 'memoire';
+  | 'memoire'
+  | 'parametres';
 
 export type SupportedLanguageCode = 
   | 'fr' 

@@ -30,7 +30,8 @@ import {
   AlertTriangle,
   RotateCcw,
   ArrowRight,
-  ArrowUp
+  ArrowUp,
+  Sliders
 } from 'lucide-react';
 import { ChatMessage, PageView, UserProfile, ProfileType, UseCaseType } from '../types/bea';
 import { beaVoice } from '../utils/speech';
@@ -39,6 +40,7 @@ import { SiteBuilder } from './SiteBuilder';
 import { ProfileManager } from './ProfileManager';
 import { SalesOffers } from './SalesOffers';
 import { SecurityShield } from './SecurityShield';
+import { AiSettingsPanel } from './AiSettingsPanel';
 import { PROFILE_METAS } from '../data/profilesData';
 import { 
   inspectPromptSecurity, 
@@ -78,7 +80,6 @@ export const BeaAppPreview: React.FC<BeaAppPreviewProps> = ({ onOpenLab }) => {
   const [isRecordingVoice, setIsRecordingVoice] = useState(false);
   const [showPlusMenu, setShowPlusMenu] = useState(false);
   const [modelChoice, setModelChoice] = useState<'rapide' | 'puissant'>('rapide');
-  const [showModelMenu, setShowModelMenu] = useState(false);
 
   const handleToggleVoiceRecording = () => {
     const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
@@ -161,26 +162,21 @@ export const BeaAppPreview: React.FC<BeaAppPreviewProps> = ({ onOpenLab }) => {
     {
       id: 'm2',
       role: 'assistant',
-      content: `Tu veux être régulier dans tes publications mais la friction technique du montage transforme une intention créative en corvée décourageante.
+      content: `Passer 5 heures sur un montage court est un piège classique : ton attention se dissipe dans des micro-ajustements qui n'impactent ni la rétention ni la clarté du message.
 
-**Problèmes possibles :**
-1. **Perfectionnisme de débutant** : tu passes 3h sur des détails que personne ne remarque dans les 3 premières secondes.
-2. **Charge cognitive trop lourde** : tu essaies de trouver l'idée, filmer et monter le même jour au lieu de séparer les tâches.
-3. **Absence de format réutilisable (template)** : tu réinventes la roue à chaque vidéo au lieu de garder un rythme fixe.
-4. **Attente du résultat immédiat** : l'absence de validation instantanée coupe ta dopamine et déclenche l'évitement.
+Voici comment compresser ta production de 5h à 45 minutes :
 
-**Leviers d'action concrets :**
-1. **Règle des 80/20 du montage** : concentre 70% de ton énergie sur les 3 premières secondes (hook + sous-titre dynamique), le reste doit être sobre.
-2. **Session de batching en 2 blocs** : le samedi = écriture de 5 idées en 30 min ; le dimanche = tournage des 5 vidéos d'affilée en 45 min.
-3. **Format signature en 3 points** : Problème douloureux (0-3s) → Erreur fréquente (3-15s) → Solution concrète (15-45s) → CTA simple.
-4. **Utilise le Studio Bea** : génère ton plan de montage et tes visuels en 1 clic pour diviser par 3 ton temps de travail.
+**1. La structure en 3 couches (Zéro dispersion) :**
+- **Couche Hook (0 à 3 sec)** : C'est là que se joue 80% du résultat. 1 phrase d'accroche directe + 1 sous-titre dynamique contrasté.
+- **Couche Cœur (3 à 45 sec)** : 1 seule idée directrice, 2 exemples max. Coupe simplement les hésitations et silences (jump-cuts nets). Pas d'animations superflues.
+- **Couche Sortie (45 à 55 sec)** : 1 appel à l'action limpide et engageant.
 
-**Plan de démarrage pour cette semaine :**
-- Aujourd'hui : filme UNE seule vidéo de 30 secondes avec un format minimaliste sans coupes complexes.
-- Demain : publie-la avant midi, sans la retoucher plus de 20 minutes.
-- Indicateur de succès : publier 3 vidéos cette semaine, peu importe le nombre de vues.
+**2. Le découplage des tâches (Batching) :**
+Ne filme jamais et ne monte jamais dans la même session. La fatigue décisionnelle après le tournage te fait hésiter sur chaque coupe. Découpe en deux créneaux :
+- Bloc A : Écriture et tournage d'affilée de 3 vidéos brutes.
+- Bloc B : Montage standardisé le lendemain avec un template pré-calibré dans le Studio Bea.
 
-Lequel de ces 4 blocages te ressemble le plus en ce moment ?`,
+Veux-tu qu'on applique cette trame directement à ton prochain sujet de vidéo ?`,
       timestamp: '11:21',
       securityShield: true,
     },
@@ -277,39 +273,102 @@ if __name__ == "__main__":
       momentumPoints: prev.momentumPoints + 5,
     }));
 
-    // Réponse structurée de Bea adaptée au profil
+    // Réponse intelligente, adaptative et profonde de Bea (sans blocage automatique inventé)
     setTimeout(() => {
-      let promptContext = '';
-      if (useCase === 'scolaire') {
-        promptContext = `[Profil Scolaire - ${userProfile.schoolCountry || 'France'} - ${userProfile.studyLevel || 'Collège/Lycée'}]
-Voici une méthode de révision pas-à-pas pour ancrer la notion sans surcharge cognitive.`;
-      } else if (useCase === 'contenu') {
-        promptContext = `[Profil Créateur de Contenu - Rétention 3 secondes]
-Voici comment structurer ton hook pour captiver l'attention dès les premières secondes.`;
+      const lower = cleanInput.toLowerCase();
+      let responseContent = '';
+
+      const isHelpOrGreeting = /^(bonjour|salut|hello|coucou|qui es-tu|présente-toi)/i.test(cleanInput.trim());
+      const isCodeRequest = /code|script|fonction|python|react|javascript|bug|erreur|api|composant|dev/i.test(lower);
+      const isExplicitStruggle = /peur|bloqu|procrastin|doute|difficile|n'arrive pas|décourag|épuis|angoisse|panique|retard|friction/i.test(lower);
+      const isCreativeOrVideo = /vidéo|montage|tiktok|reels|youtube|accroche|hook|script|contenu|post|cam/i.test(lower);
+      const isBusinessOrSales = /client|prix|vente|offre|prospect|devis|négocier|chiffre|marketing|déléguer/i.test(lower);
+      const isStudyRequest = useCase === 'scolaire' || /cours|révis|examen|devoir|formule|leçon/i.test(lower);
+
+      if (isHelpOrGreeting) {
+        responseContent = `Bonjour ! Je suis Bea, ton partenaire d'analyse et de stratégie propulsé par BehaviorLab AI.
+
+Je t'accompagne sur tes projets, tes créations de contenu, ton code et tes décisions stratégiques. Dis-moi ce sur quoi tu veux travailler aujourd'hui, et nous passons directement à l'action.`;
+      } else if (isCodeRequest) {
+        responseContent = `Voici une architecture propre, optimisée et prête à l'emploi pour répondre à ton besoin technique.
+
+\`\`\`python
+# Implémentation modulaire et typée
+from typing import Dict, Any
+
+def process_pipeline(data: Dict[str, Any]) -> Dict[str, Any]:
+    """Exécute le pipeline de traitement de manière déterministe."""
+    result = {
+        "status": "success",
+        "processed_keys": list(data.keys()),
+        "count": len(data)
+    }
+    return result
+\`\`\`
+
+**Points clés d'optimisation :**
+- **Découplage strict** : Architecture modulaire, facilement testable et sans effets de bord.
+- **Gestion des cas limites** : Aucune mutation d'état involontaire.
+- Tu peux injecter ce module directement dans l'onglet **Éditeur de Code** pour le tester en direct.`;
+      } else if (isExplicitStruggle) {
+        // Uniquement si l'utilisateur exprime EXPLICITEMENT une difficulté ou un blocage
+        responseContent = `Je comprends parfaitement ce qui se passe ici. Ce que tu ressens n'est pas un manque de volonté, mais une réponse cognitive normale face à un seuil d'incertitude ou de surcharge.
+
+**Analyse de la dynamique :**
+- Le cerveau interprète la tâche comme une charge diffuse ou un risque d'échec, ce qui enclenche un réflexe d'évitement protecteur.
+- La solution n'est pas de forcer avec de la volonté brute, mais de baisser drastiquement le seuil d'activation immédiat.
+
+**Le levier immédiat :**
+1. **Règle des 5 minutes sans enjeu** : Lance un chronomètre de 5 minutes. Engage-toi uniquement à poser les yeux sur le support ou écrire 3 phrases brutes, sans aucun jugement de qualité.
+2. **Scission du livrable** : Définis uniquement la première action physique observable (ouvrir le document, créer un fichier).
+
+On démarre sur ces 5 premières minutes ensemble ?`;
+      } else if (isCreativeOrVideo) {
+        responseContent = `Excellente orientation. Pour capter et maintenir l'attention dans un environnement saturé, la clé réside dans la vitesse de transmission du signal utile.
+
+**Les axes stratégiques pour ton contenu :**
+1. **L'accroche disruptive (0-3s)** : Formule une antithèse ou brise une croyance reçue. Évite les introductions conventionnelles.
+2. **La progression rythmique** : Alterne une affirmation forte et une démonstration visuelle concrète toutes les 4 à 6 secondes.
+3. **La clarté cognitive** : Une seule idée majeure par format. Dès qu'une seconde idée apparaît, conserve-la pour la publication suivante.
+
+Souhaites-tu qu'on rédige ensemble 3 propositions de hooks percutants sur ce sujet ?`;
+      } else if (isBusinessOrSales) {
+        responseContent = `Sur ce volet stratégique, la valeur perçue découle directement de la précision de ton positionnement et de la clarté du bénéfice pour ton interlocuteur.
+
+**Grille d'analyse stratégique :**
+- **Inversion du risque** : Plus ton offre supprime l'incertitude pour ton client (garantie claire, étapes lisibles), plus la décision devient évidente.
+- **Cadrage sur le coût de l'inaction** : Montre concrètement ce que coûte de ne pas résoudre le problème maintenant plutôt que de te justifier sur ton prix.
+- **Posture de conseil affirmée** : Présente ton approche comme un diagnostic d'expert plutôt que comme une argumentation commerciale défensive.
+
+Quel est l'enjeu précis ou l'objection principale à laquelle tu fais face ?`;
+      } else if (isStudyRequest) {
+        responseContent = `Voici la démarche optimale pour ancrer cette notion en profondeur tout en préservant ta clarté mentale :
+
+**1. Déconstruction de la notion (Principe de Feynman) :**
+- Isole la règle ou le théorème fondamental.
+- Reformule-le avec des mots du quotidien comme si tu l'expliquais à un collègue.
+
+**2. Pratique active immédiate :**
+- Résous 1 seul cas d'application représentatif immédiatement après la lecture.
+- Identifie l'étape exacte où un doute apparaît pour cibler la question.
+
+Veux-tu qu'on applique cette déconstruction pas-à-pas sur ton sujet ?`;
       } else {
-        promptContext = `[Profil ${PROFILE_METAS[userProfile.profileType]?.label || 'Projets'}]
-Voici ton plan d'action immédiat pour débloquer l'exécution.`;
+        responseContent = `Analyse stratégique de ta demande :
+
+Pour avancer avec pertinence et efficacité sur cette question, voici les points d'appui essentiels :
+
+1. **Clarification de l'axe prioritaire** : Identifier le facteur qui aura l'effet de levier le plus puissant (80/20) sans dispersion d'énergie.
+2. **Méthode d'exécution directe** : Structurer la progression par étapes séquentielles, mesurables et vérifiables.
+3. **Validation rapide** : Tester la première itération concrète afin de confronter l'idée au réel le plus tôt possible.
+
+Sur quel aspect spécifique souhaites-tu que nous approfondissions en premier ?`;
       }
 
       const assistantMsg: ChatMessage = {
         id: `a-${Date.now()}`,
         role: 'assistant',
-        content: `${promptContext}
-
-**Diagnostic du blocage :**
-1. **Friction de démarrage** : la première étape te semble floue ou trop intimidante.
-2. **Ambiguïté sur la priorité n°1** : trop d'options dispersent ton focus.
-3. **Absence de délai court** : une tâche sans limite de temps s'étire indéfiniment (Loi de Parkinson).
-
-**Leviers d'action concrets :**
-1. **Micro-action de 2 minutes** : commence par la plus petite unité possible (1 ligne ou 1 formule).
-2. **Suppression des distractions** : bloque les notifications pendant 25 minutes chrono.
-3. **Mesure du progrès** : note 1 avancée visible chaque soir.
-
-**Plan de démarrage :**
-- Action 1 : Choisir la tâche la plus importante.
-- Action 2 : La faire pendant 20 minutes chrono.
-- Action 3 : Cocher la case et passer à la suite.`,
+        content: responseContent,
         timestamp: 'À l\'instant',
         securityShield: true,
       };
@@ -330,9 +389,9 @@ Voici ton plan d'action immédiat pour débloquer l'exécution.`;
   };
 
   return (
-    <div className="bg-[#0f0a1e] border-2 border-[#7c3aed] rounded-3xl overflow-hidden shadow-2xl flex flex-col md:flex-row min-h-[780px]">
+    <div className="bg-[#0F0E1E] border border-[#5A33FF33] rounded-2xl md:rounded-3xl overflow-hidden shadow-2xl flex flex-col md:flex-row w-full min-h-[85vh] lg:min-h-[calc(100vh-140px)]">
       {/* SIDEBAR NAVIGATION */}
-      <div className="w-full md:w-64 bg-[#0d0d14] border-r-2 border-[#7c3aed] p-4 flex flex-col justify-between shrink-0">
+      <div className="w-full md:w-64 lg:w-72 bg-[#0c0b17] border-r border-[#5A33FF33] p-4 flex flex-col justify-between shrink-0">
         <div className="space-y-4">
           {/* Logo & Identity */}
           <div className="text-center pt-2">
@@ -437,6 +496,7 @@ Voici ton plan d'action immédiat pour débloquer l'exécution.`;
               { id: 'code', label: '💻 Code & Débogage', icon: Code2 },
               { id: 'securite', label: '🛡️ Bouclier Anti-Piratage', icon: ShieldCheck, badge: 'Actif' },
               { id: 'memoire', label: '🧠 Mémoire de Bea', icon: Brain },
+              { id: 'parametres', label: '⚙️ Paramètres IA', icon: Sliders, badge: 'Pro' },
             ].map(item => {
               const active = currentPage === item.id;
               return (
@@ -445,8 +505,8 @@ Voici ton plan d'action immédiat pour débloquer l'exécution.`;
                   onClick={() => setCurrentPage(item.id as PageView)}
                   className={`w-full text-left px-3 py-2 rounded-xl text-xs font-semibold transition flex items-center justify-between ${
                     active
-                      ? 'bg-[#231a4a] text-white border border-[#a855f7] shadow-sm'
-                      : 'text-[#e2d6ff] hover:bg-[#15112a] hover:text-white'
+                      ? 'bg-gradient-to-r from-[#1E1B8C] to-[#5A33FF] text-white border border-[#5A33FF] shadow-sm font-semibold'
+                      : 'text-[#A89CFF] hover:bg-[#1A1930] hover:text-white'
                   }`}
                 >
                   <span className="truncate pr-1">{item.label}</span>
@@ -479,12 +539,12 @@ Voici ton plan d'action immédiat pour débloquer l'exécution.`;
       </div>
 
       {/* MAIN CONTENT AREA */}
-      <div className="flex-1 flex flex-col bg-[#0f0a1e] overflow-hidden">
-        {/* TOP NAVIGATION BAR - MENUS ALIGNÉS À DROITE SANS COULEURS FLASHY */}
-        <div className="bg-[#18181b] px-4 py-2 border-b border-zinc-800 flex items-center justify-between gap-3 shrink-0">
+      <div className="flex-1 flex flex-col bg-[#0F0E1E] overflow-hidden">
+        {/* TOP NAVIGATION BAR - MENUS ALIGNÉS À DROITE AVEC THÈME VIOLET FONCÉ */}
+        <div className="bg-[#131226] px-4 py-2 border-b border-[#5A33FF33] flex items-center justify-between gap-3 shrink-0">
           <div className="flex items-center gap-2">
             <span className="font-extrabold text-sm text-white">Bea</span>
-            <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-zinc-800 text-zinc-300 border border-zinc-700">
+            <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-[#1A1930] text-[#A89CFF] border border-[#5A33FF33]">
               BehaviorLab AI
             </span>
           </div>
@@ -500,14 +560,15 @@ Voici ton plan d'action immédiat pour débloquer l'exécution.`;
               { id: 'compte', label: '💎 Offres' },
               { id: 'securite', label: '🛡️ Sécurité' },
               { id: 'memoire', label: '🧠 Mémoire' },
+              { id: 'parametres', label: '⚙️ Paramètres' },
             ].map(tab => (
               <button
                 key={tab.id}
                 onClick={() => setCurrentPage(tab.id as PageView)}
                 className={`px-2.5 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition ${
                   currentPage === tab.id
-                    ? 'bg-zinc-800 text-white shadow-sm border border-zinc-700/60 font-semibold'
-                    : 'text-zinc-400 hover:text-white hover:bg-zinc-800/40'
+                    ? 'bg-gradient-to-r from-[#1E1B8C] to-[#5A33FF] text-white shadow-sm border border-[#5A33FF] font-semibold'
+                    : 'text-[#A89CFF] hover:text-white hover:bg-[#1A1930]'
                 }`}
               >
                 {tab.label}
@@ -515,16 +576,16 @@ Voici ton plan d'action immédiat pour débloquer l'exécution.`;
             ))}
             <button
               onClick={onOpenLab}
-              className="ml-1.5 px-3 py-1.5 rounded-lg bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 text-zinc-200 hover:text-white text-xs font-medium whitespace-nowrap shadow-sm flex items-center gap-1.5 transition"
+              className="ml-1.5 px-3 py-1.5 rounded-lg bg-transparent hover:bg-[#1E1B8C]/40 border border-[#5A33FF] text-white text-xs font-medium whitespace-nowrap shadow-sm flex items-center gap-1.5 transition"
             >
-              <Wand2 className="w-3.5 h-3.5 text-zinc-300" />
+              <Wand2 className="w-3.5 h-3.5 text-[#8B70FF]" />
               <span>🧪 Labo Dev</span>
             </button>
           </div>
         </div>
 
         {/* TOP MOMENTUM & PSYCHOLOGY BAR */}
-        <div className="bg-[#140e2b] px-4 py-2.5 border-b border-[#7c3aed]/30 flex flex-wrap items-center justify-between gap-3 text-xs">
+        <div className="bg-[#141328] px-4 py-2.5 border-b border-[#5A33FF33] flex flex-wrap items-center justify-between gap-3 text-xs">
           <div className="flex items-center gap-3">
             <span className="flex items-center gap-1.5 text-amber-300 font-bold">
               <Trophy className="w-3.5 h-3.5 text-amber-400" />
@@ -680,294 +741,272 @@ Voici ton plan d'action immédiat pour débloquer l'exécution.`;
 
             {/* Chat Messages */}
             <div className="flex-1 overflow-y-auto p-4 md:p-6 space-y-4">
-              {messages.map(msg => (
-                <div
-                  key={msg.id}
-                  className={`p-4 rounded-2xl border-2 ${
-                    msg.role === 'user'
-                      ? 'bg-[#15112a] border-[#7c3aed]/50 text-white ml-auto max-w-2xl'
-                      : 'bg-[#1a1535] border-[#7c3aed] text-[#f5f3ff] max-w-3xl shadow-lg'
-                  }`}
-                >
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-xs font-bold text-[#c4b5fd] flex items-center gap-1.5">
-                      {msg.role === 'user' ? `👤 ${userProfile.displayName}` : '🧠 Bea (BehaviorLab AI)'}
-                    </span>
-                    <span className="text-[10px] text-[#8a7ab8]">{msg.timestamp}</span>
-                  </div>
-                  <div className="text-sm leading-relaxed whitespace-pre-line">{msg.content}</div>
-
-                  {msg.role === 'assistant' && (
-                    <div className="flex flex-wrap items-center gap-2 mt-3 pt-2.5 border-t border-[#7c3aed]/20 text-xs">
-                      {/* FREE SPEECH SYNTHESIS BUTTON */}
-                      <button
-                        onClick={() => toggleSpeak(msg.id, msg.content)}
-                        className={`px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 ${
-                          speakingMsgId === msg.id
-                            ? 'bg-rose-500/20 text-rose-300 border border-rose-500/40 animate-pulse'
-                            : 'bg-[#231a4a] text-purple-200 hover:bg-[#302166] border border-[#7c3aed]/60'
-                        }`}
-                        title="Écouter la réponse de Bea à voix haute (100% gratuit)"
-                      >
-                        {speakingMsgId === msg.id ? <VolumeX className="w-3.5 h-3.5" /> : <Volume2 className="w-3.5 h-3.5 text-cyan-400" />}
-                        <span>{speakingMsgId === msg.id ? 'Arrêter la voix' : '🔊 Écouter Bea'}</span>
-                      </button>
-
-                      <button 
-                        onClick={() => navigator.clipboard.writeText(msg.content)}
-                        className="p-1.5 rounded-lg bg-[#15112a] hover:bg-[#231a4a] border border-[#7c3aed]/40 text-[#c4b5fd]" 
-                        title="Copier le texte"
-                      >
-                        <Copy className="w-3.5 h-3.5" />
-                      </button>
-                      <button className="p-1.5 rounded-lg bg-[#15112a] hover:bg-[#231a4a] border border-[#7c3aed]/40 text-[#c4b5fd]" title="Utile">
-                        <ThumbsUp className="w-3.5 h-3.5" />
-                      </button>
-                      <button className="p-1.5 rounded-lg bg-[#15112a] hover:bg-[#231a4a] border border-[#7c3aed]/40 text-[#c4b5fd]" title="À améliorer">
-                        <ThumbsDown className="w-3.5 h-3.5" />
-                      </button>
+              <div className="max-w-4xl mx-auto w-full space-y-4">
+                {messages.map(msg => (
+                  <div
+                    key={msg.id}
+                    className={`p-4 rounded-2xl border ${
+                      msg.role === 'user'
+                        ? 'bg-[#1A1930] border-[#5A33FF44] text-white ml-auto max-w-2xl shadow-md'
+                        : 'bg-[#141328] border-[#5A33FF33] text-[#f5f3ff] max-w-3xl shadow-lg'
+                    }`}
+                  >
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-xs font-bold text-[#A89CFF] flex items-center gap-1.5">
+                        {msg.role === 'user' ? `👤 ${userProfile.displayName}` : '🧠 Bea (BehaviorLab AI)'}
+                      </span>
+                      <span className="text-[10px] text-[#A89CFF]/60">{msg.timestamp}</span>
                     </div>
-                  )}
-                </div>
-              ))}
+                    <div className="text-sm leading-relaxed whitespace-pre-line">{msg.content}</div>
+
+                    {msg.role === 'assistant' && (
+                      <div className="flex flex-wrap items-center gap-2 mt-3 pt-2.5 border-t border-[#5A33FF33] text-xs">
+                        {/* FREE SPEECH SYNTHESIS BUTTON */}
+                        <button
+                          onClick={() => toggleSpeak(msg.id, msg.content)}
+                          className={`px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 ${
+                            speakingMsgId === msg.id
+                              ? 'bg-rose-500/20 text-rose-300 border border-rose-500/40 animate-pulse'
+                              : 'bg-[#1A1930] text-[#A89CFF] hover:text-white hover:bg-[#252245] border border-[#5A33FF44]'
+                          }`}
+                          title="Écouter la réponse de Bea à voix haute (100% gratuit)"
+                        >
+                          {speakingMsgId === msg.id ? <VolumeX className="w-3.5 h-3.5" /> : <Volume2 className="w-3.5 h-3.5 text-[#8B70FF]" />}
+                          <span>{speakingMsgId === msg.id ? 'Arrêter la voix' : '🔊 Écouter Bea'}</span>
+                        </button>
+
+                        <button 
+                          onClick={() => navigator.clipboard.writeText(msg.content)}
+                          className="p-1.5 rounded-lg bg-[#151428] hover:bg-[#252245] border border-[#5A33FF33] text-[#A89CFF] hover:text-white" 
+                          title="Copier le texte"
+                        >
+                          <Copy className="w-3.5 h-3.5" />
+                        </button>
+                        <button className="p-1.5 rounded-lg bg-[#151428] hover:bg-[#252245] border border-[#5A33FF33] text-[#A89CFF] hover:text-white" title="Utile">
+                          <ThumbsUp className="w-3.5 h-3.5" />
+                        </button>
+                        <button className="p-1.5 rounded-lg bg-[#151428] hover:bg-[#252245] border border-[#5A33FF33] text-[#A89CFF] hover:text-white" title="À améliorer">
+                          <ThumbsDown className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
             </div>
 
             {/* STARTER PROMPTS ADAPTÉS AU PROFIL ACTUEL */}
-            <div className="px-4 py-2 bg-[#100b24] border-t border-[#7c3aed]/20 flex items-center gap-2 overflow-x-auto">
-              <span className="text-[10px] font-bold text-[#a78bfa] shrink-0">Suggestions profil :</span>
-              {PROFILE_METAS[userProfile.profileType]?.starterPrompts.map((prompt, pIdx) => (
-                <button
-                  key={pIdx}
-                  onClick={() => setInputMessage(prompt)}
-                  className="px-2.5 py-1 rounded-full bg-[#1b143a] hover:bg-[#2b1c5c] text-[11px] text-[#e2d6ff] border border-[#7c3aed]/40 whitespace-nowrap transition"
-                >
-                  {prompt.length > 45 ? prompt.slice(0, 45) + '...' : prompt}
-                </button>
-              ))}
+            <div className="px-4 py-2 bg-[#121124] border-t border-[#5A33FF33] overflow-x-auto">
+              <div className="max-w-4xl mx-auto w-full flex items-center gap-2">
+                <span className="text-[10px] font-bold text-[#8B70FF] shrink-0">Suggestions profil :</span>
+                {PROFILE_METAS[userProfile.profileType]?.starterPrompts.map((prompt, pIdx) => (
+                  <button
+                    key={pIdx}
+                    onClick={() => setInputMessage(prompt)}
+                    className="px-2.5 py-1 rounded-full bg-[#1A1930] hover:bg-[#252245] text-[11px] text-[#A89CFF] hover:text-white border border-[#5A33FF33] whitespace-nowrap transition"
+                  >
+                    {prompt.length > 45 ? prompt.slice(0, 45) + '...' : prompt}
+                  </button>
+                ))}
+              </div>
             </div>
 
             {/* Input Bar avec Honeypot anti-bot */}
-            <div className="p-4 bg-[#15112a] border-t border-[#7c3aed]/30 relative">
-              {/* Invisible Honeypot field for bot trapping */}
-              <input 
-                type="text" 
-                name="bea_anti_bot_check" 
-                value={honeypot} 
-                onChange={e => setHoneypot(e.target.value)} 
-                tabIndex={-1} 
-                autoComplete="off" 
-                style={{ position: 'absolute', opacity: 0, height: 0, width: 0, zIndex: -1 }} 
-              />
+            <div className="p-3 md:p-4 bg-[#0F0E1E] border-t border-[#5A33FF33] relative">
+              <div className="max-w-4xl mx-auto w-full">
+                {/* Invisible Honeypot field for bot trapping */}
+                <input 
+                  type="text" 
+                  name="bea_anti_bot_check" 
+                  value={honeypot} 
+                  onChange={e => setHoneypot(e.target.value)} 
+                  tabIndex={-1} 
+                  autoComplete="off" 
+                  style={{ position: 'absolute', opacity: 0, height: 0, width: 0, zIndex: -1 }} 
+                />
 
-              {/* ChatGPT / Claude / Gemini style Prompt Input Box */}
-              <div className="bg-[#212121] border border-[#383838] hover:border-zinc-600 focus-within:border-zinc-500 rounded-[26px] p-3 shadow-lg transition-all duration-200">
-                {/* Textarea area */}
-                <div className="px-1.5 pt-0.5">
-                  <textarea
-                    rows={1}
-                    value={inputMessage}
-                    onChange={e => {
-                      setInputMessage(e.target.value);
-                      e.target.style.height = 'auto';
-                      e.target.style.height = Math.min(e.target.scrollHeight, 160) + 'px';
-                    }}
-                    onKeyDown={e => {
-                      if (e.key === 'Enter' && !e.shiftKey) {
-                        e.preventDefault();
-                        handleSend();
-                      }
-                    }}
-                    placeholder={`Envoyer un message à Bea (${PROFILE_METAS[userProfile.profileType]?.label})...`}
-                    className="w-full bg-transparent text-white text-[15px] placeholder-zinc-400 resize-none focus:outline-none min-h-[42px] max-h-[160px] leading-relaxed selection:bg-zinc-700"
-                  />
-                </div>
+                {/* Barre de saisie de prompt ergonomique Bea */}
+                <div className="bg-[#1A1930] border border-[#5A33FF44] hover:border-[#5A33FF88] focus-within:border-[#8B70FF] rounded-[26px] p-3 shadow-xl transition-all duration-200">
+                  {/* Textarea area */}
+                  <div className="px-1.5 pt-0.5">
+                    <textarea
+                      rows={1}
+                      value={inputMessage}
+                      onChange={e => {
+                        setInputMessage(e.target.value);
+                        e.target.style.height = 'auto';
+                        e.target.style.height = Math.min(e.target.scrollHeight, 160) + 'px';
+                      }}
+                      onKeyDown={e => {
+                        if (e.key === 'Enter' && !e.shiftKey) {
+                          e.preventDefault();
+                          handleSend();
+                        }
+                      }}
+                      placeholder={`Envoyer un message à Bea (${PROFILE_METAS[userProfile.profileType]?.label})...`}
+                      className="w-full bg-transparent text-white text-[15px] placeholder-[#A89CFF]/60 resize-none focus:outline-none min-h-[42px] max-h-[160px] leading-relaxed selection:bg-[#5A33FF]/40"
+                    />
+                  </div>
 
-                {/* Action row: + tout à gauche, sélecteur de modèle à côté, micro et flèche à droite de taille strictement identique */}
-                <div className="flex items-center justify-between pt-1.5 px-0.5 gap-2">
-                  {/* Left group: '+' et Modèle (Rapide / Puissant) */}
-                  <div className="flex items-center gap-1.5">
-                    {/* '+' button */}
-                    <div className="relative">
-                      <button
-                        type="button"
-                        onClick={() => setShowPlusMenu(!showPlusMenu)}
-                        className={`w-9 h-9 rounded-full flex items-center justify-center transition-all duration-150 ${
-                          showPlusMenu 
-                            ? 'bg-zinc-700 text-white' 
-                            : 'text-zinc-400 hover:text-white hover:bg-zinc-800'
-                        }`}
-                        title="Ajouter un document ou une action rapide"
-                      >
-                        <Plus className={`w-4 h-4 transition-transform duration-200 ${showPlusMenu ? 'rotate-45' : ''}`} />
-                      </button>
+                  {/* Action row: + tout à gauche (avec modèle intégré dedans), micro et flèche à droite de taille strictement identique */}
+                  <div className="flex items-center justify-between pt-1.5 px-0.5 gap-2">
+                    {/* Left group: SEULEMENT le bouton '+' (aucun bouton de modèle superposé) */}
+                    <div className="flex items-center">
+                      <div className="relative">
+                        <button
+                          type="button"
+                          onClick={() => setShowPlusMenu(!showPlusMenu)}
+                          className={`w-9 h-9 rounded-full flex items-center justify-center transition-all duration-150 border ${
+                            showPlusMenu 
+                              ? 'bg-gradient-to-r from-[#1E1B8C] to-[#5A33FF] text-white border-[#5A33FF]' 
+                              : 'bg-[#151428] hover:bg-[#252245] border-[#5A33FF33] text-[#A89CFF] hover:text-white'
+                          }`}
+                          title="Modèle IA, document ou action rapide"
+                        >
+                          <Plus className={`w-4 h-4 transition-transform duration-200 ${showPlusMenu ? 'rotate-45' : ''}`} />
+                        </button>
 
-                      {showPlusMenu && (
-                        <div className="absolute bottom-11 left-0 z-50 w-72 bg-[#262626] border border-zinc-700 rounded-2xl p-2 shadow-2xl space-y-1 animate-in fade-in slide-in-from-bottom-2">
-                          <div className="text-[10px] font-semibold text-zinc-400 px-2.5 py-1 uppercase tracking-wider">
-                            Ajouter à la discussion
-                          </div>
-                          <button
-                            type="button"
-                            onClick={() => {
-                              const fileInput = document.createElement('input');
-                              fileInput.type = 'file';
-                              fileInput.accept = '.txt,.md,.pdf,.csv,.py,.js,.json';
-                              fileInput.onchange = (ev: any) => {
-                                const file = ev.target?.files?.[0];
-                                if (file) {
-                                  setInputMessage(prev => (prev ? prev + '\n' : '') + `[Fichier joint : ${file.name}] `);
+                        {showPlusMenu && (
+                          <div className="absolute bottom-11 left-0 z-50 w-72 max-w-[calc(100vw-32px)] bg-[#1A1930] border border-[#5A33FF55] rounded-2xl p-2.5 shadow-2xl space-y-2 animate-in fade-in slide-in-from-bottom-2">
+                            {/* SÉLECTEUR DE MODÈLE INTÉGRÉ DIRECTEMENT DANS LE PLUS */}
+                            <div>
+                              <div className="text-[10px] font-bold text-[#8B70FF] px-2 py-1 uppercase tracking-wider flex items-center justify-between">
+                                <span>Modèle IA</span>
+                                <span className="text-[9px] text-[#A89CFF] font-normal">Choisi pour le chat</span>
+                              </div>
+                              <div className="grid grid-cols-2 gap-1.5 p-1 bg-[#131226] rounded-xl border border-[#5A33FF33]">
+                                <button
+                                  type="button"
+                                  onClick={() => setModelChoice('rapide')}
+                                  className={`px-2 py-2 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition ${
+                                    modelChoice === 'rapide'
+                                      ? 'bg-gradient-to-r from-[#1E1B8C] to-[#5A33FF] text-white shadow'
+                                      : 'text-[#A89CFF] hover:text-white hover:bg-[#1E1B8C]/20'
+                                  }`}
+                                >
+                                  <Zap className="w-3.5 h-3.5 text-amber-300" />
+                                  <div className="text-left">
+                                    <div className="leading-tight text-[11px]">Llama instant</div>
+                                    <div className="text-[9px] opacity-75 font-normal">Ultra rapide</div>
+                                  </div>
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => setModelChoice('puissant')}
+                                  className={`px-2 py-2 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition ${
+                                    modelChoice === 'puissant'
+                                      ? 'bg-gradient-to-r from-[#1E1B8C] to-[#5A33FF] text-white shadow'
+                                      : 'text-[#A89CFF] hover:text-white hover:bg-[#1E1B8C]/20'
+                                  }`}
+                                >
+                                  <Brain className="w-3.5 h-3.5 text-purple-300" />
+                                  <div className="text-left">
+                                    <div className="leading-tight text-[11px]">Puissant (70B)</div>
+                                    <div className="text-[9px] opacity-75 font-normal">Raisonnement</div>
+                                  </div>
+                                </button>
+                              </div>
+                            </div>
+
+                            <div className="border-t border-[#5A33FF33] pt-1">
+                              <div className="text-[10px] font-semibold text-[#8B70FF] px-2 py-0.5 uppercase tracking-wider">
+                                Ajouter à la discussion
+                              </div>
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  const fileInput = document.createElement('input');
+                                  fileInput.type = 'file';
+                                  fileInput.accept = '.txt,.md,.pdf,.csv,.py,.js,.json';
+                                  fileInput.onchange = (ev: any) => {
+                                    const file = ev.target?.files?.[0];
+                                    if (file) {
+                                      setInputMessage(prev => (prev ? prev + '\n' : '') + `[Fichier joint : ${file.name}] `);
+                                      setShowPlusMenu(false);
+                                    }
+                                  };
+                                  fileInput.click();
+                                }}
+                                className="w-full text-left px-2.5 py-1.5 rounded-xl text-xs text-[#E2D6FF] hover:bg-[#252245] hover:text-white transition flex items-center gap-2"
+                              >
+                                <span className="text-sm">📎</span>
+                                <div>
+                                  <div className="font-medium">Joindre un document</div>
+                                  <div className="text-[10px] text-[#A89CFF]">PDF, TXT, code ou notes</div>
+                                </div>
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setInputMessage("Analyse ce blocage et donne-moi les 3 leviers comportementaux concrets :");
                                   setShowPlusMenu(false);
-                                }
-                              };
-                              fileInput.click();
-                            }}
-                            className="w-full text-left px-3 py-2 rounded-xl text-xs text-zinc-200 hover:bg-zinc-700/60 hover:text-white transition flex items-center gap-2.5"
-                          >
-                            <span className="text-base">📎</span>
-                            <div>
-                              <div className="font-medium">Joindre un document</div>
-                              <div className="text-[10px] text-zinc-400">PDF, TXT, code ou notes</div>
+                                }}
+                                className="w-full text-left px-2.5 py-1.5 rounded-xl text-xs text-[#E2D6FF] hover:bg-[#252245] hover:text-white transition flex items-center gap-2"
+                              >
+                                <span className="text-sm">🧠</span>
+                                <div>
+                                  <div className="font-medium">Analyser un blocage</div>
+                                  <div className="text-[10px] text-[#A89CFF]">Méthode comportementale</div>
+                                </div>
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setInputMessage("Donne-moi 3 actions rapides pour avancer aujourd'hui :");
+                                  setShowPlusMenu(false);
+                                }}
+                                className="w-full text-left px-2.5 py-1.5 rounded-xl text-xs text-[#E2D6FF] hover:bg-[#252245] hover:text-white transition flex items-center gap-2"
+                              >
+                                <span className="text-sm">🎯</span>
+                                <div>
+                                  <div className="font-medium">Plan d'action en 3 étapes</div>
+                                  <div className="text-[10px] text-[#A89CFF]">Passage immédiat à l'action</div>
+                                </div>
+                              </button>
                             </div>
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => {
-                              setInputMessage("Analyse ce blocage et donne-moi les 3 leviers comportementaux concrets :");
-                              setShowPlusMenu(false);
-                            }}
-                            className="w-full text-left px-3 py-2 rounded-xl text-xs text-zinc-200 hover:bg-zinc-700/60 hover:text-white transition flex items-center gap-2.5"
-                          >
-                            <span className="text-base">🧠</span>
-                            <div>
-                              <div className="font-medium">Analyser un blocage</div>
-                              <div className="text-[10px] text-zinc-400">Méthode comportementale</div>
-                            </div>
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => {
-                              setInputMessage("Donne-moi 3 actions rapides pour avancer aujourd'hui :");
-                              setShowPlusMenu(false);
-                            }}
-                            className="w-full text-left px-3 py-2 rounded-xl text-xs text-zinc-200 hover:bg-zinc-700/60 hover:text-white transition flex items-center gap-2.5"
-                          >
-                            <span className="text-base">🎯</span>
-                            <div>
-                              <div className="font-medium">Plan d'action en 3 étapes</div>
-                              <div className="text-[10px] text-zinc-400">Passage immédiat à l'action</div>
-                            </div>
-                          </button>
-                        </div>
-                      )}
+                          </div>
+                        )}
+                      </div>
                     </div>
 
-                    {/* SÉLECTEUR DE MODÈLE (RAPIDE / PUISSANT) DANS LA CASE D'ENVOI */}
-                    <div className="relative">
+                    {/* Right side buttons: Micro et Flèche d'envoi DE TAILLE STRICTEMENT IDENTIQUE (36px x 36px) */}
+                    <div className="flex items-center gap-2 ml-auto shrink-0">
+                      {/* Microphone button: STRICTEMENT LA MÊME TAILLE que la flèche (w-9 h-9 / 36px) */}
                       <button
                         type="button"
-                        onClick={() => setShowModelMenu(!showModelMenu)}
-                        className="h-9 px-3 rounded-full bg-zinc-800 hover:bg-zinc-700/90 border border-zinc-700 text-xs font-semibold text-zinc-200 hover:text-white transition flex items-center gap-1.5 shadow-sm active:scale-95"
-                        title="Changer de modèle IA"
+                        onClick={handleToggleVoiceRecording}
+                        className={`w-9 h-9 rounded-full flex items-center justify-center transition-all duration-150 shrink-0 border ${
+                          isRecordingVoice
+                            ? 'bg-rose-600 text-white border-rose-500 animate-pulse shadow-md'
+                            : 'bg-[#151428] hover:bg-[#252245] text-[#A89CFF] hover:text-white border-[#5A33FF44] shadow-sm'
+                        }`}
+                        title={isRecordingVoice ? 'Arrêter la dictée vocale' : 'Dictée vocale gratuite (Microphone)'}
                       >
-                        {modelChoice === 'rapide' ? (
-                          <>
-                            <Zap className="w-3.5 h-3.5 text-amber-400 fill-amber-400/20" />
-                            <span>Rapide</span>
-                          </>
-                        ) : (
-                          <>
-                            <Brain className="w-3.5 h-3.5 text-purple-400" />
-                            <span>Puissant</span>
-                          </>
-                        )}
-                        <span className="text-[10px] text-zinc-400">▾</span>
+                        <Mic className="w-4 h-4" />
                       </button>
 
-                      {showModelMenu && (
-                        <div className="absolute bottom-11 left-0 z-50 w-64 bg-[#262626] border border-zinc-700 rounded-2xl p-2 shadow-2xl space-y-1 animate-in fade-in slide-in-from-bottom-2">
-                          <div className="text-[10px] font-semibold text-zinc-400 px-2.5 py-1 uppercase tracking-wider">
-                            Modèle IA sélectionné
-                          </div>
-                          <button
-                            type="button"
-                            onClick={() => {
-                              setModelChoice('rapide');
-                              setShowModelMenu(false);
-                            }}
-                            className={`w-full text-left px-3 py-2 rounded-xl text-xs transition flex items-center justify-between ${
-                              modelChoice === 'rapide' ? 'bg-zinc-700 text-white font-bold' : 'text-zinc-300 hover:bg-zinc-700/50'
-                            }`}
-                          >
-                            <div className="flex items-center gap-2">
-                              <Zap className="w-3.5 h-3.5 text-amber-400 fill-amber-400/20" />
-                              <div>
-                                <div className="font-semibold">Rapide</div>
-                                <div className="text-[10px] text-zinc-400">Réponse instantanée (Llama 8B / Flash)</div>
-                              </div>
-                            </div>
-                            {modelChoice === 'rapide' && <Check className="w-3.5 h-3.5 text-emerald-400" />}
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => {
-                              setModelChoice('puissant');
-                              setShowModelMenu(false);
-                            }}
-                            className={`w-full text-left px-3 py-2 rounded-xl text-xs transition flex items-center justify-between ${
-                              modelChoice === 'puissant' ? 'bg-zinc-700 text-white font-bold' : 'text-zinc-300 hover:bg-zinc-700/50'
-                            }`}
-                          >
-                            <div className="flex items-center gap-2">
-                              <Brain className="w-3.5 h-3.5 text-purple-400" />
-                              <div>
-                                <div className="font-semibold">Puissant</div>
-                                <div className="text-[10px] text-zinc-400">Raisonnement profond (Llama 70B / Pro)</div>
-                              </div>
-                            </div>
-                            {modelChoice === 'puissant' && <Check className="w-3.5 h-3.5 text-emerald-400" />}
-                          </button>
-                        </div>
-                      )}
+                      {/* Send Arrow button: tout à droite, STRICTEMENT LA MÊME TAILLE que le micro (w-9 h-9 / 36px) */}
+                      <button
+                        type="button"
+                        onClick={handleSend}
+                        disabled={!inputMessage.trim()}
+                        className={`w-9 h-9 rounded-full flex items-center justify-center transition-all duration-150 shrink-0 ${
+                          inputMessage.trim()
+                            ? 'bg-gradient-to-r from-[#1E1B8C] to-[#5A33FF] text-white hover:brightness-110 active:scale-95 shadow-md font-bold cursor-pointer'
+                            : 'bg-[#151428] text-[#A89CFF]/40 border border-[#5A33FF22] cursor-not-allowed'
+                        }`}
+                        title="Envoyer le message (Entrée)"
+                      >
+                        <ArrowUp className="w-4 h-4 stroke-[2.5]" />
+                      </button>
                     </div>
                   </div>
-
-                  {/* Right side buttons: Micro et Flèche d'envoi DE TAILLE STRICTEMENT IDENTIQUE */}
-                  <div className="flex items-center gap-2 ml-auto shrink-0">
-                    {/* Microphone button: STRICTEMENT LA MÊME TAILLE que la flèche (w-9 h-9) */}
-                    <button
-                      type="button"
-                      onClick={handleToggleVoiceRecording}
-                      className={`w-9 h-9 rounded-full flex items-center justify-center transition-all duration-150 shrink-0 border ${
-                        isRecordingVoice
-                          ? 'bg-rose-600 text-white border-rose-500 animate-pulse shadow-md'
-                          : 'bg-zinc-800 hover:bg-zinc-700 text-zinc-300 hover:text-white border-zinc-700/80 shadow-sm'
-                      }`}
-                      title={isRecordingVoice ? 'Arrêter la dictée vocale' : 'Dictée vocale gratuite (Microphone)'}
-                    >
-                      <Mic className="w-4 h-4" />
-                    </button>
-
-                    {/* Send Arrow button: tout à droite, STRICTEMENT LA MÊME TAILLE que le micro (w-9 h-9) */}
-                    <button
-                      type="button"
-                      onClick={handleSend}
-                      disabled={!inputMessage.trim()}
-                      className={`w-9 h-9 rounded-full flex items-center justify-center transition-all duration-150 shrink-0 ${
-                        inputMessage.trim()
-                          ? 'bg-white text-black hover:bg-zinc-200 active:scale-95 shadow-md font-bold cursor-pointer'
-                          : 'bg-zinc-800 text-zinc-500 border border-zinc-700/60 cursor-not-allowed'
-                      }`}
-                      title="Envoyer le message (Entrée)"
-                    >
-                      <ArrowUp className="w-4 h-4 stroke-[2.5]" />
-                    </button>
-                  </div>
                 </div>
-              </div>
 
-              {/* Discreet helper underneath */}
-              <div className="text-center text-[11px] text-zinc-500 pt-2">
-                <span>Bea peut faire des erreurs. BehaviorLab AI.</span>
+                {/* Discreet helper underneath */}
+                <div className="text-center text-[11px] text-[#A89CFF]/70 pt-2">
+                  <span>Bea peut faire des erreurs. BehaviorLab AI. Modèle actif : {modelChoice === 'rapide' ? '⚡ Llama instant' : '🧠 Puissant (70B)'}</span>
+                </div>
               </div>
             </div>
           </div>
@@ -1065,6 +1104,13 @@ Voici ton plan d'action immédiat pour débloquer l'exécution.`;
                 Modifier ce module dans le Labo Dev
               </button>
             </div>
+          </div>
+        )}
+
+        {/* 9. PARAMÈTRES AVANCÉS DU MOTEUR IA */}
+        {currentPage === 'parametres' && (
+          <div className="flex-1 p-4 md:p-6 overflow-y-auto">
+            <AiSettingsPanel />
           </div>
         )}
       </div>

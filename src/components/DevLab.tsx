@@ -38,7 +38,7 @@ interface DevLabProps {
 export const DevLab: React.FC<DevLabProps> = ({ onGoToProd, onViewFullCode }) => {
   const [selectedLevel, setSelectedLevel] = useState<ModifLevelId>('3');
   const [activeTab, setActiveTab] = useState<'modify' | 'diff' | 'backups' | 'guide' | 'roadmap'>('modify');
-  const [modelChoice, setModelChoice] = useState('openai/gpt-oss-120b');
+  const [modelChoice, setModelChoice] = useState('llama-3.3-70b-versatile');
   const [backupName, setBackupName] = useState(`backup_lvl3_${new Date().toISOString().slice(0, 10).replace(/-/g, '')}`);
   const [selectedTargetLabel, setSelectedTargetLabel] = useState<string>('Comportement de base de Bea (SYSTEM_BEHAVIOR_BASE)');
   const [selectedSubLevelId, setSelectedSubLevelId] = useState<string>('3.1');
@@ -84,7 +84,7 @@ export const DevLab: React.FC<DevLabProps> = ({ onGoToProd, onViewFullCode }) =>
       timestamp: 'Aujourd\'hui 10:14:12',
       level: '1',
       target: 'CSS_STYLES',
-      summary: 'Thème neutre épuré style ChatGPT / Claude',
+      summary: 'Thème neutre épuré & minimaliste',
       codeSnippet: '.stApp { background: #121214 !important; }',
     },
     {
@@ -467,10 +467,8 @@ export const DevLab: React.FC<DevLabProps> = ({ onGoToProd, onViewFullCode }) =>
                   onChange={e => setModelChoice(e.target.value)}
                   className="w-full bg-[#212121] border border-zinc-700 text-white text-xs font-medium rounded-xl px-3.5 py-2.5 focus:outline-none focus:border-zinc-500"
                 >
-                  <option value="openai/gpt-oss-120b">GPT OSS 120B (Ultra recommandé)</option>
-                  <option value="llama-3.3-70b-versatile">Llama 3.3 70B (Puissant)</option>
-                  <option value="openai/gpt-oss-20b">GPT OSS 20B (Codeur)</option>
-                  <option value="llama-3.1-8b-instant">Llama 3.1 8B (Instantané)</option>
+                  <option value="llama-3.3-70b-versatile">Llama 3.3 70B (Ultra recommandé)</option>
+                  <option value="llama-3.1-8b-instant">Llama Instant (Rapide)</option>
                 </select>
               </div>
             </div>
@@ -629,7 +627,7 @@ export const DevLab: React.FC<DevLabProps> = ({ onGoToProd, onViewFullCode }) =>
               Ce qui sépare Bea d'un outil IA dans le TOP 10 MONDIAL
             </h2>
             <p className="text-xs md:text-sm text-zinc-300 leading-relaxed max-w-3xl">
-              Pour rivaliser avec les géants mondiaux (ChatGPT, Claude, Cursor, Perplexity, Midjourney, v0), un outil ne peut pas se contenter d'un simple chat passif. Il doit être <strong>multimodal, proactif, doté d'une mémoire cognitive profonde et d'un environnement de création en direct</strong>.
+              Pour offrir une intelligence artificielle de rang mondial, un outil ne peut pas se contenter d'un simple chat passif. Il doit être <strong>multimodal, proactif, doté d'une mémoire cognitive profonde et d'un environnement de création en direct</strong>.
             </p>
           </div>
 
@@ -646,7 +644,7 @@ export const DevLab: React.FC<DevLabProps> = ({ onGoToProd, onViewFullCode }) =>
                   </div>
                   <div>
                     <h3 className="font-bold text-sm text-white">1. Voix Full-Duplex & Latence &lt;250ms</h3>
-                    <div className="text-[10px] text-zinc-400">Comme ChatGPT Advanced Voice & Gemini Live</div>
+                    <div className="text-[10px] text-zinc-400">Audio bidirectionnel temps réel haute fidélité</div>
                   </div>
                 </div>
                 <button
@@ -707,7 +705,7 @@ export const DevLab: React.FC<DevLabProps> = ({ onGoToProd, onViewFullCode }) =>
                     ⚡
                   </div>
                   <div>
-                    <h3 className="font-bold text-sm text-white">3. Espace Double-Canvas (Style Claude Artifacts & Cursor)</h3>
+                    <h3 className="font-bold text-sm text-white">3. Espace Double-Canvas & Studio de Code Live</h3>
                     <div className="text-[10px] text-zinc-400">Le chat à gauche, le produit vivant à droite</div>
                   </div>
                 </div>
@@ -825,7 +823,7 @@ export const DevLab: React.FC<DevLabProps> = ({ onGoToProd, onViewFullCode }) =>
           {/* MATRICE COMPARATIVE */}
           <div className="p-6 bg-[#212121] border border-zinc-700 rounded-2xl space-y-4">
             <h3 className="font-bold text-base text-white flex items-center gap-2">
-              <span>Comparatif mondial : Bea vs ChatGPT vs Claude vs Cursor</span>
+              <span>Matrice d'excellence : Bea vs IA Générique Standard vs Outils de Code Classiques</span>
             </h3>
             <div className="overflow-x-auto">
               <table className="w-full text-xs text-left">
@@ -833,16 +831,14 @@ export const DevLab: React.FC<DevLabProps> = ({ onGoToProd, onViewFullCode }) =>
                   <tr>
                     <th className="py-2.5 pr-4">Capacité</th>
                     <th className="py-2.5 px-3 font-bold text-white">Bea (BehaviorLab AI)</th>
-                    <th className="py-2.5 px-3 text-zinc-400">ChatGPT (OpenAI)</th>
-                    <th className="py-2.5 px-3 text-zinc-400">Claude (Anthropic)</th>
-                    <th className="py-2.5 px-3 text-zinc-400">Cursor / v0</th>
+                    <th className="py-2.5 px-3 text-zinc-400">IA Conversationnelle Standard</th>
+                    <th className="py-2.5 px-3 text-zinc-400">Outils de Code Classiques</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-zinc-800 text-zinc-300">
                   <tr>
                     <td className="py-2.5 pr-4 font-semibold text-white">Psychologie Comportementale Fogg</td>
-                    <td className="py-2.5 px-3 text-emerald-400 font-bold">✓ Cœur natif (5 étapes)</td>
-                    <td className="py-2.5 px-3 text-zinc-500">Générique</td>
+                    <td className="py-2.5 px-3 text-emerald-400 font-bold">✓ Cœur natif & analyse agile</td>
                     <td className="py-2.5 px-3 text-zinc-500">Générique</td>
                     <td className="py-2.5 px-3 text-zinc-500">Non</td>
                   </tr>
@@ -850,28 +846,24 @@ export const DevLab: React.FC<DevLabProps> = ({ onGoToProd, onViewFullCode }) =>
                     <td className="py-2.5 pr-4 font-semibold text-white">Validation AST Anti-Crash Directe</td>
                     <td className="py-2.5 px-3 text-emerald-400 font-bold">✓ 8 Niveaux chirurgicaux</td>
                     <td className="py-2.5 px-3 text-zinc-500">Non</td>
-                    <td className="py-2.5 px-3 text-zinc-500">Non</td>
-                    <td className="py-2.5 px-3 text-cyan-400">Partiel (IDE)</td>
+                    <td className="py-2.5 px-3 text-cyan-400">Partiel (IDE local)</td>
                   </tr>
                   <tr>
                     <td className="py-2.5 pr-4 font-semibold text-white">Bâtisseur Web & Studio Visuel</td>
                     <td className="py-2.5 px-3 text-emerald-400 font-bold">✓ Intégré sans quitter l'app</td>
-                    <td className="py-2.5 px-3 text-zinc-500">Code brut</td>
-                    <td className="py-2.5 px-3 text-purple-400">Artifacts</td>
-                    <td className="py-2.5 px-3 text-cyan-400">v0 externe</td>
+                    <td className="py-2.5 px-3 text-zinc-500">Code brut textuel</td>
+                    <td className="py-2.5 px-3 text-cyan-400">Outils séparés</td>
                   </tr>
                   <tr>
                     <td className="py-2.5 pr-4 font-semibold text-white">Mémoire d'Habitudes & Streaks</td>
-                    <td className="py-2.5 px-3 text-emerald-400 font-bold">✓ Suivi de régularité</td>
-                    <td className="py-2.5 px-3 text-zinc-400">Mémoire simple</td>
-                    <td className="py-2.5 px-3 text-zinc-500">Projets</td>
+                    <td className="py-2.5 px-3 text-emerald-400 font-bold">✓ Suivi de régularité & momentum</td>
+                    <td className="py-2.5 px-3 text-zinc-400">Historique basique</td>
                     <td className="py-2.5 px-3 text-zinc-500">Non</td>
                   </tr>
                   <tr>
                     <td className="py-2.5 pr-4 font-semibold text-white">15 Langues en Vitrine & App</td>
                     <td className="py-2.5 px-3 text-emerald-400 font-bold">✓ Inclus Wolof & Monde</td>
-                    <td className="py-2.5 px-3 text-zinc-400">Multiples</td>
-                    <td className="py-2.5 px-3 text-zinc-400">Multiples</td>
+                    <td className="py-2.5 px-3 text-zinc-400">Partiel</td>
                     <td className="py-2.5 px-3 text-zinc-500">Anglais prioritaire</td>
                   </tr>
                 </tbody>

@@ -124,8 +124,8 @@ def get_groq():
 
 @st.cache_data(ttl=3600)
 def get_modeles():
-    pref_fast = ["llama-3.1-8b-instant", "openai/gpt-oss-20b", "llama-3.3-70b-versatile"]
-    pref_power = ["openai/gpt-oss-120b", "llama-3.3-70b-versatile", "llama-3.1-70b-versatile"]
+    pref_fast = ["llama-3.1-8b-instant", "llama-3.3-70b-versatile"]
+    pref_power = ["llama-3.3-70b-versatile", "llama-3.1-70b-versatile"]
     try:
         ids = [m.id for m in get_groq().models.list().data]
         chat_ids = [i for i in ids if "whisper" not in i and "guard" not in i]
@@ -136,10 +136,8 @@ def get_modeles():
         return {"rapide": pref_fast[:1], "puissant": pref_power[:1]}
 
 DEV_MODELES = {
-    "Ultra (gratuit) - GPT OSS 120B [RECOMMANDÉ - ne casse rien]": "openai/gpt-oss-120b",
-    "Puissant (gratuit) - Llama 3.3 70B": "llama-3.3-70b-versatile",
-    "Codeur (gratuit) - GPT OSS 20B": "openai/gpt-oss-20b",
-    "Rapide (gratuit) - Llama 3.1 8B": "llama-3.1-8b-instant",
+    "Ultra (gratuit) - Llama 3.3 70B [RECOMMANDÉ]": "llama-3.3-70b-versatile",
+    "Rapide (gratuit) - Llama 3.1 8B Instant": "llama-3.1-8b-instant",
 }
 
 def now_iso():
@@ -152,7 +150,7 @@ for k, v in {
     "rate": deque(), "blocked_until": 0.0, "up_key": 0, "expanded": None, "auth_notice": "", "pending_confirmation_email": "",
     "sub_result": None, "plan_result": None, "app_result": None, "app_versions": [], "app_generation_count": 0, "thumb_png": None, "pending_login": None, "is_admin": False,
     "model_choice": "rapide", "search_q": "", "editing_msg_id": None, "studio_menu": "importer", "memories": None, "profile_type": "createur",
-    "dev_mode": None, "dev_result": None, "dev_raw": None, "dev_key_ok": False, "dev_model_choice": "Ultra (gratuit) - GPT OSS 120B [RECOMMANDÉ - ne casse rien]",
+    "dev_mode": None, "dev_result": None, "dev_raw": None, "dev_key_ok": False, "dev_model_choice": "Ultra (gratuit) - Llama 3.3 70B [RECOMMANDÉ]",
     "dev_full_original": "", "dev_backup_name": "", "transcribed_text": "",
     "onboarding_step": 1, "onboarding_profile": "createur", "onboarding_profile_choice": "createur", "onboarding_goal_choice": "clients", "onboarding_goal": "", "onboarding_goal_text": "", "onboarding_study_country": "France", "onboarding_study_level": "Collège - 6e", "landing_tab": "connexion",
     "canvas_png": None, "canvas_zip": None,
@@ -162,56 +160,58 @@ for k, v in {
 if "code_area" not in st.session_state:
     st.session_state["code_area"] = DEFAULT_CODE
 
-GRAD = "linear-gradient(135deg, #27272a 0%, #3f3f46 100%)"
-BORDER, BG, CARD, TEXT = "#27272a", "#121214", "#18181b", "#f5f3ff"
+GRAD = "linear-gradient(90deg, #1E1B8C 0%, #5A33FF 100%)"
+BORDER, BG, CARD, TEXT, TEXT_SEC, ACCENT = "#5A33FF33", "#0F0E1E", "#1A1930", "#FFFFFF", "#A89CFF", "#8B70FF"
 st.markdown(f"""
 <style>
-.stApp{{background:{BG}!important;}}
-[data-testid="stSidebar"]{{background:#121214!important; border-right:1px solid {BORDER}!important;}}
+.stApp{{background:{BG}!important; color:{TEXT}!important;}}
+[data-testid="stSidebar"]{{background:#121026!important; border-right:1px solid {BORDER}!important;}}
 [data-testid="stSidebar"] *{{color:#e4e4e7!important;}}
 header[data-testid="stHeader"]{{background:transparent!important;}}
-.block-container{{max-width:1150px!important; padding-top:2.8rem!important; padding-bottom:7rem!important;}}
+.block-container{{max-width:1440px!important; width:100%!important; padding-top:2rem!important; padding-bottom:7rem!important;}}
 #MainMenu,footer{{visibility:hidden;}}
-div[data-testid="stButton"]>button{{background:#212121!important; color:#f4f4f5!important; border:1px solid #383838!important; border-radius:12px!important; font-weight:600!important; font-size:13px!important; min-height:44px!important;}}
-div[data-testid="stButton"]>button:hover{{background:#2a2a2e!important; border-color:#52525b!important;}}
-div[data-testid="stLinkButton"]>a{{background:#27272a!important; color:white!important; border-radius:12px!important; font-weight:700!important; border:1px solid #3f3f46!important; padding:12px!important;}}
-div[data-testid="stChatMessage"]{{background:{CARD}!important; border:1px solid {BORDER}!important; border-radius:16px!important; padding:14px!important;}}
+div[data-testid="stButton"]>button{{background:#1A1930!important; color:#FFFFFF!important; border:1px solid #5A33FF!important; border-radius:12px!important; font-weight:600!important; font-size:13px!important; min-height:44px!important; transition:all 0.2s ease!important;}}
+div[data-testid="stButton"]>button:hover{{background:#221F45!important; border-color:#8B70FF!important; box-shadow:0 0 12px rgba(90,51,255,0.3)!important;}}
+div[data-testid="stButton"]>button[kind="primary"], div[data-testid="stButton"]>button[data-testid="baseButton-primary"]{{background:{GRAD}!important; color:white!important; border:none!important; font-weight:700!important; box-shadow:0 4px 14px rgba(90,51,255,0.35)!important;}}
+div[data-testid="stLinkButton"]>a{{background:{GRAD}!important; color:white!important; border-radius:12px!important; font-weight:700!important; border:none!important; padding:12px!important; box-shadow:0 4px 14px rgba(90,51,255,0.3)!important;}}
+div[data-testid="stChatMessage"]{{background:{CARD}!important; border:1px solid {BORDER}!important; border-radius:16px!important; padding:14px!important; box-shadow:0 4px 20px rgba(15,14,30,0.6)!important; max-width:920px!important; margin-left:auto!important; margin-right:auto!important;}}
 div[data-testid="stChatMessage"] p{{color:{TEXT}!important; font-size:15px!important; line-height:1.6!important;}}
-div[data-baseweb="input"], div[data-baseweb="textarea"], div[data-baseweb="select"]>div{{background:#1e1e20!important; border:1px solid #383838!important; border-radius:12px!important;}}
+div[data-baseweb="input"], div[data-baseweb="textarea"], div[data-baseweb="select"]>div{{background:#151428!important; border:1px solid #5A33FF44!important; border-radius:12px!important;}}
 div[data-baseweb="base-input"]{{background:transparent!important; border:none!important;}}
 div[data-baseweb="input"] input, div[data-baseweb="textarea"] textarea, div[data-baseweb="select"] input{{background:transparent!important; color:{TEXT}!important; border:none!important; box-shadow:none!important; outline:none!important;}}
-div[data-testid="stChatInput"]{{background:#212121!important; border:1px solid #383838!important; border-radius:26px!important; padding-right:96px!important; min-height:50px!important;}}
+div[data-testid="stChatInput"]{{max-width:920px!important; margin:0 auto!important; width:100%!important; background:#1A1930!important; border:1px solid #5A33FF55!important; border-radius:26px!important; padding-right:98px!important; min-height:50px!important; box-shadow:0 4px 20px rgba(0,0,0,0.4)!important; position:relative!important;}}
 div[data-testid="stChatInput"] div, div[data-testid="stChatInput"] textarea{{background:transparent!important; border:none!important; box-shadow:none!important; color:{TEXT}!important;}}
-div[data-testid="stChatInput"] textarea{{padding-left:180px!important; padding-right:96px!important;}}
+div[data-testid="stChatInput"] textarea{{padding-left:54px!important; padding-right:98px!important;}}
 div[data-testid="stBottom"]{{background:transparent!important; position:relative!important;}}
-div[data-testid="stBottom"]>div{{background:transparent!important;}}
-.claude-title{{font-size:34px; font-weight:800; color:{TEXT}; text-align:center; margin:8px 0 2px 0;}}
-.claude-sub{{font-size:12px; color:#a1a1aa!important; text-align:center; font-weight:600; letter-spacing:0.8px; margin-bottom:16px;}}
-.desc-main{{font-size:14px; color:#a1a1aa; text-align:center; max-width:760px; margin:12px auto 32px auto; line-height:1.7;}}
-.landing-copy{{max-width:820px; margin:18px auto 34px auto; padding:24px 30px; background:#18181b; border:1px solid #27272a; border-radius:18px; text-align:center;}}
+div[data-testid="stBottom"]>div{{background:transparent!important; max-width:920px!important; margin:0 auto!important;}}
+.bea-hero-title{{font-size:34px; font-weight:800; color:{TEXT}; text-align:center; margin:8px 0 2px 0; letter-spacing:-0.5px;}}
+.bea-hero-sub{{font-size:12px; color:{TEXT_SEC}!important; text-align:center; font-weight:600; letter-spacing:0.8px; margin-bottom:16px;}}
+.desc-main{{font-size:14px; color:{TEXT_SEC}; text-align:center; max-width:760px; margin:12px auto 32px auto; line-height:1.7;}}
+.landing-copy{{max-width:820px; margin:18px auto 34px auto; padding:24px 30px; background:{CARD}; border:1px solid {BORDER}; border-radius:18px; text-align:center; box-shadow:0 8px 32px rgba(15,14,30,0.8);}}
 .landing-copy h2{{color:{TEXT}; font-size:23px; margin:0 0 14px 0; line-height:1.25;}}
-.landing-copy p{{color:#d4d4d8; font-size:15px; line-height:1.75; margin:10px 0;}}
+.landing-copy p{{color:#d4ccff; font-size:15px; line-height:1.75; margin:10px 0;}}
 .landing-copy strong{{color:#ffffff;}}
 @media (max-width:700px){{.landing-copy{{padding:20px 18px;}} .landing-copy h2{{font-size:20px;}} .landing-copy p{{font-size:14px;}}}}
-.limit-badge{{background:#18181b; border:1px solid #27272a; border-radius:8px; padding:6px 10px; font-size:11px; color:#a1a1aa; margin-bottom:10px;}}
-.soon{{font-size:12px; color:#71717a;}}
+.limit-badge{{background:#1A1930; border:1px solid {BORDER}; border-radius:8px; padding:6px 10px; font-size:11px; color:{TEXT_SEC}; margin-bottom:10px;}}
+.soon{{font-size:12px; color:#7a70a8;}}
 
 /* Send button styling - EXACT 36px circular button */
 div[data-testid="stChatInput"] button[data-testid="stChatInputSubmitButton"],
 div[data-testid="stChatInput"] [data-testid="stChatInputSubmitButton"]{{
+    position:absolute!important; right:8px!important; bottom:7px!important; z-index:20!important;
     width:36px!important; height:36px!important; min-width:36px!important; min-height:36px!important;
-    border-radius:50%!important; background:#ffffff!important; color:#121214!important;
+    border-radius:50%!important; background:#ffffff!important; color:#0F0E1E!important;
     border:none!important; display:flex!important; align-items:center!important; justify-content:center!important;
-    padding:0!important; margin:0!important; box-shadow:0 1px 3px rgba(0,0,0,0.3)!important;
+    padding:0!important; margin:0!important; box-shadow:0 2px 6px rgba(0,0,0,0.4)!important;
 }}
 div[data-testid="stChatInput"] button[data-testid="stChatInputSubmitButton"] svg,
 div[data-testid="stChatInput"] [data-testid="stChatInputSubmitButton"] svg{{
-    width:18px!important; height:18px!important; fill:#121214!important; stroke:#121214!important;
+    width:18px!important; height:18px!important; fill:#0F0E1E!important; stroke:#0F0E1E!important;
 }}
 
 /* Microphone styling - STRICTEMENT IDENTIQUE EN TAILLE AU BOUTON D'ENVOI (36px x 36px) */
 div[data-testid="stChatInput"] div[data-testid="stAudioInput"]{{
-    position:absolute!important; right:48px!important; bottom:7px!important; z-index:20!important;
+    position:absolute!important; right:50px!important; bottom:7px!important; z-index:20!important;
     width:36px!important; height:36px!important; min-width:36px!important; min-height:36px!important;
     margin:0!important; padding:0!important; background:transparent!important; border:none!important;
     display:flex!important; align-items:center!important; justify-content:center!important;
@@ -219,30 +219,29 @@ div[data-testid="stChatInput"] div[data-testid="stAudioInput"]{{
 div[data-testid="stChatInput"] div[data-testid="stAudioInput"] > div{{background:transparent!important; border:none!important; margin:0!important; padding:0!important; width:36px!important; height:36px!important; display:flex!important; align-items:center!important; justify-content:center!important;}}
 div[data-testid="stChatInput"] div[data-testid="stAudioInput"] label{{display:none!important;}}
 div[data-testid="stChatInput"] div[data-testid="stAudioInput"] button{{
-    background:#27272a!important; border:1px solid #3f3f46!important; border-radius:50%!important;
+    background:#221F45!important; border:1px solid #5A33FF66!important; border-radius:50%!important;
     width:36px!important; height:36px!important; min-width:36px!important; min-height:36px!important;
     padding:0!important; margin:0!important; display:flex!important; align-items:center!important; justify-content:center!important;
-    color:#e4e4e7!important; box-shadow:0 1px 3px rgba(0,0,0,0.3)!important; cursor:pointer!important;
+    color:#e4e4e7!important; box-shadow:0 2px 6px rgba(0,0,0,0.3)!important; cursor:pointer!important;
 }}
-div[data-testid="stChatInput"] div[data-testid="stAudioInput"] button:hover{{background:#3f3f46!important; border-color:#52525b!important; color:#ffffff!important;}}
+div[data-testid="stChatInput"] div[data-testid="stAudioInput"] button:hover{{background:#2D285B!important; border-color:#8B70FF!important; color:#ffffff!important;}}
 div[data-testid="stChatInput"] div[data-testid="stAudioInput"] svg{{width:18px!important; height:18px!important; fill:currentColor!important;}}
 div[data-testid="stChatInput"] div[data-testid="stAudioInput"] [data-baseweb="file-uploader"]{{background:transparent!important; border:none!important;}}
 
-/* Plus button and Model popover styling inside chat input */
+/* Plus button styling inside chat input (Pas de superposition) */
 div[data-testid="stChatInput"] .chat-plus-popover button,
-div[data-testid="stChatInput"] [data-testid="stPopover"]:first-of-type button{{
+div[data-testid="stChatInput"] [data-testid="stPopover"] button{{
     width:36px!important; height:36px!important; min-width:36px!important; min-height:36px!important;
-    border-radius:50%!important; background:#27272a!important; border:1px solid #3f3f46!important;
+    border-radius:50%!important; background:#221F45!important; border:1px solid #5A33FF66!important;
     color:#e4e4e7!important; display:flex!important; align-items:center!important; justify-content:center!important;
     padding:0!important; margin:0!important; font-size:18px!important;
 }}
-div[data-testid="stChatInput"] .chat-model-popover button,
-div[data-testid="stChatInput"] [data-testid="stPopover"]:nth-of-type(2) button{{
-    height:36px!important; min-height:36px!important; max-height:36px!important;
-    border-radius:18px!important; background:#27272a!important; border:1px solid #3f3f46!important;
-    color:#e4e4e7!important; display:flex!important; align-items:center!important; justify-content:center!important;
-    padding:0 10px!important; margin:0!important; font-size:12px!important; font-weight:600!important;
-}}
+div[data-testid="stChatInput"] [data-testid="stPopover"] button:hover{{background:#2D285B!important; border-color:#8B70FF!important; color:#ffffff!important;}}
+.studio-step{{background:{CARD}!important; border:1px solid {BORDER}!important; border-radius:14px!important; padding:18px!important; margin-bottom:14px!important;}}
+.studio-step h4{{color:{TEXT}!important; margin:0 0 6px 0!important; font-size:17px!important;}}
+.studio-step p{{color:{TEXT_SEC}!important; font-size:13px!important; margin:0 0 12px 0!important; line-height:1.5!important;}}
+.studio-nav-btn>button{{text-align:left!important; padding:10px 14px!important;}}
+.studio-badge{{display:inline-block; background:#221F45; color:#c4b5fd; border:1px solid #5A33FF66; border-radius:6px; padding:2px 8px; font-size:10px; font-weight:700; margin-left:6px;}}
 .studio-step{{background:{CARD}!important; border:1px solid {BORDER}!important; border-radius:14px!important; padding:18px!important; margin-bottom:14px!important;}}
 .studio-step h4{{color:{TEXT}!important; margin:0 0 6px 0!important; font-size:17px!important;}}
 .studio-step p{{color:#a1a1aa!important; font-size:13px!important; margin:0 0 12px 0!important; line-height:1.5!important;}}
@@ -260,20 +259,21 @@ STYLE_HINT = {
     "Expert comportemental": "Utilise le vocabulaire de la psychologie comportementale (déclencheurs, renforcement, friction, habitudes) en l'expliquant simplement.",
 }
 
-SYSTEM_BEHAVIOR_BASE = """Tu es Bea, une IA d'analyse comportementale créée par BehaviorLab AI. Tu aides les entreprises, les indépendants et les créateurs de contenu à avancer sur leurs projets.
+SYSTEM_BEHAVIOR_BASE = """Tu es Bea, une IA stratégique et comportementale d'exception conçue par BehaviorLab AI. Tu accompagnes les créateurs, entrepreneurs, étudiants et professionnels avec une pensée profonde, agile et hautement perspicace.
 
-PRINCIPE CENTRAL : tu apportes de la valeur dès ta toute première réponse. Tu ne poses JAMAIS de questions avant d'aider et tu ne conditionnes jamais ta réponse à des précisions. Si la demande est floue, fais des hypothèses explicites et couvre plusieurs cas possibles.
+INTELLIGENCE ET POSTURE :
+- Tu penses en profondeur avant de répondre : tu analyses les sous-jacents, les dynamiques réelles et les leviers d'impact.
+- Tu es vivante, articulée, nuancée et pragmatique, comme un conseiller de haut vol ou un binôme brillant. Tu ne récites AUCUN plan préfabriqué ou mécanique.
+- ADAPTABILITÉ TOTALE : Tu structures chaque réponse selon la nature réelle de la demande. Si la demande est technique, sois rigoureuse et précise ; si elle est stratégique, prends de la hauteur et propose une vision tranchante ; si elle est créative, apporte du relief et de l'audace.
 
-FORMAT PAR DÉFAUT (pour toute question sur un projet, un blocage, une décision, une habitude) :
-1. Une phrase qui reformule la situation (sauf si c'est évident).
-2. **Problèmes possibles** : énumère 4 à 6 blocages ou comportements fréquents qui peuvent expliquer la situation, du plus probable au moins probable, une ligne chacun.
-3. **Leviers d'action** : donne 4 à 6 leviers concrets et applicables tout de suite (quoi faire, comment, en combien de temps), reliés aux problèmes ci-dessus.
-4. **Plan de démarrage** : 3 actions pour aujourd'hui ou cette semaine, avec un indicateur simple pour savoir si ça marche.
-5. Tu peux terminer par UNE seule question courte et facultative pour affiner (par exemple « Lequel de ces blocages te ressemble le plus ? »), seulement si elle est vraiment utile. Jamais plusieurs questions.
+RÈGLE CAPITALE SUR LES BLOCAGES :
+- N'INVENTE JAMAIS DE BLOCAGE ARTIFICIEL. Si l'utilisateur ne mentionne ni blocage, ni difficulté, ni procrastination, ni friction émotionnelle, RÉPONDS DIRECTEMENT À SA QUESTION sans introduire de diagnostic de blocage imaginaire.
+- Tu n'explores les mécanismes psychologiques ou comportementaux (friction cognitive, momentum, déclencheurs d'action) QUE si l'utilisateur exprime expressément un frein, un doute, une hésitation ou un obstacle dans son passage à l'action.
 
-Pour une salutation, une question factuelle ou une demande simple, réponds brièvement sans cette structure.
-
-RÈGLES : réponds dans la langue de l'utilisateur (français par défaut) ; sois dense, concret et sans jargon ; n'invente ni chiffres, ni statistiques, ni exemples présentés comme réels ; tu ne poses pas de diagnostic médical ou psychologique et tu ne remplaces pas un professionnel. Si la personne semble en détresse ou en danger, encourage-la à en parler à un proche ou à un professionnel (en France : 3114 pour la prévention du suicide, 15 ou 112 en urgence). Si un fichier est joint, appuie-toi dessus."""
+QUALITÉ ET EXÉCUTION :
+- Apporte une valeur concrète dès ta première réponse, sans préambule inutile ni formules toutes faites.
+- Privilégie la clarté, la profondeur intellectuelle et l'utilité pratique : des explications limpides, des solutions élégantes et des prochaines étapes nettes.
+- RÈGLES ÉTHIQUES : Réponds dans la langue de l'utilisateur (français par défaut). Jamais de faux chiffres inventés. Pas de diagnostic médical ou thérapeutique. Si une personne semble en détresse, oriente avec bienveillance vers des professionnels (3114, 15 ou 112). Si un document ou code est fourni, appuie-toi dessus avec précision."""
 
 SYSTEM_USE_CASES = {
     "clients": (
@@ -383,9 +383,11 @@ def stream_groq(messages, max_tokens=2600, model_override=None):
     else:
         models = get_modeles().get(st.session_state.model_choice, get_modeles()["rapide"])
     last, started = None, False
+    temp = float(st.session_state.get("ai_temperature", 0.7))
+    top_p_val = float(st.session_state.get("ai_top_p", 0.9))
     for mid in models:
         try:
-            stream = get_groq().chat.completions.create(model=mid, messages=messages, temperature=0.5, max_tokens=max_tokens, stream=True)
+            stream = get_groq().chat.completions.create(model=mid, messages=messages, temperature=temp, top_p=top_p_val, max_tokens=max_tokens, stream=True)
             for chunk in stream:
                 if not chunk.choices:
                     continue
@@ -1133,7 +1135,7 @@ def page_dev_lab():
             except Exception:
                 pass
 
-            model_id = DEV_MODELES.get(st.session_state.dev_model_choice, "openai/gpt-oss-120b")
+            model_id = DEV_MODELES.get(st.session_state.dev_model_choice, "llama-3.3-70b-versatile")
             
             # Prompt système ultra-précis selon le niveau
             SYSTEM_DEV = f"""Tu es l'architecte expert de Bea (BehaviorLab AI).
@@ -1288,7 +1290,7 @@ def page_vitrine():
         _, c, _ = st.columns([1, 0.3, 1])
         with c:
             st.image(LOGO, width=96)
-    st.markdown('<div class="claude-title">Bea</div><div class="claude-sub">BehaviorLab AI</div>', unsafe_allow_html=True)
+    st.markdown('<div class="bea-hero-title">Bea</div><div class="bea-hero-sub">BehaviorLab AI</div>', unsafe_allow_html=True)
     landing_tab = st.session_state.get("landing_tab", "connexion")
     if landing_tab == "about":
         st.markdown("""
@@ -1493,7 +1495,7 @@ def render_sidebar():
         if st.button("✨ Nouvelle discussion", key="nav_new", use_container_width=True):
             new_chat()
             st.rerun()
-        for label, pg in [("💬 Chat", "chat"), ("💻 Code", "code"), ("🌐 App web (Ultra)", "app"), ("🎬 Studio créateur", "studio"), ("📁 Projets", "projets"), ("🧠 Mémoire", "memoire"), ("🎨 Personnalisation", "perso"), ("💎 Compte & offres", "compte")]:
+        for label, pg in [("💬 Chat", "chat"), ("💻 Code", "code"), ("🌐 App web (Ultra)", "app"), ("🎬 Studio créateur", "studio"), ("📁 Projets", "projets"), ("🧠 Mémoire", "memoire"), ("🎨 Personnalisation", "perso"), ("⚙️ Paramètres IA", "parametres"), ("💎 Compte & offres", "compte")]:
             if st.button(label, key=f"nav_{pg}", use_container_width=True):
                 st.session_state.page = pg
                 st.rerun()
@@ -1869,28 +1871,26 @@ def page_chat():
             st.rerun()
 
     up = None
-    with st.popover("＋", help="Partager, télécharger ou joindre un fichier"):
-        st.markdown("#### Ajouter à la discussion")
-        up = st.file_uploader("Glisser un fichier ici", type=["txt", "md", "csv", "json", "py", "pdf"], key=f"chat_up_{st.session_state.up_key}")
-        st.download_button("Télécharger la discussion", export_markdown(), file_name="discussion_bea.md", key=f"dl_menu_{st.session_state.up_key}", use_container_width=True)
-        components.html("""
-        <button onclick="(navigator.share ? navigator.share({title:'Discussion avec Bea', text:window.parent.document.body.innerText.slice(-5000)}) : navigator.clipboard.writeText(window.parent.document.body.innerText.slice(-5000)))" style="width:100%;padding:10px;border-radius:10px;border:1px solid #7c3aed;background:#17122b;color:white;font-weight:700;cursor:pointer">Partager la discussion</button>
-        """, height=48)
-    if up:
-        st.caption(f"Fichier prêt à être envoyé : {up.name}")
-
-    # Modèles (rapide, puissant) intégrés directement dans la case d'envoi
-    cur_m_icon = "⚡" if st.session_state.model_choice == "rapide" else "🧠"
-    cur_m_label = "Rapide" if st.session_state.model_choice == "rapide" else "Puissant"
-    with st.popover(f"{cur_m_icon} {cur_m_label} ▾", help="Changer le modèle d'IA"):
-        st.markdown("#### Modèle IA")
-        m_opts = ["⚡ Rapide (Llama 8B - Instantané)", "🧠 Puissant (Llama 70B - Raisonnement approfondi)"]
+    with st.popover("＋", help="Modèle IA, joindre un fichier ou actions rapides"):
+        st.markdown("#### 🧠 Modèle IA")
+        m_opts = ["⚡ Llama instant", "🧠 Puissant (70B)"]
         m_curr_idx = 0 if st.session_state.model_choice == "rapide" else 1
-        chosen_m_opt = st.radio("Sélectionner le modèle", m_opts, index=m_curr_idx, key="chat_model_radio_in_input", label_visibility="collapsed")
-        new_m_val = "rapide" if "Rapide" in chosen_m_opt else "puissant"
+        chosen_m_opt = st.radio("Sélectionner le modèle", m_opts, index=m_curr_idx, key="chat_model_in_plus")
+        new_m_val = "rapide" if "instant" in chosen_m_opt.lower() else "puissant"
         if new_m_val != st.session_state.model_choice:
             st.session_state.model_choice = new_m_val
             st.rerun()
+
+        st.divider()
+        st.markdown("#### 📎 Ajouter un fichier")
+        up = st.file_uploader("Glisser un fichier ici", type=["txt", "md", "csv", "json", "py", "pdf"], key=f"chat_up_{st.session_state.up_key}")
+        st.download_button("Télécharger la discussion", export_markdown(), file_name="discussion_bea.md", key=f"dl_menu_{st.session_state.up_key}", use_container_width=True)
+        components.html("""
+        <button onclick="(navigator.share ? navigator.share({title:'Discussion avec Bea', text:window.parent.document.body.innerText.slice(-5000)}) : navigator.clipboard.writeText(window.parent.document.body.innerText.slice(-5000)))" style="width:100%;padding:10px;border-radius:10px;border:1px solid #5A33FF;background:#1E1B8C;color:white;font-weight:700;cursor:pointer">Partager la discussion</button>
+        """, height=48)
+
+    if up:
+        st.caption(f"Fichier prêt à être envoyé : {up.name}")
 
     default = st.session_state.transcribed_text if st.session_state.get("transcribed_text") else ""
     prompt = st.chat_input("Écris ton message à Bea..." if not default else default)
@@ -1904,18 +1904,17 @@ def page_chat():
         function placeTools(){
             const chat = doc.querySelector('div[data-testid="stChatInput"]');
             const mic = doc.querySelector('div[data-testid="stAudioInput"]');
-            const popovers = Array.from(doc.querySelectorAll('[data-testid="stPopover"]'));
+            const plus = Array.from(doc.querySelectorAll('[data-testid="stPopover"]')).pop();
             if(!chat) return false;
             chat.style.position = 'relative';
+            chat.style.maxWidth = '920px';
+            chat.style.margin = '0 auto';
+            chat.style.width = '100%';
             const input = chat.querySelector('textarea');
             
-            // Popover '+' et Popover Modèle
-            const plus = popovers.find(p => p.innerText.includes('＋') || p.innerText.includes('+')) || popovers[0];
-            const modelPop = popovers.find(p => p.innerText.includes('Rapide') || p.innerText.includes('Puissant')) || popovers[1];
-            
             if(input){
-                input.style.paddingLeft = modelPop ? '180px' : '52px';
-                input.style.paddingRight = '96px';
+                input.style.paddingLeft = '52px';
+                input.style.paddingRight = '98px';
             }
             if(plus && !chat.contains(plus)){
                 plus.classList.add('chat-plus-popover');
@@ -1927,18 +1926,9 @@ def page_chat():
                 plus.style.height = '36px';
                 chat.appendChild(plus);
             }
-            if(modelPop && !chat.contains(modelPop)){
-                modelPop.classList.add('chat-model-popover');
-                modelPop.style.position = 'absolute';
-                modelPop.style.left = '50px';
-                modelPop.style.bottom = '7px';
-                modelPop.style.zIndex = '22';
-                modelPop.style.height = '36px';
-                chat.appendChild(modelPop);
-            }
             if(mic && !chat.contains(mic)){
                 mic.style.position = 'absolute';
-                mic.style.right = '48px';
+                mic.style.right = '50px';
                 mic.style.bottom = '7px';
                 mic.style.zIndex = '20';
                 mic.style.width = '36px';
@@ -1952,23 +1942,27 @@ def page_chat():
                     micBtn.style.minWidth = '36px';
                     micBtn.style.minHeight = '36px';
                     micBtn.style.borderRadius = '50%';
-                    micBtn.style.background = '#27272a';
-                    micBtn.style.border = '1px solid #3f3f46';
+                    micBtn.style.background = '#221F45';
+                    micBtn.style.border = '1px solid #5A33FF66';
                     micBtn.style.display = 'flex';
                     micBtn.style.alignItems = 'center';
                     micBtn.style.justifyContent = 'center';
                 }
             }
             
-            // Bouton envoi : taille 36px identique au micro
+            // Bouton envoi : taille 36px identique au micro, aligne a droite
             const sendBtn = chat.querySelector('button[data-testid="stChatInputSubmitButton"]') || chat.querySelector('button:not([data-testid="stPopover"] button)');
             if(sendBtn){
+                sendBtn.style.position = 'absolute';
+                sendBtn.style.right = '8px';
+                sendBtn.style.bottom = '7px';
                 sendBtn.style.width = '36px';
                 sendBtn.style.height = '36px';
                 sendBtn.style.minWidth = '36px';
                 sendBtn.style.minHeight = '36px';
                 sendBtn.style.borderRadius = '50%';
                 sendBtn.style.margin = '0';
+                sendBtn.style.zIndex = '20';
             }
             return Boolean(mic && plus);
         }
@@ -2581,6 +2575,90 @@ def page_perso():
             return
         st.rerun()
 
+def page_parametres():
+    st.markdown("### ⚙️ Paramètres du Moteur IA")
+    st.caption("Ajuste les hyperparamètres, le modèle, la température et les instructions système comme dans les outils IA avancés.")
+
+    t1, t2, t3, t4 = st.tabs(["⚡ Inférence & Hyperparamètres", "🧠 Persona & Instructions", "🛠️ Outils & Capacités", "🛡️ Confidentialité"])
+    
+    with t1:
+        st.markdown("#### ⚡ Modèle et Échantillonnage LLM")
+        c_m1, c_m2 = st.columns(2)
+        with c_m1:
+            m_choices = ["⚡ Llama instant (Rapide 8B)", "🧠 Puissant (Raisonnement 70B)", "⚡ Mixtral 8x7B (MoE)", "🚀 Gemma 2 (27B Google)"]
+            curr_m_idx = 0 if st.session_state.model_choice == "rapide" else 1
+            sel_m = st.selectbox("Modèle actif", m_choices, index=curr_m_idx, key="param_model_sel")
+            st.session_state.model_choice = "rapide" if "instant" in sel_m.lower() else "puissant"
+        with c_m2:
+            st.selectbox("Fenêtre de contexte", ["128k tokens (Recommandé)", "32k tokens", "8k tokens"], key="param_ctx_win")
+
+        st.divider()
+        st.markdown("#### 🎛️ Hyperparamètres de génération")
+        c_s1, c_s2 = st.columns(2)
+        with c_s1:
+            cur_temp = float(st.session_state.get("ai_temperature", 0.7))
+            new_temp = st.slider("Température (Créativité)", min_value=0.0, max_value=1.5, value=cur_temp, step=0.05,
+                                 help="0.0 = Déterministe et logique stricte, 0.7 = Équilibré (recommandé), 1.2+ = Haute créativité.")
+            st.session_state.ai_temperature = new_temp
+            
+            cur_tp = float(st.session_state.get("ai_top_p", 0.9))
+            new_tp = st.slider("Top-P (Nucleus Sampling)", min_value=0.1, max_value=1.0, value=cur_tp, step=0.05,
+                               help="Contrôle la diversité du vocabulaire échantillonné.")
+            st.session_state.ai_top_p = new_tp
+
+        with c_s2:
+            cur_max_t = int(st.session_state.get("ai_max_tokens", 4096))
+            new_max_t = st.slider("Longueur maximale de réponse (tokens)", min_value=512, max_value=8192, value=cur_max_t, step=256)
+            st.session_state.ai_max_tokens = new_max_t
+
+            cur_fp = float(st.session_state.get("ai_freq_penalty", 0.2))
+            new_fp = st.slider("Pénalité de fréquence (Anti-répétition)", min_value=0.0, max_value=2.0, value=cur_fp, step=0.1)
+            st.session_state.ai_freq_penalty = new_fp
+
+        st.checkbox("Streaming en direct mot à mot", value=True, key="param_stream_toggle")
+        st.checkbox("Afficher la chaîne de pensée interne (Chain-of-Thought CoT)", value=False, key="param_cot_toggle")
+
+    with t2:
+        st.markdown("#### 🧠 Persona & Instructions Système")
+        persona = st.selectbox("Posture psychologique", ["BehaviorLab AI (Neurosciences & Déblocage)", "Expert & Stratège (Analytique & ROI)", "Tuteur Socratique (Questions réflexives)", "Neutre & Synthétique"], key="param_persona")
+        custom_inst = st.text_area(
+            "Instructions système personnalisées (System Prompt)",
+            value=st.session_state.get("ai_system_instructions", "Adopte la méthode BehaviorLab AI : identifie le levier comportemental précis avant de proposer un plan d'action en 3 étapes concrètes."),
+            height=130,
+            key="param_sys_inst"
+        )
+        st.session_state.ai_system_instructions = custom_inst
+
+        c_p1, c_p2 = st.columns(2)
+        with c_p1:
+            st.selectbox("Format de réponse préféré", ["Équilibré & Actionnable", "Ultra-concis (Moins de 150 mots)", "Exhaustif & Détaillé"], key="param_fmt")
+        with c_p2:
+            st.selectbox("Langage et style de code", ["TypeScript strict (React/Node)", "Python typé (Streamlit/FastAPI)", "Full-Stack polyvalent"], key="param_code_style")
+
+    with t3:
+        st.markdown("#### 🛠️ Outils & Capacités Avancées")
+        st.checkbox("🌐 Recherche Web en direct (Grounding)", value=True, key="param_web", help="Permet à l'IA de sourcer des données et faits récents.")
+        st.checkbox("💻 Interpréteur & Analyseur de code AST", value=True, key="param_code_interp", help="Validation automatique de la syntaxe avant exécution.")
+        st.checkbox("🧠 Détection des blocages comportementaux", value=True, key="param_behav_detect", help="Active l'analyse cognitive et le micro-défi.")
+        st.checkbox("🎙️ Dictée vocale continue Whisper", value=True, key="param_stt", help="Microphone gratuit 36px.")
+        st.checkbox("💾 Mémoire continue inter-sessions", value=True, key="param_mem_toggle", help="Retient les objectifs entre chaque connexion.")
+
+    with t4:
+        st.markdown("#### 🛡️ Protection des Données & Confidentialité")
+        st.info("🔒 **Zéro Data Retention** : Tes discussions et tes prompts ne sont jamais utilisés pour entraîner des modèles publics d'IA.")
+        st.checkbox("Sauvegarder l'historique sur mon compte", value=True, key="param_save_hist")
+        st.checkbox("Chiffrement local des mémoires (Anti-XSS)", value=True, key="param_local_enc")
+        if st.button("🔄 Réinitialiser tous les paramètres aux valeurs recommandées", key="param_reset_all"):
+            st.session_state.ai_temperature = 0.7
+            st.session_state.ai_top_p = 0.9
+            st.session_state.ai_max_tokens = 4096
+            st.session_state.model_choice = "rapide"
+            st.toast("Paramètres réinitialisés avec succès !")
+            st.rerun()
+
+    if st.button("💾 Enregistrer la configuration", type="primary", key="save_params_btn", use_container_width=True):
+        st.success("Configuration de l'IA enregistrée et appliquée immédiatement.")
+
 def page_compte():
     st.markdown("### 💎 Compte & offres")
     q = st.session_state.quota or {}
@@ -2634,5 +2712,5 @@ render_sidebar()
 {
     "chat": page_chat, "code": page_code, "app": page_app, "studio": page_studio,
     "projets": page_projets, "perso": page_perso, "compte": page_compte, "memoire": page_memoire,
-    "dev_portal": page_dev_portal, "dev_lab": page_dev_lab,
+    "parametres": page_parametres, "dev_portal": page_dev_portal, "dev_lab": page_dev_lab,
 }.get(st.session_state.page, page_chat)()

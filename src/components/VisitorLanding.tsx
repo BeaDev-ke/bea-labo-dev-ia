@@ -334,7 +334,7 @@ export const VisitorLanding: React.FC<VisitorLandingProps> = ({ onEnterApp, onOp
               ))}
             </select>
             <div className="text-[10px] text-zinc-500 px-1">
-              Traduction temps réel par les modèles IA (GPT OSS, Llama 3.3, Mistral).
+              Traduction temps réel par les modèles haute vitesse Bea.
             </div>
           </div>
         </div>

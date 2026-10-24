@@ -1,8 +1,6 @@
+__pycache__/
+.aistudio/
+.env
 node_modules/
-build/
 dist/
-coverage/
-.DS_Store
-*.log
-.env*
-!.env.example
+*.pyc

@@ -16,7 +16,7 @@ export const LAB_LEVELS: Record<string, ModifLevel> = {
       'Barre latérale & badges (render_sidebar)': 'render_sidebar',
     },
     presets: [
-      'Passer toute l\'interface sur une palette épurée monochrome style ChatGPT / Claude',
+      'Passer toute l\'interface sur une palette épurée monochrome & minimaliste',
       'Remplacer le texte d\'accueil par une formulation orientée action immédiate',
       'Ajouter des raccourcis clavier visuels sous la case d\'envoi',
       'Augmenter le contraste des boutons d\'action et adoucir les bordures',
