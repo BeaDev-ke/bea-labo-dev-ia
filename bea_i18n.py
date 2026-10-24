@@ -40,7 +40,7 @@ LANGUAGES = {
 DEFAULT_LANG = "fr"
 STATE_KEY = "bea_lang"
 
-TRANSLATION_MODELS = ["llama-3.3-70b-versatile", "openai/gpt-oss-120b", "llama-3.1-8b-instant"]
+TRANSLATION_MODELS = ["llama-3.3-70b-versatile", "llama-3.1-8b-instant"]
 CHUNK_SIZE = 40
 
 # (nom de l'argument texte, est un widget à clé)

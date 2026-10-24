@@ -41,7 +41,24 @@ try:
 except Exception:
     _icon = "🧠"
 
+try:
+    from bea_i18n import setup_i18n, tr, current_lang, render_language_selector, language_instruction, flush_translations
+    HAS_I18N = True
+except Exception:
+    HAS_I18N = False
+
+try:
+    from bea_voice import render_voice_button, render_voice_player, render_voice_settings, queue_autoplay
+    HAS_VOICE = True
+except Exception:
+    HAS_VOICE = False
+
 st.set_page_config(page_title="Bea", page_icon=_icon, layout="wide", initial_sidebar_state="expanded")
+if HAS_I18N:
+    try:
+        setup_i18n()
+    except Exception:
+        pass
 AVATAR = LOGO or "🧠"
 
 STRIPE_BEA_9 = "https://buy.stripe.com/test_8x27sMei58IC6Rg3OM3wQ01"
@@ -72,49 +89,49 @@ DEFAULT_CODE = ""
 
 STARTER_CARDS = {
     "entreprise": [
-        "Je n'arrive pas à déléguer, je fais tout moi-même et je m'épuise",
-        "Mon équipe n'est pas assez régulière, comment créer une routine ?",
-        "Je repousse les décisions difficiles, comment trancher plus vite ?",
+        "Structurer ma délégation et les priorités de la semaine",
+        "Créer une routine d'équipe régulière et autonome",
+        "Trancher une décision stratégique complexe avec clarté",
     ],
     "independant": [
-        "Je procrastine sur la prospection clients",
-        "Je n'arrive pas à fixer mes prix sans culpabiliser",
-        "J'alterne hyper-productif et à plat, comment stabiliser ?",
+        "Optimiser ma prospection client et mon taux de conversion",
+        "Revaloriser mon offre et mes tarifs avec assurance",
+        "Construire un rythme de travail stable et performant",
     ],
     "createur": [
-        "Je n'arrive pas à publier tous les jours, je bloque",
-        "Mon montage me prend 5h, comment aller plus vite ?",
-        "Je ne sais pas quoi dire en face cam, comment me débloquer ?",
+        "Structurer une vidéo virale avec forte rétention dès le hook",
+        "Diviser par 3 mon temps de production et de montage",
+        "Créer une ligne éditoriale percutante pour ce mois",
     ],
     "etudiant": [
-        "Je dois réviser mais je n'arrive pas à m'y mettre",
-        "Je ne comprends pas un cours et je ne sais pas comment le reprendre",
-        "J'ai plusieurs devoirs et je ne sais pas par quoi commencer",
+        "Méthode d'assimilation active pour un cours complexe",
+        "Plan de révision par répétition espacée sans surcharge",
+        "Démarrer une session d'étude efficace de 45 minutes",
     ],
     "salarie": [
-        "Je me sens débordé au travail, comment reprendre le contrôle ?",
-        "Je veux mieux m'organiser entre mes priorités et mes réunions",
-        "Je n'ose pas parler d'un problème avec mon équipe",
+        "Clarifier mes priorités et reprendre le contrôle de mon agenda",
+        "Préparer un échange stratégique avec mon équipe ou direction",
+        "Construire mon plan d'évolution et d'impact professionnel",
     ],
     "recherche_emploi": [
-        "Je cherche un emploi mais je repousse mes candidatures",
-        "Je veux mieux présenter mon parcours en entretien",
-        "Je ne sais pas quelle direction professionnelle choisir",
+        "Optimiser la présentation de mon parcours en entretien",
+        "Cibler les opportunités clés et maximiser mes candidatures",
+        "Clarifier ma trajectoire professionnelle et mes points forts",
     ],
     "parent": [
-        "Je veux mieux m'organiser entre ma vie familiale et mes projets",
-        "Je manque de temps pour avancer sur ce qui compte pour moi",
-        "Je culpabilise quand je prends du temps pour moi",
+        "Harmoniser mes projets personnels et mon organisation familiale",
+        "Créer des blocs de temps dédiés à mes priorités clés",
+        "Mettre en place des routines quotidiennes sereines et efficaces",
     ],
     "enseignant": [
-        "Je veux préparer mes cours avec plus de méthode",
-        "Je cherche une façon plus claire d'expliquer une notion",
-        "Je veux aider mes élèves à mieux mémoriser",
+        "Structurer une séquence pédagogique interactive et engageante",
+        "Déconstruire une notion difficile avec la méthode Feynman",
+        "Renforcer l'ancrage et la mémorisation durable des élèves",
     ],
     "autre": [
-        "Je procrastine sur un projet important",
-        "Je me sens bloqué sans comprendre pourquoi",
-        "Je veux construire une routine qui tienne dans le temps",
+        "Transformer une idée en plan d'action concret en 3 étapes",
+        "Définir mes priorités stratégiques pour la semaine",
+        "Construire une routine quotidienne productive et durable",
     ],
 }
 
@@ -164,10 +181,10 @@ GRAD = "linear-gradient(90deg, #1E1B8C 0%, #5A33FF 100%)"
 BORDER, BG, CARD, TEXT, TEXT_SEC, ACCENT = "#5A33FF33", "#0F0E1E", "#1A1930", "#FFFFFF", "#A89CFF", "#8B70FF"
 st.markdown(f"""
 <style>
-.stApp{{background:{BG}!important; color:{TEXT}!important;}}
-[data-testid="stSidebar"]{{background:#121026!important; border-right:1px solid {BORDER}!important;}}
+html, body, .stApp, [data-testid="stAppViewContainer"], [data-testid="stMain"], section.main {{background:#0F0E1E!important; color:#FFFFFF!important;}}
+[data-testid="stSidebar"], [data-testid="stSidebar"] > div {{background:#121026!important; border-right:1px solid rgba(90,51,255,0.25)!important;}}
 [data-testid="stSidebar"] *{{color:#e4e4e7!important;}}
-header[data-testid="stHeader"]{{background:transparent!important;}}
+header[data-testid="stHeader"]{{background:#0F0E1E!important; border-bottom:1px solid rgba(90,51,255,0.2)!important;}}
 .block-container{{max-width:1440px!important; width:100%!important; padding-top:2rem!important; padding-bottom:7rem!important;}}
 #MainMenu,footer{{visibility:hidden;}}
 div[data-testid="stButton"]>button{{background:#1A1930!important; color:#FFFFFF!important; border:1px solid #5A33FF!important; border-radius:12px!important; font-weight:600!important; font-size:13px!important; min-height:44px!important; transition:all 0.2s ease!important;}}
@@ -179,9 +196,9 @@ div[data-testid="stChatMessage"] p{{color:{TEXT}!important; font-size:15px!impor
 div[data-baseweb="input"], div[data-baseweb="textarea"], div[data-baseweb="select"]>div{{background:#151428!important; border:1px solid #5A33FF44!important; border-radius:12px!important;}}
 div[data-baseweb="base-input"]{{background:transparent!important; border:none!important;}}
 div[data-baseweb="input"] input, div[data-baseweb="textarea"] textarea, div[data-baseweb="select"] input{{background:transparent!important; color:{TEXT}!important; border:none!important; box-shadow:none!important; outline:none!important;}}
-div[data-testid="stChatInput"]{{max-width:920px!important; margin:0 auto!important; width:100%!important; background:#1A1930!important; border:1px solid #5A33FF55!important; border-radius:26px!important; padding-right:98px!important; min-height:50px!important; box-shadow:0 4px 20px rgba(0,0,0,0.4)!important; position:relative!important;}}
+div[data-testid="stChatInput"]{{max-width:920px!important; margin:0 auto!important; width:100%!important; background:#1A1930!important; border:1px solid #5A33FF55!important; border-radius:26px!important; padding-left:56px!important; padding-right:98px!important; min-height:52px!important; box-shadow:0 4px 20px rgba(0,0,0,0.5)!important; position:relative!important;}}
 div[data-testid="stChatInput"] div, div[data-testid="stChatInput"] textarea{{background:transparent!important; border:none!important; box-shadow:none!important; color:{TEXT}!important;}}
-div[data-testid="stChatInput"] textarea{{padding-left:54px!important; padding-right:98px!important;}}
+div[data-testid="stChatInput"] textarea{{padding-left:56px!important; padding-right:98px!important; font-size:15px!important;}}
 div[data-testid="stBottom"]{{background:transparent!important; position:relative!important;}}
 div[data-testid="stBottom"]>div{{background:transparent!important; max-width:920px!important; margin:0 auto!important;}}
 .bea-hero-title{{font-size:34px; font-weight:800; color:{TEXT}; text-align:center; margin:8px 0 2px 0; letter-spacing:-0.5px;}}
@@ -198,11 +215,11 @@ div[data-testid="stBottom"]>div{{background:transparent!important; max-width:920
 /* Send button styling - EXACT 36px circular button */
 div[data-testid="stChatInput"] button[data-testid="stChatInputSubmitButton"],
 div[data-testid="stChatInput"] [data-testid="stChatInputSubmitButton"]{{
-    position:absolute!important; right:8px!important; bottom:7px!important; z-index:20!important;
-    width:36px!important; height:36px!important; min-width:36px!important; min-height:36px!important;
+    position:absolute!important; right:8px!important; bottom:8px!important; z-index:24!important;
+    width:36px!important; height:36px!important; min-width:36px!important; min-height:36px!important; max-width:36px!important; max-height:36px!important;
     border-radius:50%!important; background:#ffffff!important; color:#0F0E1E!important;
     border:none!important; display:flex!important; align-items:center!important; justify-content:center!important;
-    padding:0!important; margin:0!important; box-shadow:0 2px 6px rgba(0,0,0,0.4)!important;
+    padding:0!important; margin:0!important; box-shadow:0 2px 8px rgba(0,0,0,0.4)!important; cursor:pointer!important;
 }}
 div[data-testid="stChatInput"] button[data-testid="stChatInputSubmitButton"] svg,
 div[data-testid="stChatInput"] [data-testid="stChatInputSubmitButton"] svg{{
@@ -211,8 +228,8 @@ div[data-testid="stChatInput"] [data-testid="stChatInputSubmitButton"] svg{{
 
 /* Microphone styling - STRICTEMENT IDENTIQUE EN TAILLE AU BOUTON D'ENVOI (36px x 36px) */
 div[data-testid="stChatInput"] div[data-testid="stAudioInput"]{{
-    position:absolute!important; right:50px!important; bottom:7px!important; z-index:20!important;
-    width:36px!important; height:36px!important; min-width:36px!important; min-height:36px!important;
+    position:absolute!important; right:52px!important; bottom:8px!important; z-index:24!important;
+    width:36px!important; height:36px!important; min-width:36px!important; min-height:36px!important; max-width:36px!important; max-height:36px!important;
     margin:0!important; padding:0!important; background:transparent!important; border:none!important;
     display:flex!important; align-items:center!important; justify-content:center!important;
 }}
@@ -220,7 +237,7 @@ div[data-testid="stChatInput"] div[data-testid="stAudioInput"] > div{{background
 div[data-testid="stChatInput"] div[data-testid="stAudioInput"] label{{display:none!important;}}
 div[data-testid="stChatInput"] div[data-testid="stAudioInput"] button{{
     background:#221F45!important; border:1px solid #5A33FF66!important; border-radius:50%!important;
-    width:36px!important; height:36px!important; min-width:36px!important; min-height:36px!important;
+    width:36px!important; height:36px!important; min-width:36px!important; min-height:36px!important; max-width:36px!important; max-height:36px!important;
     padding:0!important; margin:0!important; display:flex!important; align-items:center!important; justify-content:center!important;
     color:#e4e4e7!important; box-shadow:0 2px 6px rgba(0,0,0,0.3)!important; cursor:pointer!important;
 }}
@@ -228,13 +245,18 @@ div[data-testid="stChatInput"] div[data-testid="stAudioInput"] button:hover{{bac
 div[data-testid="stChatInput"] div[data-testid="stAudioInput"] svg{{width:18px!important; height:18px!important; fill:currentColor!important;}}
 div[data-testid="stChatInput"] div[data-testid="stAudioInput"] [data-baseweb="file-uploader"]{{background:transparent!important; border:none!important;}}
 
-/* Plus button styling inside chat input (Pas de superposition) */
+/* Plus button styling inside chat input (36px x 36px, strictly aligned on the left) */
+div[data-testid="stChatInput"] .chat-plus-popover,
+div[data-testid="stChatInput"] [data-testid="stPopover"]{{
+    position:absolute!important; left:8px!important; bottom:8px!important; z-index:25!important;
+    width:36px!important; height:36px!important; margin:0!important; padding:0!important;
+}}
 div[data-testid="stChatInput"] .chat-plus-popover button,
 div[data-testid="stChatInput"] [data-testid="stPopover"] button{{
-    width:36px!important; height:36px!important; min-width:36px!important; min-height:36px!important;
+    width:36px!important; height:36px!important; min-width:36px!important; min-height:36px!important; max-width:36px!important; max-height:36px!important;
     border-radius:50%!important; background:#221F45!important; border:1px solid #5A33FF66!important;
     color:#e4e4e7!important; display:flex!important; align-items:center!important; justify-content:center!important;
-    padding:0!important; margin:0!important; font-size:18px!important;
+    padding:0!important; margin:0!important; font-size:18px!important; cursor:pointer!important;
 }}
 div[data-testid="stChatInput"] [data-testid="stPopover"] button:hover{{background:#2D285B!important; border-color:#8B70FF!important; color:#ffffff!important;}}
 .studio-step{{background:{CARD}!important; border:1px solid {BORDER}!important; border-radius:14px!important; padding:18px!important; margin-bottom:14px!important;}}
@@ -1829,7 +1851,12 @@ def page_chat():
         pt = (st.session_state.prefs or {}).get("profile_type") or st.session_state.get("profile_type") or "createur"
         if pt not in STARTER_CARDS:
             pt = "createur"
-        st.info("Bonjour, je suis Bea. Décris-moi un projet ou un blocage et je t'aide à repérer ce qui te freine, puis à construire un plan d'action mesurable. Quelques idées pour démarrer :")
+        st.markdown("""
+        <div style="background:#1A1930; border:1px solid #5A33FF44; border-radius:16px; padding:18px 22px; margin-bottom:18px; box-shadow:0 4px 20px rgba(15,14,30,0.6);">
+            <div style="font-size:16px; font-weight:700; color:#FFFFFF; margin-bottom:4px;">Bonjour, je suis Bea.</div>
+            <div style="font-size:14px; color:#A89CFF; line-height:1.6;">Ton partenaire d'analyse stratégique, de créativité et de passage à l'action. Sur quel sujet souhaites-tu avancer aujourd'hui ?</div>
+        </div>
+        """, unsafe_allow_html=True)
         cols = st.columns(3)
         for i, q in enumerate(STARTER_CARDS[pt]):
             with cols[i % 3]:
@@ -1899,79 +1926,108 @@ def page_chat():
     components.html("""
     <script>
     (function(){
-        const doc = window.parent.document;
-        let tries = 0;
-        function placeTools(){
-            const chat = doc.querySelector('div[data-testid="stChatInput"]');
-            const mic = doc.querySelector('div[data-testid="stAudioInput"]');
-            const plus = Array.from(doc.querySelectorAll('[data-testid="stPopover"]')).pop();
-            if(!chat) return false;
-            chat.style.position = 'relative';
-            chat.style.maxWidth = '920px';
-            chat.style.margin = '0 auto';
-            chat.style.width = '100%';
-            const input = chat.querySelector('textarea');
-            
-            if(input){
-                input.style.paddingLeft = '52px';
-                input.style.paddingRight = '98px';
-            }
-            if(plus && !chat.contains(plus)){
-                plus.classList.add('chat-plus-popover');
-                plus.style.position = 'absolute';
-                plus.style.left = '8px';
-                plus.style.bottom = '7px';
-                plus.style.zIndex = '21';
-                plus.style.width = '36px';
-                plus.style.height = '36px';
-                chat.appendChild(plus);
-            }
-            if(mic && !chat.contains(mic)){
-                mic.style.position = 'absolute';
-                mic.style.right = '50px';
-                mic.style.bottom = '7px';
-                mic.style.zIndex = '20';
-                mic.style.width = '36px';
-                mic.style.height = '36px';
-                chat.appendChild(mic);
+        try {
+            const doc = window.parent.document;
+            let tries = 0;
+            function placeTools(){
+                const chat = doc.querySelector('div[data-testid="stChatInput"]');
+                const mic = doc.querySelector('div[data-testid="stAudioInput"]');
+                const allPopovers = Array.from(doc.querySelectorAll('[data-testid="stPopover"]'));
+                const plus = allPopovers.find(p => p.innerText && (p.innerText.includes('＋') || p.innerText.includes('+'))) || allPopovers[allPopovers.length - 1];
+
+                // Nettoyer tout bouton de modèle superposé orphelin qui traînerait dans le chat
+                doc.querySelectorAll('button').forEach(b => {
+                    const txt = (b.innerText || '').toLowerCase();
+                    if((txt.includes('puissant') || txt.includes('llama')) && !b.closest('[data-testid="stPopover"]')){
+                        if(chat && chat.contains(b)){
+                            b.style.display = 'none';
+                        }
+                    }
+                });
+
+                if(!chat) return false;
+                chat.style.position = 'relative';
+                chat.style.maxWidth = '920px';
+                chat.style.margin = '0 auto';
+                chat.style.width = '100%';
                 
-                const micBtn = mic.querySelector('button');
-                if(micBtn){
-                    micBtn.style.width = '36px';
-                    micBtn.style.height = '36px';
-                    micBtn.style.minWidth = '36px';
-                    micBtn.style.minHeight = '36px';
-                    micBtn.style.borderRadius = '50%';
-                    micBtn.style.background = '#221F45';
-                    micBtn.style.border = '1px solid #5A33FF66';
-                    micBtn.style.display = 'flex';
-                    micBtn.style.alignItems = 'center';
-                    micBtn.style.justifyContent = 'center';
+                const input = chat.querySelector('textarea');
+                if(input){
+                    input.style.paddingLeft = '56px';
+                    input.style.paddingRight = '98px';
+                    input.style.background = 'transparent';
+                    input.style.color = '#FFFFFF';
                 }
+
+                if(plus && !chat.contains(plus)){
+                    plus.classList.add('chat-plus-popover');
+                    plus.style.position = 'absolute';
+                    plus.style.left = '8px';
+                    plus.style.bottom = '8px';
+                    plus.style.zIndex = '25';
+                    plus.style.width = '36px';
+                    plus.style.height = '36px';
+                    chat.appendChild(plus);
+                }
+
+                if(mic && !chat.contains(mic)){
+                    mic.style.position = 'absolute';
+                    mic.style.right = '52px';
+                    mic.style.bottom = '8px';
+                    mic.style.zIndex = '24';
+                    mic.style.width = '36px';
+                    mic.style.height = '36px';
+                    chat.appendChild(mic);
+                    
+                    const micBtn = mic.querySelector('button');
+                    if(micBtn){
+                        micBtn.style.width = '36px';
+                        micBtn.style.height = '36px';
+                        micBtn.style.minWidth = '36px';
+                        micBtn.style.minHeight = '36px';
+                        micBtn.style.maxWidth = '36px';
+                        micBtn.style.maxHeight = '36px';
+                        micBtn.style.borderRadius = '50%';
+                        micBtn.style.background = '#221F45';
+                        micBtn.style.border = '1px solid #5A33FF66';
+                        micBtn.style.display = 'flex';
+                        micBtn.style.alignItems = 'center';
+                        micBtn.style.justifyContent = 'center';
+                        micBtn.style.padding = '0';
+                        micBtn.style.margin = '0';
+                        micBtn.style.color = '#e4e4e7';
+                    }
+                }
+                
+                // Bouton envoi : taille 36px strictement identique au micro et au plus
+                const sendBtn = chat.querySelector('button[data-testid="stChatInputSubmitButton"]') || chat.querySelector('button:not([data-testid="stPopover"] button)');
+                if(sendBtn){
+                    sendBtn.style.position = 'absolute';
+                    sendBtn.style.right = '8px';
+                    sendBtn.style.bottom = '8px';
+                    sendBtn.style.width = '36px';
+                    sendBtn.style.height = '36px';
+                    sendBtn.style.minWidth = '36px';
+                    sendBtn.style.minHeight = '36px';
+                    sendBtn.style.maxWidth = '36px';
+                    sendBtn.style.maxHeight = '36px';
+                    sendBtn.style.borderRadius = '50%';
+                    sendBtn.style.margin = '0';
+                    sendBtn.style.padding = '0';
+                    sendBtn.style.zIndex = '24';
+                    sendBtn.style.display = 'flex';
+                    sendBtn.style.alignItems = 'center';
+                    sendBtn.style.justifyContent = 'center';
+                }
+                return Boolean(mic && plus);
             }
-            
-            // Bouton envoi : taille 36px identique au micro, aligne a droite
-            const sendBtn = chat.querySelector('button[data-testid="stChatInputSubmitButton"]') || chat.querySelector('button:not([data-testid="stPopover"] button)');
-            if(sendBtn){
-                sendBtn.style.position = 'absolute';
-                sendBtn.style.right = '8px';
-                sendBtn.style.bottom = '7px';
-                sendBtn.style.width = '36px';
-                sendBtn.style.height = '36px';
-                sendBtn.style.minWidth = '36px';
-                sendBtn.style.minHeight = '36px';
-                sendBtn.style.borderRadius = '50%';
-                sendBtn.style.margin = '0';
-                sendBtn.style.zIndex = '20';
+            function loop(){
+                if(placeTools() || tries > 60) return;
+                tries++;
+                setTimeout(loop, 100);
             }
-            return Boolean(mic && plus);
-        }
-        function loop(){
-            if(placeTools() || tries > 60) return;
-            tries++;
-            setTimeout(loop, 120);
-        }
-        loop();
+            loop();
+        } catch(e) {}
     })();
     </script>
     """, height=0)
