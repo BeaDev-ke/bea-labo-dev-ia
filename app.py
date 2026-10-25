@@ -178,99 +178,114 @@ if "code_area" not in st.session_state:
     st.session_state["code_area"] = DEFAULT_CODE
 
 GRAD = "linear-gradient(90deg, #1E1B8C 0%, #5A33FF 100%)"
-BORDER, BG, CARD, TEXT, TEXT_SEC, ACCENT = "#5A33FF33", "#0F0E1E", "#1A1930", "#FFFFFF", "#A89CFF", "#8B70FF"
+BORDER, BG, CARD, TEXT, TEXT_SEC, ACCENT = "#5A33FF44", "#181135", "#231a4a", "#FFFFFF", "#c4b5fd", "#8B70FF"
 st.markdown(f"""
 <style>
-html, body, .stApp, [data-testid="stAppViewContainer"], [data-testid="stMain"], section.main {{background:#0F0E1E!important; color:#FFFFFF!important;}}
-[data-testid="stSidebar"], [data-testid="stSidebar"] > div {{background:#121026!important; border-right:1px solid rgba(90,51,255,0.25)!important;}}
+html, body, .stApp, [data-testid="stAppViewContainer"], [data-testid="stMain"], section.main {{background:#181135!important; color:#FFFFFF!important;}}
+[data-testid="stSidebar"], [data-testid="stSidebar"] > div {{background:#150f2e!important; border-right:1px solid rgba(124,58,237,0.25)!important;}}
 [data-testid="stSidebar"] *{{color:#e4e4e7!important;}}
-header[data-testid="stHeader"]{{background:#0F0E1E!important; border-bottom:1px solid rgba(90,51,255,0.2)!important;}}
+header[data-testid="stHeader"]{{background:#181135!important; border-bottom:1px solid rgba(124,58,237,0.2)!important;}}
 .block-container{{max-width:1440px!important; width:100%!important; padding-top:2rem!important; padding-bottom:7rem!important;}}
 #MainMenu,footer{{visibility:hidden;}}
-div[data-testid="stButton"]>button{{background:#1A1930!important; color:#FFFFFF!important; border:1px solid #5A33FF!important; border-radius:12px!important; font-weight:600!important; font-size:13px!important; min-height:44px!important; transition:all 0.2s ease!important;}}
-div[data-testid="stButton"]>button:hover{{background:#221F45!important; border-color:#8B70FF!important; box-shadow:0 0 12px rgba(90,51,255,0.3)!important;}}
+div[data-testid="stButton"]>button{{background:#231a4a!important; color:#FFFFFF!important; border:1px solid #5A33FF66!important; border-radius:12px!important; font-weight:600!important; font-size:13px!important; min-height:44px!important; transition:all 0.2s ease!important;}}
+div[data-testid="stButton"]>button:hover{{background:#2e2260!important; border-color:#8B70FF!important; box-shadow:0 0 12px rgba(90,51,255,0.3)!important;}}
 div[data-testid="stButton"]>button[kind="primary"], div[data-testid="stButton"]>button[data-testid="baseButton-primary"]{{background:{GRAD}!important; color:white!important; border:none!important; font-weight:700!important; box-shadow:0 4px 14px rgba(90,51,255,0.35)!important;}}
 div[data-testid="stLinkButton"]>a{{background:{GRAD}!important; color:white!important; border-radius:12px!important; font-weight:700!important; border:none!important; padding:12px!important; box-shadow:0 4px 14px rgba(90,51,255,0.3)!important;}}
-div[data-testid="stChatMessage"]{{background:{CARD}!important; border:1px solid {BORDER}!important; border-radius:16px!important; padding:14px!important; box-shadow:0 4px 20px rgba(15,14,30,0.6)!important; max-width:920px!important; margin-left:auto!important; margin-right:auto!important;}}
+div[data-testid="stChatMessage"]{{background:{CARD}!important; border:1px solid {BORDER}!important; border-radius:16px!important; padding:14px!important; box-shadow:0 4px 20px rgba(15,10,35,0.6)!important; max-width:920px!important; margin-left:auto!important; margin-right:auto!important;}}
 div[data-testid="stChatMessage"] p{{color:{TEXT}!important; font-size:15px!important; line-height:1.6!important;}}
-div[data-baseweb="input"], div[data-baseweb="textarea"], div[data-baseweb="select"]>div{{background:#151428!important; border:1px solid #5A33FF44!important; border-radius:12px!important;}}
+div[data-baseweb="input"], div[data-baseweb="textarea"], div[data-baseweb="select"]>div{{background:#201844!important; border:1px solid #5A33FF44!important; border-radius:12px!important;}}
 div[data-baseweb="base-input"]{{background:transparent!important; border:none!important;}}
 div[data-baseweb="input"] input, div[data-baseweb="textarea"] textarea, div[data-baseweb="select"] input{{background:transparent!important; color:{TEXT}!important; border:none!important; box-shadow:none!important; outline:none!important;}}
-div[data-testid="stChatInput"]{{max-width:920px!important; margin:0 auto!important; width:100%!important; background:#1A1930!important; border:1px solid #5A33FF55!important; border-radius:26px!important; padding-left:56px!important; padding-right:98px!important; min-height:52px!important; box-shadow:0 4px 20px rgba(0,0,0,0.5)!important; position:relative!important;}}
-div[data-testid="stChatInput"] div, div[data-testid="stChatInput"] textarea{{background:transparent!important; border:none!important; box-shadow:none!important; color:{TEXT}!important;}}
-div[data-testid="stChatInput"] textarea{{padding-left:56px!important; padding-right:98px!important; font-size:15px!important;}}
+
+/* Chat Input Bar - Capsule layout relative container */
+div[data-testid="stChatInput"]{{
+    max-width:920px!important; margin:0 auto!important; width:100%!important;
+    background:#201844!important; border:1px solid #5A33FF55!important; border-radius:26px!important;
+    padding:0!important; min-height:52px!important; box-shadow:0 4px 20px rgba(15,10,35,0.5)!important;
+    position:relative!important; box-sizing:border-box!important;
+}}
+div[data-testid="stChatInput"] > div,
+div[data-testid="stChatInput"] [data-baseweb="base-input"]{{
+    position:static!important; background:transparent!important; border:none!important; box-shadow:none!important; width:100%!important;
+}}
+div[data-testid="stChatInput"] textarea{{
+    padding-left:56px!important; padding-right:102px!important; padding-top:14px!important; padding-bottom:14px!important;
+    font-size:15px!important; background:transparent!important; color:#FFFFFF!important;
+    border:none!important; outline:none!important; box-shadow:none!important; width:100%!important; box-sizing:border-box!important;
+}}
 div[data-testid="stBottom"]{{background:transparent!important; position:relative!important;}}
 div[data-testid="stBottom"]>div{{background:transparent!important; max-width:920px!important; margin:0 auto!important;}}
 .bea-hero-title{{font-size:34px; font-weight:800; color:{TEXT}; text-align:center; margin:8px 0 2px 0; letter-spacing:-0.5px;}}
 .bea-hero-sub{{font-size:12px; color:{TEXT_SEC}!important; text-align:center; font-weight:600; letter-spacing:0.8px; margin-bottom:16px;}}
 .desc-main{{font-size:14px; color:{TEXT_SEC}; text-align:center; max-width:760px; margin:12px auto 32px auto; line-height:1.7;}}
-.landing-copy{{max-width:820px; margin:18px auto 34px auto; padding:24px 30px; background:{CARD}; border:1px solid {BORDER}; border-radius:18px; text-align:center; box-shadow:0 8px 32px rgba(15,14,30,0.8);}}
+.landing-copy{{max-width:820px; margin:18px auto 34px auto; padding:24px 30px; background:{CARD}; border:1px solid {BORDER}; border-radius:18px; text-align:center; box-shadow:0 8px 32px rgba(15,10,35,0.8);}}
 .landing-copy h2{{color:{TEXT}; font-size:23px; margin:0 0 14px 0; line-height:1.25;}}
 .landing-copy p{{color:#d4ccff; font-size:15px; line-height:1.75; margin:10px 0;}}
 .landing-copy strong{{color:#ffffff;}}
 @media (max-width:700px){{.landing-copy{{padding:20px 18px;}} .landing-copy h2{{font-size:20px;}} .landing-copy p{{font-size:14px;}}}}
-.limit-badge{{background:#1A1930; border:1px solid {BORDER}; border-radius:8px; padding:6px 10px; font-size:11px; color:{TEXT_SEC}; margin-bottom:10px;}}
+.limit-badge{{background:#231a4a; border:1px solid {BORDER}; border-radius:8px; padding:6px 10px; font-size:11px; color:{TEXT_SEC}; margin-bottom:10px;}}
 .soon{{font-size:12px; color:#7a70a8;}}
 
-/* Send button styling - EXACT 36px circular button */
+/* Send button styling - EXACT 36px circular button at right:10px */
 div[data-testid="stChatInput"] button[data-testid="stChatInputSubmitButton"],
-div[data-testid="stChatInput"] [data-testid="stChatInputSubmitButton"]{{
-    position:absolute!important; right:8px!important; bottom:8px!important; z-index:24!important;
+div[data-testid="stChatInput"] button[aria-label*="Send"],
+div[data-testid="stChatInput"] button[aria-label*="Envoyer"]{{
+    position:absolute!important; right:10px!important; bottom:8px!important; top:auto!important; left:auto!important; z-index:30!important;
     width:36px!important; height:36px!important; min-width:36px!important; min-height:36px!important; max-width:36px!important; max-height:36px!important;
-    border-radius:50%!important; background:#ffffff!important; color:#0F0E1E!important;
+    border-radius:50%!important; background:#ffffff!important; color:#181135!important;
     border:none!important; display:flex!important; align-items:center!important; justify-content:center!important;
     padding:0!important; margin:0!important; box-shadow:0 2px 8px rgba(0,0,0,0.4)!important; cursor:pointer!important;
+    transform:none!important;
 }}
 div[data-testid="stChatInput"] button[data-testid="stChatInputSubmitButton"] svg,
-div[data-testid="stChatInput"] [data-testid="stChatInputSubmitButton"] svg{{
-    width:18px!important; height:18px!important; fill:#0F0E1E!important; stroke:#0F0E1E!important;
+div[data-testid="stChatInput"] button[aria-label*="Send"] svg,
+div[data-testid="stChatInput"] button[aria-label*="Envoyer"] svg{{
+    width:18px!important; height:18px!important; fill:#181135!important; stroke:#181135!important;
 }}
 
-/* Microphone styling - STRICTEMENT IDENTIQUE EN TAILLE AU BOUTON D'ENVOI (36px x 36px) */
+/* Microphone styling - EXACT 36px circular button at right:54px (NEVER SUPERPOSED) */
 div[data-testid="stChatInput"] div[data-testid="stAudioInput"]{{
-    position:absolute!important; right:52px!important; bottom:8px!important; z-index:24!important;
+    position:absolute!important; right:54px!important; bottom:8px!important; top:auto!important; left:auto!important; z-index:30!important;
     width:36px!important; height:36px!important; min-width:36px!important; min-height:36px!important; max-width:36px!important; max-height:36px!important;
     margin:0!important; padding:0!important; background:transparent!important; border:none!important;
     display:flex!important; align-items:center!important; justify-content:center!important;
+    overflow:hidden!important; transform:none!important;
 }}
 div[data-testid="stChatInput"] div[data-testid="stAudioInput"] > div{{background:transparent!important; border:none!important; margin:0!important; padding:0!important; width:36px!important; height:36px!important; display:flex!important; align-items:center!important; justify-content:center!important;}}
 div[data-testid="stChatInput"] div[data-testid="stAudioInput"] label{{display:none!important;}}
 div[data-testid="stChatInput"] div[data-testid="stAudioInput"] button{{
-    background:#221F45!important; border:1px solid #5A33FF66!important; border-radius:50%!important;
+    background:#2a2057!important; border:1px solid #5A33FF66!important; border-radius:50%!important;
     width:36px!important; height:36px!important; min-width:36px!important; min-height:36px!important; max-width:36px!important; max-height:36px!important;
     padding:0!important; margin:0!important; display:flex!important; align-items:center!important; justify-content:center!important;
     color:#e4e4e7!important; box-shadow:0 2px 6px rgba(0,0,0,0.3)!important; cursor:pointer!important;
 }}
-div[data-testid="stChatInput"] div[data-testid="stAudioInput"] button:hover{{background:#2D285B!important; border-color:#8B70FF!important; color:#ffffff!important;}}
+div[data-testid="stChatInput"] div[data-testid="stAudioInput"] button:hover{{background:#372b6e!important; border-color:#8B70FF!important; color:#ffffff!important;}}
 div[data-testid="stChatInput"] div[data-testid="stAudioInput"] svg{{width:18px!important; height:18px!important; fill:currentColor!important;}}
 div[data-testid="stChatInput"] div[data-testid="stAudioInput"] [data-baseweb="file-uploader"]{{background:transparent!important; border:none!important;}}
 
-/* Plus button styling inside chat input (36px x 36px, strictly aligned on the left) */
-div[data-testid="stChatInput"] .chat-plus-popover,
-div[data-testid="stChatInput"] [data-testid="stPopover"]{{
-    position:absolute!important; left:8px!important; bottom:8px!important; z-index:25!important;
-    width:36px!important; height:36px!important; margin:0!important; padding:0!important;
-}}
-div[data-testid="stChatInput"] .chat-plus-popover button,
-div[data-testid="stChatInput"] [data-testid="stPopover"] button{{
+/* Plus button styling inside chat input - EXACT 36px circular button at left:10px */
+div[data-testid="stChatInput"] > div[data-testid="stPopover"],
+div[data-testid="stChatInput"] > .chat-plus-popover{{
+    position:absolute!important; left:10px!important; bottom:8px!important; top:auto!important; right:auto!important; z-index:31!important;
     width:36px!important; height:36px!important; min-width:36px!important; min-height:36px!important; max-width:36px!important; max-height:36px!important;
-    border-radius:50%!important; background:#221F45!important; border:1px solid #5A33FF66!important;
-    color:#e4e4e7!important; display:flex!important; align-items:center!important; justify-content:center!important;
-    padding:0!important; margin:0!important; font-size:18px!important; cursor:pointer!important;
+    margin:0!important; padding:0!important; transform:none!important;
 }}
-div[data-testid="stChatInput"] [data-testid="stPopover"] button:hover{{background:#2D285B!important; border-color:#8B70FF!important; color:#ffffff!important;}}
+div[data-testid="stChatInput"] > div[data-testid="stPopover"] > button,
+div[data-testid="stChatInput"] > .chat-plus-popover button{{
+    width:36px!important; height:36px!important; min-width:36px!important; min-height:36px!important; max-width:36px!important; max-height:36px!important;
+    border-radius:50%!important; background:#2a2057!important; border:1px solid #5A33FF66!important;
+    color:#e4e4e7!important; display:flex!important; align-items:center!important; justify-content:center!important;
+    padding:0!important; margin:0!important; font-size:18px!important; cursor:pointer!important; line-height:1!important;
+}}
+div[data-testid="stChatInput"] > div[data-testid="stPopover"] > button:hover,
+div[data-testid="stChatInput"] > .chat-plus-popover button:hover{{background:#372b6e!important; border-color:#8B70FF!important; color:#ffffff!important;}}
 .studio-step{{background:{CARD}!important; border:1px solid {BORDER}!important; border-radius:14px!important; padding:18px!important; margin-bottom:14px!important;}}
 .studio-step h4{{color:{TEXT}!important; margin:0 0 6px 0!important; font-size:17px!important;}}
 .studio-step p{{color:{TEXT_SEC}!important; font-size:13px!important; margin:0 0 12px 0!important; line-height:1.5!important;}}
 .studio-nav-btn>button{{text-align:left!important; padding:10px 14px!important;}}
-.studio-badge{{display:inline-block; background:#221F45; color:#c4b5fd; border:1px solid #5A33FF66; border-radius:6px; padding:2px 8px; font-size:10px; font-weight:700; margin-left:6px;}}
-.studio-step{{background:{CARD}!important; border:1px solid {BORDER}!important; border-radius:14px!important; padding:18px!important; margin-bottom:14px!important;}}
-.studio-step h4{{color:{TEXT}!important; margin:0 0 6px 0!important; font-size:17px!important;}}
-.studio-step p{{color:#a1a1aa!important; font-size:13px!important; margin:0 0 12px 0!important; line-height:1.5!important;}}
-.studio-nav-btn>button{{text-align:left!important; padding:10px 14px!important;}}
-.studio-badge{{display:inline-block; background:#27272a; color:#e4e4e7; border:1px solid #3f3f46; border-radius:6px; padding:2px 8px; font-size:10px; font-weight:700; margin-left:6px;}}
-.studio-badge-free{{background:#27272a; color:#e4e4e7; border-color:#3f3f46;}}
-.studio-badge-pro{{background:#27272a; color:#e4e4e7; border-color:#3f3f46;}}
+.studio-badge{{display:inline-block; background:#2a2057; color:#c4b5fd; border:1px solid #5A33FF66; border-radius:6px; padding:2px 8px; font-size:10px; font-weight:700; margin-left:6px;}}
+.studio-badge-free{{background:#231a4a; color:#e4e4e7; border-color:#5A33FF44;}}
+.studio-badge-pro{{background:#231a4a; color:#e4e4e7; border-color:#5A33FF44;}}
 </style>
 """, unsafe_allow_html=True)
 
@@ -1852,9 +1867,9 @@ def page_chat():
         if pt not in STARTER_CARDS:
             pt = "createur"
         st.markdown("""
-        <div style="background:#1A1930; border:1px solid #5A33FF44; border-radius:16px; padding:18px 22px; margin-bottom:18px; box-shadow:0 4px 20px rgba(15,14,30,0.6);">
+        <div style="background:#231a4a; border:1px solid #5A33FF55; border-radius:16px; padding:18px 22px; margin-bottom:18px; box-shadow:0 4px 20px rgba(15,10,35,0.6);">
             <div style="font-size:16px; font-weight:700; color:#FFFFFF; margin-bottom:4px;">Bonjour, je suis Bea.</div>
-            <div style="font-size:14px; color:#A89CFF; line-height:1.6;">Ton partenaire d'analyse stratégique, de créativité et de passage à l'action. Sur quel sujet souhaites-tu avancer aujourd'hui ?</div>
+            <div style="font-size:14px; color:#c4b5fd; line-height:1.6;">Ton partenaire d'analyse stratégique, de créativité et de passage à l'action. Sur quel sujet souhaites-tu avancer aujourd'hui ?</div>
         </div>
         """, unsafe_allow_html=True)
         cols = st.columns(3)
@@ -1931,50 +1946,63 @@ def page_chat():
             let tries = 0;
             function placeTools(){
                 const chat = doc.querySelector('div[data-testid="stChatInput"]');
+                if(!chat) return false;
+
+                // Forcer position relative sur le conteneur englobant chat
+                chat.style.position = 'relative';
+                chat.style.maxWidth = '920px';
+                chat.style.margin = '0 auto';
+                chat.style.width = '100%';
+                chat.style.boxSizing = 'border-box';
+
                 const mic = doc.querySelector('div[data-testid="stAudioInput"]');
                 const allPopovers = Array.from(doc.querySelectorAll('[data-testid="stPopover"]'));
-                const plus = allPopovers.find(p => p.innerText && (p.innerText.includes('＋') || p.innerText.includes('+'))) || allPopovers[allPopovers.length - 1];
+                const plus = allPopovers.find(p => {
+                    const txt = (p.innerText || '').trim();
+                    return txt.includes('＋') || txt.includes('+');
+                }) || allPopovers[allPopovers.length - 1];
 
                 // Nettoyer tout bouton de modèle superposé orphelin qui traînerait dans le chat
                 doc.querySelectorAll('button').forEach(b => {
                     const txt = (b.innerText || '').toLowerCase();
                     if((txt.includes('puissant') || txt.includes('llama')) && !b.closest('[data-testid="stPopover"]')){
-                        if(chat && chat.contains(b)){
+                        if(chat.contains(b)){
                             b.style.display = 'none';
                         }
                     }
                 });
 
-                if(!chat) return false;
-                chat.style.position = 'relative';
-                chat.style.maxWidth = '920px';
-                chat.style.margin = '0 auto';
-                chat.style.width = '100%';
-                
                 const input = chat.querySelector('textarea');
                 if(input){
                     input.style.paddingLeft = '56px';
-                    input.style.paddingRight = '98px';
+                    input.style.paddingRight = '102px';
                     input.style.background = 'transparent';
                     input.style.color = '#FFFFFF';
+                    input.style.boxSizing = 'border-box';
                 }
 
+                // Ancrer le bouton Plus à GAUCHE (left: 10px, bottom: 8px, 36px x 36px)
                 if(plus && !chat.contains(plus)){
                     plus.classList.add('chat-plus-popover');
                     plus.style.position = 'absolute';
-                    plus.style.left = '8px';
+                    plus.style.left = '10px';
                     plus.style.bottom = '8px';
-                    plus.style.zIndex = '25';
+                    plus.style.top = 'auto';
+                    plus.style.right = 'auto';
+                    plus.style.zIndex = '31';
                     plus.style.width = '36px';
                     plus.style.height = '36px';
                     chat.appendChild(plus);
                 }
 
+                // Ancrer le micro à DROITE avec décalage précis (right: 54px, bottom: 8px, 36px x 36px)
                 if(mic && !chat.contains(mic)){
                     mic.style.position = 'absolute';
-                    mic.style.right = '52px';
+                    mic.style.right = '54px';
                     mic.style.bottom = '8px';
-                    mic.style.zIndex = '24';
+                    mic.style.top = 'auto';
+                    mic.style.left = 'auto';
+                    mic.style.zIndex = '30';
                     mic.style.width = '36px';
                     mic.style.height = '36px';
                     chat.appendChild(mic);
@@ -1988,7 +2016,7 @@ def page_chat():
                         micBtn.style.maxWidth = '36px';
                         micBtn.style.maxHeight = '36px';
                         micBtn.style.borderRadius = '50%';
-                        micBtn.style.background = '#221F45';
+                        micBtn.style.background = '#2a2057';
                         micBtn.style.border = '1px solid #5A33FF66';
                         micBtn.style.display = 'flex';
                         micBtn.style.alignItems = 'center';
@@ -1999,12 +2027,23 @@ def page_chat():
                     }
                 }
                 
-                // Bouton envoi : taille 36px strictement identique au micro et au plus
-                const sendBtn = chat.querySelector('button[data-testid="stChatInputSubmitButton"]') || chat.querySelector('button:not([data-testid="stPopover"] button)');
-                if(sendBtn){
+                // Ancrer le bouton d'envoi STRICTEMENT tout à droite (right: 10px, bottom: 8px, 36px x 36px)
+                // Attention : ne JAMAIS sélectionner le micro ou le plus !
+                const allButtons = Array.from(chat.querySelectorAll('button'));
+                const sendBtn = allButtons.find(b => {
+                    if(mic && mic.contains(b)) return false;
+                    if(plus && plus.contains(b)) return false;
+                    const tid = (b.getAttribute('data-testid') || '').toLowerCase();
+                    const aria = (b.getAttribute('aria-label') || '').toLowerCase();
+                    return tid.includes('submit') || tid.includes('chatinput') || aria.includes('send') || aria.includes('envoy') || b.querySelector('svg');
+                });
+
+                if(sendBtn && (!mic || !mic.contains(sendBtn)) && (!plus || !plus.contains(sendBtn))){
                     sendBtn.style.position = 'absolute';
-                    sendBtn.style.right = '8px';
+                    sendBtn.style.right = '10px';
                     sendBtn.style.bottom = '8px';
+                    sendBtn.style.top = 'auto';
+                    sendBtn.style.left = 'auto';
                     sendBtn.style.width = '36px';
                     sendBtn.style.height = '36px';
                     sendBtn.style.minWidth = '36px';
@@ -2014,10 +2053,12 @@ def page_chat():
                     sendBtn.style.borderRadius = '50%';
                     sendBtn.style.margin = '0';
                     sendBtn.style.padding = '0';
-                    sendBtn.style.zIndex = '24';
+                    sendBtn.style.zIndex = '30';
                     sendBtn.style.display = 'flex';
                     sendBtn.style.alignItems = 'center';
                     sendBtn.style.justifyContent = 'center';
+                    sendBtn.style.background = '#ffffff';
+                    sendBtn.style.color = '#181135';
                 }
                 return Boolean(mic && plus);
             }

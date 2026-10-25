@@ -389,9 +389,9 @@ Sur quel aspect spécifique souhaites-tu que nous approfondissions en premier ?`
   };
 
   return (
-    <div className="bg-[#0F0E1E] border border-[#5A33FF33] rounded-2xl md:rounded-3xl overflow-hidden shadow-2xl flex flex-col md:flex-row w-full min-h-[85vh] lg:min-h-[calc(100vh-140px)]">
+    <div className="bg-[#181135] border border-[#5A33FF44] rounded-2xl md:rounded-3xl overflow-hidden shadow-2xl flex flex-col md:flex-row w-full min-h-[85vh] lg:min-h-[calc(100vh-140px)]">
       {/* SIDEBAR NAVIGATION */}
-      <div className="w-full md:w-64 lg:w-72 bg-[#0c0b17] border-r border-[#5A33FF33] p-4 flex flex-col justify-between shrink-0">
+      <div className="w-full md:w-64 lg:w-72 bg-[#150f2e] border-r border-[#5A33FF33] p-4 flex flex-col justify-between shrink-0">
         <div className="space-y-4">
           {/* Logo & Identity */}
           <div className="text-center pt-2">
@@ -506,7 +506,7 @@ Sur quel aspect spécifique souhaites-tu que nous approfondissions en premier ?`
                   className={`w-full text-left px-3 py-2 rounded-xl text-xs font-semibold transition flex items-center justify-between ${
                     active
                       ? 'bg-gradient-to-r from-[#1E1B8C] to-[#5A33FF] text-white border border-[#5A33FF] shadow-sm font-semibold'
-                      : 'text-[#A89CFF] hover:bg-[#1A1930] hover:text-white'
+                      : 'text-[#c4b5fd] hover:bg-[#231a4a] hover:text-white'
                   }`}
                 >
                   <span className="truncate pr-1">{item.label}</span>
@@ -539,12 +539,12 @@ Sur quel aspect spécifique souhaites-tu que nous approfondissions en premier ?`
       </div>
 
       {/* MAIN CONTENT AREA */}
-      <div className="flex-1 flex flex-col bg-[#0F0E1E] overflow-hidden">
+      <div className="flex-1 flex flex-col bg-[#181135] overflow-hidden">
         {/* TOP NAVIGATION BAR - MENUS ALIGNÉS À DROITE AVEC THÈME VIOLET FONCÉ */}
-        <div className="bg-[#131226] px-4 py-2 border-b border-[#5A33FF33] flex items-center justify-between gap-3 shrink-0">
+        <div className="bg-[#150f2e] px-4 py-2 border-b border-[#5A33FF33] flex items-center justify-between gap-3 shrink-0">
           <div className="flex items-center gap-2">
             <span className="font-extrabold text-sm text-white">Bea</span>
-            <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-[#1A1930] text-[#A89CFF] border border-[#5A33FF33]">
+            <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-[#231a4a] text-[#c4b5fd] border border-[#5A33FF33]">
               BehaviorLab AI
             </span>
           </div>
@@ -568,7 +568,7 @@ Sur quel aspect spécifique souhaites-tu que nous approfondissions en premier ?`
                 className={`px-2.5 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition ${
                   currentPage === tab.id
                     ? 'bg-gradient-to-r from-[#1E1B8C] to-[#5A33FF] text-white shadow-sm border border-[#5A33FF] font-semibold'
-                    : 'text-[#A89CFF] hover:text-white hover:bg-[#1A1930]'
+                    : 'text-[#c4b5fd] hover:text-white hover:bg-[#231a4a]'
                 }`}
               >
                 {tab.label}
@@ -747,15 +747,15 @@ Sur quel aspect spécifique souhaites-tu que nous approfondissions en premier ?`
                     key={msg.id}
                     className={`p-4 rounded-2xl border ${
                       msg.role === 'user'
-                        ? 'bg-[#1A1930] border-[#5A33FF44] text-white ml-auto max-w-2xl shadow-md'
-                        : 'bg-[#141328] border-[#5A33FF33] text-[#f5f3ff] max-w-3xl shadow-lg'
+                        ? 'bg-[#231a4a] border-[#5A33FF44] text-white ml-auto max-w-2xl shadow-md'
+                        : 'bg-[#1b143c] border-[#5A33FF33] text-[#f5f3ff] max-w-3xl shadow-lg'
                     }`}
                   >
                     <div className="flex items-center justify-between mb-2">
-                      <span className="text-xs font-bold text-[#A89CFF] flex items-center gap-1.5">
+                      <span className="text-xs font-bold text-[#c4b5fd] flex items-center gap-1.5">
                         {msg.role === 'user' ? `👤 ${userProfile.displayName}` : '🧠 Bea (BehaviorLab AI)'}
                       </span>
-                      <span className="text-[10px] text-[#A89CFF]/60">{msg.timestamp}</span>
+                      <span className="text-[10px] text-[#c4b5fd]/60">{msg.timestamp}</span>
                     </div>
                     <div className="text-sm leading-relaxed whitespace-pre-line">{msg.content}</div>
 
@@ -767,7 +767,7 @@ Sur quel aspect spécifique souhaites-tu que nous approfondissions en premier ?`
                           className={`px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 ${
                             speakingMsgId === msg.id
                               ? 'bg-rose-500/20 text-rose-300 border border-rose-500/40 animate-pulse'
-                              : 'bg-[#1A1930] text-[#A89CFF] hover:text-white hover:bg-[#252245] border border-[#5A33FF44]'
+                              : 'bg-[#231a4a] text-[#c4b5fd] hover:text-white hover:bg-[#2a2057] border border-[#5A33FF44]'
                           }`}
                           title="Écouter la réponse de Bea à voix haute (100% gratuit)"
                         >
@@ -777,15 +777,15 @@ Sur quel aspect spécifique souhaites-tu que nous approfondissions en premier ?`
 
                         <button 
                           onClick={() => navigator.clipboard.writeText(msg.content)}
-                          className="p-1.5 rounded-lg bg-[#151428] hover:bg-[#252245] border border-[#5A33FF33] text-[#A89CFF] hover:text-white" 
+                          className="p-1.5 rounded-lg bg-[#2a2057] hover:bg-[#372b6e] border border-[#5A33FF33] text-[#c4b5fd] hover:text-white" 
                           title="Copier le texte"
                         >
                           <Copy className="w-3.5 h-3.5" />
                         </button>
-                        <button className="p-1.5 rounded-lg bg-[#151428] hover:bg-[#252245] border border-[#5A33FF33] text-[#A89CFF] hover:text-white" title="Utile">
+                        <button className="p-1.5 rounded-lg bg-[#2a2057] hover:bg-[#372b6e] border border-[#5A33FF33] text-[#c4b5fd] hover:text-white" title="Utile">
                           <ThumbsUp className="w-3.5 h-3.5" />
                         </button>
-                        <button className="p-1.5 rounded-lg bg-[#151428] hover:bg-[#252245] border border-[#5A33FF33] text-[#A89CFF] hover:text-white" title="À améliorer">
+                        <button className="p-1.5 rounded-lg bg-[#2a2057] hover:bg-[#372b6e] border border-[#5A33FF33] text-[#c4b5fd] hover:text-white" title="À améliorer">
                           <ThumbsDown className="w-3.5 h-3.5" />
                         </button>
                       </div>
@@ -796,14 +796,14 @@ Sur quel aspect spécifique souhaites-tu que nous approfondissions en premier ?`
             </div>
 
             {/* STARTER PROMPTS ADAPTÉS AU PROFIL ACTUEL */}
-            <div className="px-4 py-2 bg-[#121124] border-t border-[#5A33FF33] overflow-x-auto">
+            <div className="px-4 py-2 bg-[#150f2e] border-t border-[#5A33FF33] overflow-x-auto">
               <div className="max-w-4xl mx-auto w-full flex items-center gap-2">
                 <span className="text-[10px] font-bold text-[#8B70FF] shrink-0">Suggestions profil :</span>
                 {PROFILE_METAS[userProfile.profileType]?.starterPrompts.map((prompt, pIdx) => (
                   <button
                     key={pIdx}
                     onClick={() => setInputMessage(prompt)}
-                    className="px-2.5 py-1 rounded-full bg-[#1A1930] hover:bg-[#252245] text-[11px] text-[#A89CFF] hover:text-white border border-[#5A33FF33] whitespace-nowrap transition"
+                    className="px-2.5 py-1 rounded-full bg-[#231a4a] hover:bg-[#2a2057] text-[11px] text-[#c4b5fd] hover:text-white border border-[#5A33FF33] whitespace-nowrap transition"
                   >
                     {prompt.length > 45 ? prompt.slice(0, 45) + '...' : prompt}
                   </button>
@@ -812,7 +812,7 @@ Sur quel aspect spécifique souhaites-tu que nous approfondissions en premier ?`
             </div>
 
             {/* Input Bar avec Honeypot anti-bot */}
-            <div className="p-3 md:p-4 bg-[#0F0E1E] border-t border-[#5A33FF33] relative">
+            <div className="p-3 md:p-4 bg-[#181135] border-t border-[#5A33FF33] relative">
               <div className="max-w-4xl mx-auto w-full">
                 {/* Invisible Honeypot field for bot trapping */}
                 <input 
@@ -826,7 +826,7 @@ Sur quel aspect spécifique souhaites-tu que nous approfondissions en premier ?`
                 />
 
                 {/* Barre de saisie de prompt ergonomique Bea */}
-                <div className="bg-[#1A1930] border border-[#5A33FF44] hover:border-[#5A33FF88] focus-within:border-[#8B70FF] rounded-[26px] p-3 shadow-xl transition-all duration-200">
+                <div className="bg-[#201844] border border-[#5A33FF55] hover:border-[#5A33FF88] focus-within:border-[#8B70FF] rounded-[26px] p-3 shadow-xl transition-all duration-200">
                   {/* Textarea area */}
                   <div className="px-1.5 pt-0.5">
                     <textarea
@@ -844,7 +844,7 @@ Sur quel aspect spécifique souhaites-tu que nous approfondissions en premier ?`
                         }
                       }}
                       placeholder={`Envoyer un message à Bea (${PROFILE_METAS[userProfile.profileType]?.label})...`}
-                      className="w-full bg-transparent text-white text-[15px] placeholder-[#A89CFF]/60 resize-none focus:outline-none min-h-[42px] max-h-[160px] leading-relaxed selection:bg-[#5A33FF]/40"
+                      className="w-full bg-transparent text-white text-[15px] placeholder-[#c4b5fd]/60 resize-none focus:outline-none min-h-[42px] max-h-[160px] leading-relaxed selection:bg-[#5A33FF]/40"
                     />
                   </div>
 
@@ -859,7 +859,7 @@ Sur quel aspect spécifique souhaites-tu que nous approfondissions en premier ?`
                           className={`w-9 h-9 rounded-full flex items-center justify-center transition-all duration-150 border ${
                             showPlusMenu 
                               ? 'bg-gradient-to-r from-[#1E1B8C] to-[#5A33FF] text-white border-[#5A33FF]' 
-                              : 'bg-[#151428] hover:bg-[#252245] border-[#5A33FF33] text-[#A89CFF] hover:text-white'
+                              : 'bg-[#2a2057] hover:bg-[#372b6e] border-[#5A33FF44] text-[#c4b5fd] hover:text-white'
                           }`}
                           title="Modèle IA, document ou action rapide"
                         >
@@ -867,21 +867,21 @@ Sur quel aspect spécifique souhaites-tu que nous approfondissions en premier ?`
                         </button>
 
                         {showPlusMenu && (
-                          <div className="absolute bottom-11 left-0 z-50 w-72 max-w-[calc(100vw-32px)] bg-[#1A1930] border border-[#5A33FF55] rounded-2xl p-2.5 shadow-2xl space-y-2 animate-in fade-in slide-in-from-bottom-2">
+                          <div className="absolute bottom-11 left-0 z-50 w-72 max-w-[calc(100vw-32px)] bg-[#231a4a] border border-[#5A33FF66] rounded-2xl p-2.5 shadow-2xl space-y-2 animate-in fade-in slide-in-from-bottom-2">
                             {/* SÉLECTEUR DE MODÈLE INTÉGRÉ DIRECTEMENT DANS LE PLUS */}
                             <div>
                               <div className="text-[10px] font-bold text-[#8B70FF] px-2 py-1 uppercase tracking-wider flex items-center justify-between">
                                 <span>Modèle IA</span>
-                                <span className="text-[9px] text-[#A89CFF] font-normal">Choisi pour le chat</span>
+                                <span className="text-[9px] text-[#c4b5fd] font-normal">Choisi pour le chat</span>
                               </div>
-                              <div className="grid grid-cols-2 gap-1.5 p-1 bg-[#131226] rounded-xl border border-[#5A33FF33]">
+                              <div className="grid grid-cols-2 gap-1.5 p-1 bg-[#1b143c] rounded-xl border border-[#5A33FF33]">
                                 <button
                                   type="button"
                                   onClick={() => setModelChoice('rapide')}
                                   className={`px-2 py-2 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition ${
                                     modelChoice === 'rapide'
                                       ? 'bg-gradient-to-r from-[#1E1B8C] to-[#5A33FF] text-white shadow'
-                                      : 'text-[#A89CFF] hover:text-white hover:bg-[#1E1B8C]/20'
+                                      : 'text-[#c4b5fd] hover:text-white hover:bg-[#1E1B8C]/20'
                                   }`}
                                 >
                                   <Zap className="w-3.5 h-3.5 text-amber-300" />
@@ -896,7 +896,7 @@ Sur quel aspect spécifique souhaites-tu que nous approfondissions en premier ?`
                                   className={`px-2 py-2 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition ${
                                     modelChoice === 'puissant'
                                       ? 'bg-gradient-to-r from-[#1E1B8C] to-[#5A33FF] text-white shadow'
-                                      : 'text-[#A89CFF] hover:text-white hover:bg-[#1E1B8C]/20'
+                                      : 'text-[#c4b5fd] hover:text-white hover:bg-[#1E1B8C]/20'
                                   }`}
                                 >
                                   <Brain className="w-3.5 h-3.5 text-purple-300" />
@@ -978,7 +978,7 @@ Sur quel aspect spécifique souhaites-tu que nous approfondissions en premier ?`
                         className={`w-9 h-9 rounded-full flex items-center justify-center transition-all duration-150 shrink-0 border ${
                           isRecordingVoice
                             ? 'bg-rose-600 text-white border-rose-500 animate-pulse shadow-md'
-                            : 'bg-[#151428] hover:bg-[#252245] text-[#A89CFF] hover:text-white border-[#5A33FF44] shadow-sm'
+                            : 'bg-[#2a2057] hover:bg-[#372b6e] text-[#c4b5fd] hover:text-white border-[#5A33FF44] shadow-sm'
                         }`}
                         title={isRecordingVoice ? 'Arrêter la dictée vocale' : 'Dictée vocale gratuite (Microphone)'}
                       >
@@ -993,7 +993,7 @@ Sur quel aspect spécifique souhaites-tu que nous approfondissions en premier ?`
                         className={`w-9 h-9 rounded-full flex items-center justify-center transition-all duration-150 shrink-0 ${
                           inputMessage.trim()
                             ? 'bg-gradient-to-r from-[#1E1B8C] to-[#5A33FF] text-white hover:brightness-110 active:scale-95 shadow-md font-bold cursor-pointer'
-                            : 'bg-[#151428] text-[#A89CFF]/40 border border-[#5A33FF22] cursor-not-allowed'
+                            : 'bg-[#2a2057] text-[#c4b5fd]/40 border border-[#5A33FF22] cursor-not-allowed'
                         }`}
                         title="Envoyer le message (Entrée)"
                       >
@@ -1004,7 +1004,7 @@ Sur quel aspect spécifique souhaites-tu que nous approfondissions en premier ?`
                 </div>
 
                 {/* Discreet helper underneath */}
-                <div className="text-center text-[11px] text-[#A89CFF]/70 pt-2">
+                <div className="text-center text-[11px] text-[#c4b5fd]/70 pt-2">
                   <span>Bea peut faire des erreurs. BehaviorLab AI. Modèle actif : {modelChoice === 'rapide' ? '⚡ Llama instant' : '🧠 Puissant (70B)'}</span>
                 </div>
               </div>

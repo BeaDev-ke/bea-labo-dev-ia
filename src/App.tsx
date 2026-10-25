@@ -23,7 +23,7 @@ export default function App() {
   const [currentView, setCurrentView] = useState<MainView>('portal');
 
   return (
-    <div className="min-h-screen bg-[#0f0a1e] text-[#f5f3ff] flex flex-col font-sans selection:bg-zinc-700 selection:text-white">
+    <div className="min-h-screen bg-[#181135] text-[#f5f3ff] flex flex-col font-sans selection:bg-purple-900 selection:text-white">
       {/* Top Header / Navigation Bar */}
       <header className="sticky top-0 z-50 bg-[#0d0d14]/90 backdrop-blur-md border-b border-zinc-800 px-4 md:px-8 py-3.5 shadow-xl">
         <div className="max-w-7xl mx-auto flex flex-col sm:flex-row sm:items-center justify-between gap-3">
