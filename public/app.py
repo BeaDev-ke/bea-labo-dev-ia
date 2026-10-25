@@ -17,17 +17,30 @@ from groq import Groq
 from PIL import Image, ImageDraw, ImageFont, ImageOps
 from supabase import create_client
 
-from bea_utils import (
-    PALETTES,
-    clean_text,
-    cues_to_srt,
-    cues_to_vtt,
-    extract_html,
-    image_to_png_bytes,
-    make_thumbnail,
-    script_to_cues,
-    segments_to_cues,
-)
+try:
+    from andrea_utils import (
+        PALETTES,
+        clean_text,
+        cues_to_srt,
+        cues_to_vtt,
+        extract_html,
+        image_to_png_bytes,
+        make_thumbnail,
+        script_to_cues,
+        segments_to_cues,
+    )
+except ImportError:
+    from bea_utils import (
+        PALETTES,
+        clean_text,
+        cues_to_srt,
+        cues_to_vtt,
+        extract_html,
+        image_to_png_bytes,
+        make_thumbnail,
+        script_to_cues,
+        segments_to_cues,
+    )
 
 def find_file(cands):
     for f in cands:
@@ -35,23 +48,31 @@ def find_file(cands):
             return f
     return None
 
-LOGO = find_file(["logo_bea.png", "logo.png", "logo_bea.svg"])
+LOGO = find_file(["logo_andrea.png", "logo_bea.png", "logo.png", "logo_andrea.svg", "logo_bea.svg"])
 try:
     _icon = Image.open(LOGO) if LOGO else "🧠"
 except Exception:
     _icon = "🧠"
 
 try:
-    from bea_i18n import setup_i18n, tr, current_lang, render_language_selector, language_instruction, flush_translations
+    from andrea_i18n import setup_i18n, tr, current_lang, render_language_selector, language_instruction, flush_translations
     HAS_I18N = True
 except Exception:
-    HAS_I18N = False
+    try:
+        from bea_i18n import setup_i18n, tr, current_lang, render_language_selector, language_instruction, flush_translations
+        HAS_I18N = True
+    except Exception:
+        HAS_I18N = False
 
 try:
-    from bea_voice import render_voice_button, render_voice_player, render_voice_settings, queue_autoplay
+    from andrea_voice import render_voice_button, render_voice_player, render_voice_settings, queue_autoplay
     HAS_VOICE = True
 except Exception:
-    HAS_VOICE = False
+    try:
+        from bea_voice import render_voice_button, render_voice_player, render_voice_settings, queue_autoplay
+        HAS_VOICE = True
+    except Exception:
+        HAS_VOICE = False
 
 st.set_page_config(page_title="Andrea", page_icon=_icon, layout="wide", initial_sidebar_state="expanded")
 if HAS_I18N:
@@ -198,29 +219,29 @@ div[data-baseweb="base-input"]{{background:transparent!important; border:none!im
 div[data-baseweb="input"] input, div[data-baseweb="textarea"] textarea, div[data-baseweb="select"] input{{background:transparent!important; color:{TEXT}!important; border:none!important; box-shadow:none!important; outline:none!important;}}
 
 /* Discussion box - Large 2-tier card matching preview perfectly (Image 3) */
-div[data-testid="stChatInput"]{
+div[data-testid="stChatInput"]{{
     max-width:920px!important; margin:0 auto!important; width:100%!important;
     background:#201844!important; border:1px solid #5A33FF55!important; border-radius:24px!important;
     padding-top:12px!important; padding-left:14px!important; padding-right:14px!important; padding-bottom:48px!important;
     min-height:98px!important; box-shadow:0 4px 24px rgba(15,10,35,0.6)!important;
     position:relative!important; box-sizing:border-box!important;
     transition:border-color 0.2s ease, box-shadow 0.2s ease!important;
-}
-div[data-testid="stChatInput"]:focus-within{
+}}
+div[data-testid="stChatInput"]:focus-within{{
     border-color:#8B70FF!important;
     box-shadow:0 0 16px rgba(139,112,255,0.3)!important;
-}
+}}
 div[data-testid="stChatInput"] > div,
-div[data-testid="stChatInput"] [data-baseweb="base-input"]{
+div[data-testid="stChatInput"] [data-baseweb="base-input"]{{
     position:static!important; background:transparent!important; border:none!important; box-shadow:none!important; width:100%!important;
-}
-div[data-testid="stChatInput"] textarea{
+}}
+div[data-testid="stChatInput"] textarea{{
     padding:2px 4px!important; min-height:42px!important;
     font-size:15px!important; line-height:1.5!important;
     background:transparent!important; color:#FFFFFF!important;
     border:none!important; outline:none!important; box-shadow:none!important; width:100%!important; box-sizing:border-box!important;
     resize:none!important;
-}
+}}
 div[data-testid="stBottom"]{{background:transparent!important; position:relative!important;}}
 div[data-testid="stBottom"]>div{{background:transparent!important; max-width:920px!important; margin:0 auto!important;}}
 .bea-hero-title{{font-size:34px; font-weight:800; color:{TEXT}; text-align:center; margin:8px 0 2px 0; letter-spacing:-0.5px;}}

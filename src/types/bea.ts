@@ -8,6 +8,20 @@ export interface SubLevelItem {
   defaultPreset: string;
 }
 
+export interface LevelDeepGuide {
+  summary: string;
+  mentalModel: string;
+  whenToUse: string[];
+  safeGuards: string[];
+  targetedFiles: string[];
+  commonPitfalls: string[];
+  practicalExample: {
+    userPrompt: string;
+    actionDescription: string;
+    codeSample: string;
+  };
+}
+
 export interface ModifLevel {
   id: ModifLevelId;
   title: string;
@@ -18,6 +32,7 @@ export interface ModifLevel {
   targets: Record<string, string>;
   presets: string[];
   subLevels: SubLevelItem[];
+  deepGuide?: LevelDeepGuide;
 }
 
 export interface BackupItem {
@@ -79,9 +94,11 @@ export interface UserProfile {
 
 export type PageView = 
   | 'chat' 
+  | 'creative_hub'
+  | 'studio' 
+  | 'modeles'
   | 'code' 
   | 'app' 
-  | 'studio' 
   | 'projets' 
   | 'perso' 
   | 'compte' 

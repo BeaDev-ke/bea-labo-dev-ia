@@ -86,7 +86,7 @@ interface AiSettingsPanelProps {
 export const AiSettingsPanel: React.FC<AiSettingsPanelProps> = ({ onNotify }) => {
   const [settings, setSettings] = useState<AiSettings>(() => {
     try {
-      const saved = localStorage.getItem('bea_ai_settings');
+      const saved = localStorage.getItem('andrea_ai_settings') || localStorage.getItem('bea_ai_settings');
       if (saved) return { ...DEFAULT_SETTINGS, ...JSON.parse(saved) };
     } catch {}
     return DEFAULT_SETTINGS;
@@ -97,7 +97,7 @@ export const AiSettingsPanel: React.FC<AiSettingsPanelProps> = ({ onNotify }) =>
 
   useEffect(() => {
     try {
-      localStorage.setItem('bea_ai_settings', JSON.stringify(settings));
+      localStorage.setItem('andrea_ai_settings', JSON.stringify(settings));
     } catch {}
   }, [settings]);
 
@@ -118,7 +118,7 @@ export const AiSettingsPanel: React.FC<AiSettingsPanelProps> = ({ onNotify }) =>
     const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(settings, null, 2));
     const downloadAnchor = document.createElement('a');
     downloadAnchor.setAttribute("href", dataStr);
-    downloadAnchor.setAttribute("download", `bea_ai_parameters_${Date.now()}.json`);
+    downloadAnchor.setAttribute("download", `andrea_ai_parameters_${Date.now()}.json`);
     document.body.appendChild(downloadAnchor);
     downloadAnchor.click();
     downloadAnchor.remove();

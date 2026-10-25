@@ -16,18 +16,54 @@ export const LAB_LEVELS: Record<string, ModifLevel> = {
       'Barre latérale & badges (render_sidebar)': 'render_sidebar',
     },
     presets: [
-      'Passer toute l\'interface sur une palette épurée monochrome & minimaliste',
+      'Passer toute l\'interface sur une palette épurée violet profond (#181135 / #201844)',
+      'Ajuster la case de discussion en grand bloc à 2 étages avec boutons circulaires 36px',
       'Remplacer le texte d\'accueil par une formulation orientée action immédiate',
-      'Ajouter des raccourcis clavier visuels sous la case d\'envoi',
       'Augmenter le contraste des boutons d\'action et adoucir les bordures',
     ],
+    deepGuide: {
+      summary: 'Le Niveau 1 est le niveau à risque zéro absolu. Il cible uniquement les styles CSS, les variables de couleurs, les micro-copies de l\'interface et la disposition visuelle, sans toucher aux fonctions Python.',
+      mentalModel: 'Comme repeindre et réaménager la décoration d\'un espace de travail sans toucher aux murs porteurs ni aux circuits électriques.',
+      whenToUse: [
+        'Ajuster la palette de couleurs (ex. fond violet sombre #181135 au lieu de noir absolu).',
+        'Redimensionner et aligner les boutons d\'action (+, micro, envoyer) pour éviter toute superposition.',
+        'Modifier les micro-copies : accroches, questions initiales, placeholders et badges.',
+        'Harmoniser les bordures, ombres portées et rayons de courbure des cartes.',
+      ],
+      safeGuards: [
+        'Aucune logique Python métier n\'est altérée.',
+        'Protection syntaxique f-string automatique (doublage strict des accolades {{ et }}).',
+        'Rendu visuel instantané et prévisualisation directe.',
+      ],
+      targetedFiles: [
+        'app.py (bloc CSS injecté via st.markdown)',
+        'andrea_generator.py (palettes graphiques et dégradés)',
+        'src/index.css & configuration Tailwind',
+      ],
+      commonPitfalls: [
+        'Oublier de doubler les accolades {{ }} dans les sélecteurs CSS à l\'intérieur d\'une f-string Python (provoque une NameError critique sur Streamlit Cloud).',
+        'Utiliser un sélecteur trop générique écrasant les styles d\'autres composants.',
+        'Mettre un fond noir absolu (#000000) au lieu du violet profond signature d\'Andrea (#181135 / #201844).',
+      ],
+      practicalExample: {
+        userPrompt: 'Passe le fond de la case de discussion en violet profond #201844 et fixe les boutons à 36px de diamètre.',
+        actionDescription: 'Cible le bloc div[data-testid="stChatInput"] avec accolades échappées {{ }} et positionnement absolu des boutons.',
+        codeSample: `div[data-testid="stChatInput"] {{
+    background: #201844 !important;
+    border: 1px solid #5A33FF55 !important;
+    border-radius: 24px !important;
+    padding-bottom: 48px !important;
+    min-height: 98px !important;
+}}`,
+      },
+    },
     subLevels: [
       {
         id: '1.1',
         title: 'Palette & Tokens de Couleur',
-        description: 'Bordures subtiles #383838, fonds sombres #121214 / #212121, contrastes WCAG AAA.',
+        description: 'Bordures subtiles #5A33FF44, fonds sombres #181135 / #201844, contrastes WCAG AAA.',
         target: 'CSS_STYLES',
-        defaultPreset: 'Appliquer des tons neutres sombres ultra-propres et supprimer les reflets colorés.',
+        defaultPreset: 'Appliquer les tons violets profonds élégants et supprimer les reflets agressifs.',
       },
       {
         id: '1.2',
@@ -41,12 +77,12 @@ export const LAB_LEVELS: Record<string, ModifLevel> = {
         title: 'Micro-Interactions & États',
         description: 'Effets hover, micro-rebonds, transitions d\'envoi et animations de saisie.',
         target: 'CSS_STYLES',
-        defaultPreset: 'Fluidifier les transitions des boutons d\'action et ajouter un retour haptique visuel.',
+        defaultPreset: 'Fluidifier les transitions des boutons d\'action et ajouter un retour visuel soigné.',
       },
       {
         id: '1.4',
         title: 'Disposition Responsive & Espacement',
-        description: 'Alignement à droite des menus, espacements d\'écran mobile, barres latérales adaptatives.',
+        description: 'Alignement à droite des menus, espacements smartphone, barres d\'outils adaptatives.',
         target: 'render_sidebar',
         defaultPreset: 'Optimiser l\'affichage pour smartphone avec barre latérale repliable fluide.',
       },
@@ -80,6 +116,37 @@ export const LAB_LEVELS: Record<string, ModifLevel> = {
       'Ajouter un filtre par format de réseau social dans page_studio',
       'Ajouter un bouton de test rapide dans la page de personnalisation',
     ],
+    deepGuide: {
+      summary: 'Le Niveau 2 intervient de manière chirurgicale sur une fonction autonome de l\'application (page_chat, page_studio, etc.). Seul le sous-arbre AST de la fonction est réécrit.',
+      mentalModel: 'Comme une opération en micro-chirurgie : on n\'ouvre que la partie concernée, on opère sous microscope avec vérification automatique, et on referme sans affecter le reste de l\'organisme.',
+      whenToUse: [
+        'Ajouter une fonctionnalité à un onglet précis (ex. export PDF ou dictée vocale dans le chat).',
+        'Modifier le workflow de création du studio de publication.',
+        'Ajouter un champ ou une étape dans le parcours d\'onboarding initial.',
+        'Optimiser la console d\'exécution de code Python.',
+      ],
+      safeGuards: [
+        'Isolation AST stricte : les autres pages et fonctions ne sont pas touchées.',
+        'Contrôle syntaxique préalable avant réinsertion dans le fichier principal.',
+        'Création systématique d\'un point de restauration avant réécriture.',
+      ],
+      targetedFiles: [
+        'app.py (fonctions page_chat, page_studio, page_code, page_onboarding)',
+        'andrea_voice.py (moteur de voix)',
+        'andrea_utils.py (outils de transformation)',
+      ],
+      commonPitfalls: [
+        'Introduire des variables d\'état non initialisées dans st.session_state.',
+        'Créer des dépendances circulaires avec des modules externes non installés.',
+      ],
+      practicalExample: {
+        userPrompt: 'Ajoute un bouton de téléchargement en PDF de la discussion dans page_chat().',
+        actionDescription: 'Modifie la section finale de page_chat pour injecter un bouton st.download_button avec mise en page soignée.',
+        codeSample: `if st.session_state.messages:
+    pdf_bytes = export_chat_to_pdf(st.session_state.messages)
+    st.download_button("⬇️ Télécharger le dialogue (PDF)", pdf_bytes, file_name="andrea_dialogue.pdf")`,
+      },
+    },
     subLevels: [
       {
         id: '2.1',
@@ -133,6 +200,36 @@ export const LAB_LEVELS: Record<string, ModifLevel> = {
       'Ajouter une étape \'Micro-défi de 15 minutes\' dans SYSTEM_BEHAVIOR_BASE',
       'Personnaliser le ton selon le niveau de fatigue ou de surcharge cognitive détecté',
     ],
+    deepGuide: {
+      summary: 'Le Niveau 3 est le cerveau psychologique et comportemental d\'Andrea. Il pilote les instructions système fondamentales, l\'éthique d\'accompagnement, les modèles mentaux et les déclencheurs de passage à l\'action.',
+      mentalModel: 'Comme définir la philosophie, les principes d\'éthique et la méthode d\'un mentor de classe mondiale : il ne pose aucun diagnostic médical, n\'invente aucun faux obstacle, mais sait guider avec une clarté redoutable.',
+      whenToUse: [
+        'Ajuster les 4 tonalités d\'Andrea (Direct, Doux, Détaillé, Expert comportemental).',
+        'Enrichir la détection des biais cognitifs majeurs (ancrage, preuve sociale, aversion à la perte).',
+        'Renforcer la règle capitale : ne jamais inventer de blocage artificiel si l\'utilisateur n\'en exprime aucun.',
+        'Spécialiser les protocoles de réponse pour les entrepreneurs, créateurs ou lycéens/étudiants.',
+      ],
+      safeGuards: [
+        'Garde-fous éthiques stricts : aucune promesse médicale, renvoi vers les numéros d\'urgence (3114, 15, 112) en cas de détresse.',
+        'Interdiction d\'inventer des statistiques ou des chiffres non vérifiés.',
+        'Alignement permanent avec la langue choisie par l\'utilisateur.',
+      ],
+      targetedFiles: [
+        'app.py (constantes SYSTEM_BEHAVIOR_BASE, SYSTEM_USE_CASES, STYLE_HINT)',
+        'andrea_i18n.py (adaptation des nuances linguistiques)',
+      ],
+      commonPitfalls: [
+        'Créer des prompts trop directifs ou mécaniques qui transforment Andrea en robot rigide.',
+        'Forcer un diagnostic de problème psychologique quand l\'utilisateur demande simplement une formule mathématique ou un bout de code.',
+      ],
+      practicalExample: {
+        userPrompt: 'Assure-toi qu\'Andrea ne diagnostique un blocage que si l\'utilisateur exprime expressément un doute ou une friction.',
+        actionDescription: 'Ajoute la clause de discernement dans SYSTEM_BEHAVIOR_BASE.',
+        codeSample: `RÈGLE CAPITALE SUR LES BLOCAGES :
+- N'INVENTE JAMAIS DE BLOCAGE ARTIFICIEL. Si l'utilisateur ne mentionne ni blocage, ni difficulté, réponds directement à sa question.
+- Tu n'explores les mécanismes psychologiques QUE si l'utilisateur exprime expressément un frein.`,
+      },
+    },
     subLevels: [
       {
         id: '3.1',
@@ -183,13 +280,44 @@ export const LAB_LEVELS: Record<string, ModifLevel> = {
       'Ajouter la détection automatique des victoires et réussites pour les stocker en mémoire positive',
       'Créer un bouton \'Purger la mémoire\' pour respecter la vie privée et le RGPD en 1 clic',
     ],
+    deepGuide: {
+      summary: 'Le Niveau 4 confère à Andrea une mémoire évolutive et personnalisée : historique des projets, profils types, forces, faiblesses récurrentes et capitalisation des victoires.',
+      mentalModel: 'Comme le carnet de suivi confidentiel d\'un coach qui retient exactement où vous en êtes, ce qui vous stimule et ce qui vous a débloqué la dernière fois.',
+      whenToUse: [
+        'Ajouter de nouvelles filières ou profils métiers (Créateur, Étudiant, Indépendant, Développeur).',
+        'Gérer la persistance sécurisée via HMAC / enveloppe signée ou table Supabase.',
+        'Ajouter un tableau de bord visuel des mémoires acquises avec option d\'édition.',
+        'Garantir le droit à l\'effacement complet (RGPD) en 1 clic.',
+      ],
+      safeGuards: [
+        'Chiffrement et intégrité signée pour empêcher toute injection locale falsifiée.',
+        'Isolation stricte des données par identifiant utilisateur.',
+        'Confirmation explicite avant toute suppression irréversible de mémoire.',
+      ],
+      targetedFiles: [
+        'app.py (page_memoire, DEFAULT_PREFS, save_onboarding)',
+        'src/data/profilesData.ts',
+        'src/utils/security.ts',
+      ],
+      commonPitfalls: [
+        'Surcharger le contexte LLM avec des mémoires obsolètes ou non pertinentes.',
+        'Oublier de vérifier l\'intégrité des données stockées dans le stockage local.',
+      ],
+      practicalExample: {
+        userPrompt: 'Permets à l\'utilisateur d\'effacer une mémoire précise ou de réinitialiser son profil en 1 clic.',
+        actionDescription: 'Ajoute les handlers de suppression granulaire dans page_memoire().',
+        codeSample: `def delete_memory(mem_id):
+    st.session_state.memories = [m for m in st.session_state.memories if m['id'] != mem_id]
+    st.success("Mémoire supprimée avec succès.")`,
+      },
+    },
     subLevels: [
       {
         id: '4.1',
         title: 'Mémoire Sémantique Long Terme',
         description: 'Indexation des décisions passées, des engagements pris et des objectifs à 30 jours.',
         target: 'page_memoire',
-        defaultPreset: 'Afficher les 5 apprentissages clés que Bea a mémorisés sur vous.',
+        defaultPreset: 'Afficher les 5 apprentissages clés qu\'Andrea a mémorisés sur vous.',
       },
       {
         id: '4.2',
@@ -233,6 +361,35 @@ export const LAB_LEVELS: Record<string, ModifLevel> = {
       'Activer une double-lecture : un agent psychologue + un agent pragmatique orienté ROI',
       'Intégrer un agent de veille qui suggère des modèles mentaux applicables',
     ],
+    deepGuide: {
+      summary: 'Le Niveau 5 déploie une équipe d\'agents IA collaboratifs dotés de rôles complémentaires pour analyser en profondeur, critiquer les failles et formuler la réponse la plus solide.',
+      mentalModel: 'Comme un cabinet d\'experts de haut vol : l\'analyste diagnostique le problème réel, le critique vérifie si le plan est réaliste, et le bâtisseur produit immédiatement le livrable.',
+      whenToUse: [
+        'Mettre en place une validation croisée (ex. Red Teaming amical avant de livrer un plan).',
+        'Créer des livrables doubles : diagnostic stratégique d\'un côté, code ou script de l\'autre.',
+        'Ajuster la répartition des rôles entre l\'analyste, le critique et le bâtisseur.',
+      ],
+      safeGuards: [
+        'Gestion des timeouts pour éviter toute attente prolongée.',
+        'Contrôle des quotas et consommation de jetons Groq/Llama.',
+        'Synthèse finale toujours limpide et unifiée pour l\'utilisateur.',
+      ],
+      targetedFiles: [
+        'app.py (orchestration multi-agents)',
+        'andrea_generator.py (agents créatifs)',
+      ],
+      commonPitfalls: [
+        'Multiplier les allers-retours entre agents créant un effet de bavardage artificiel.',
+        'Oublier de masquer les traces techniques internes pour l\'utilisateur final.',
+      ],
+      practicalExample: {
+        userPrompt: 'Insère un Agent Critique amical qui vérifie si le plan proposé peut être exécuté même un jour de faible motivation.',
+        actionDescription: 'Configure l\'agent Red Team pour poser la question test d\'adhérence.',
+        codeSample: `def agent_critique_check(plan):
+    prompt = f"Tu es l'Agent Critique bienveillant. Challenge ce plan : {plan}. Est-il faisable avec 50% d'énergie ?"
+    return ask_llm(prompt)`,
+      },
+    },
     subLevels: [
       {
         id: '5.1',
@@ -282,6 +439,35 @@ export const LAB_LEVELS: Record<string, ModifLevel> = {
       'Intégrer un audit automatique du score de conversion psychologique (sur 100)',
       'Permettre le téléchargement en 1 clic du code HTML complet ou bundle ZIP',
     ],
+    deepGuide: {
+      summary: 'Le Niveau 6 pilote la génération autonome de pages web, landing pages et interfaces interactives avec audit de friction psychologique et export instantané.',
+      mentalModel: 'Comme un studio web intégré clé en main : vous décrivez votre offre ou votre idée, et Andrea assemble les composants HTML/Tailwind, rédige l\'accroche et génère le fichier prêt à déployer.',
+      whenToUse: [
+        'Ajouter de nouveaux modèles de sites (SaaS, portfolio, formation en ligne, agence).',
+        'Intégrer des composants riches : tarification mensuelle/annuelle, accordéons FAQ, formulaires de contact.',
+        'Ajouter un score d\'audit de conversion basé sur les principes de clarté et de preuve sociale.',
+        'Exporter un fichier .html unique autonome sans configuration serveur.',
+      ],
+      safeGuards: [
+        'Sanitisation XSS stricte sur tous les codes générés.',
+        'Aperçu sécurisé dans un iframe isolé (sandbox).',
+        'Génération 100% autonome sans clé tierce requise.',
+      ],
+      targetedFiles: [
+        'src/components/SiteBuilder.tsx',
+        'app.py (page_app, SYSTEM_APP)',
+      ],
+      commonPitfalls: [
+        'Inclure des scripts externes susceptibles de bloquer le chargement.',
+        'Créer des éléments avec disposition non responsive cassant sur mobile.',
+      ],
+      practicalExample: {
+        userPrompt: 'Ajoute un audit automatique du score de clarté et de réassurance sur le site généré.',
+        actionDescription: 'Calcule les points clés de conversion (présence de CTA clair, témoignages, FAQ).',
+        codeSample: `const score = (hasCta ? 40 : 0) + (hasTestimonials ? 30 : 0) + (hasFaq ? 30 : 0);
+return <div className="conversion-score">Score d'impact : {score}/100</div>;`,
+      },
+    },
     subLevels: [
       {
         id: '6.1',
@@ -292,7 +478,7 @@ export const LAB_LEVELS: Record<string, ModifLevel> = {
       },
       {
         id: '6.2',
-        title: 'Composants Interactifs & Formulairés',
+        title: 'Composants Interactifs & Formulaires',
         description: 'FAQ accordéon, comparateur de tarifs mensuel/annuel, modale de réservation d\'appel.',
         target: 'SiteBuilder',
         defaultPreset: 'Insérer un calculateur de devis dynamique directement utilisable par le visiteur.',
@@ -325,12 +511,45 @@ export const LAB_LEVELS: Record<string, ModifLevel> = {
       'Sélecteur de Langue Vitrine (page_vitrine)': 'page_vitrine',
       'Système Multilingue (LANGUAGES)': 'LANGUAGES',
       'Prompt Multilingue Andrea (system_behavior)': 'system_behavior',
+      'Moteur i18n Andrea (andrea_i18n.py)': 'andrea_i18n',
     },
     presets: [
       'Ajouter le sélecteur des 15 langues dans la barre latérale du site visiteur',
       'Adapter les expressions comportementales aux spécificités culturelles de chaque pays',
       'Activer la détection automatique de la langue de l\'utilisateur dès sa première phrase',
     ],
+    deepGuide: {
+      summary: 'Le Niveau 7 gère l\'internationalisation et l\'universalité d\'Andrea à travers 15 langues majeures avec adaptation culturelle, traduction en cache et synthèse vocale neuronale multilingue.',
+      mentalModel: 'Comme un conseiller polyglotte qui ne se contente pas de traduire des mots, mais adopte les tournures de pensée, les métaphores et le niveau de franchise approprié à chaque culture.',
+      whenToUse: [
+        'Ajouter ou affiner les 15 langues supportées (FR, EN, ES, DE, PT, IT, NL, AR, ZH, JA, KO, RU, HI, TR, WO).',
+        'Configurer la synthèse vocale Edge TTS / MiniMax adaptée à chaque dialecte.',
+        'Optimiser le cache persistant .andrea_i18n_cache.json pour zéro temps de latence.',
+        'Gérer la direction d\'écriture de droite à gauche (RTL) pour l\'arabe.',
+      ],
+      safeGuards: [
+        'Cache mémoire persistant évitant toute surcharge réseau.',
+        'Fallback automatique vers le français en cas de terme manquant.',
+        'Support complet UTF-8 et gestion des alphabets non-latins.',
+      ],
+      targetedFiles: [
+        'andrea_i18n.py (moteur de traduction et patch transparent)',
+        'andrea_voice.py (voix neuronales multilingues)',
+        'app.py (render_language_selector)',
+      ],
+      commonPitfalls: [
+        'Traduire les noms de variables techniques ou d\'identifiants de widget.',
+        'Oublier d\'enregistrer la clé d\'état dans st.session_state["andrea_lang"].',
+      ],
+      practicalExample: {
+        userPrompt: 'Assure-toi que la langue sélectionnée persiste dans andrea_lang et synchronise la voix correspondante.',
+        actionDescription: 'Configure la synchronisation de langue entre andrea_i18n et andrea_voice.',
+        codeSample: `selected = render_language_selector()
+if selected:
+    st.session_state["andrea_lang"] = selected
+    set_voice_language(selected)`,
+      },
+    },
     subLevels: [
       {
         id: '7.1',
@@ -376,10 +595,44 @@ export const LAB_LEVELS: Record<string, ModifLevel> = {
       'Système de Quotas & Tokens (quota_consume)': 'quota_consume',
     },
     presets: [
+      'Valider la syntaxe intégrale de app.py avec le scanner AST avant tout déploiement',
       'Renforcer le bouclier AST pour bloquer toute commande dangereuse avant exécution',
       'Ajouter un snapshot automatique à chaque modification avec restauration en 1 clic',
       'Optimiser la gestion de session cookie persistante pour éviter les déconnexions',
     ],
+    deepGuide: {
+      summary: 'Le Niveau 8 est la tour de contrôle du système. Il garantit la stabilité absolue des 2500+ lignes de app.py et des modules andrea_*.py grâce à l\'analyse statique AST, l\'historique des rollbacks et le contrôle des quotas.',
+      mentalModel: 'Le responsable de la sécurité des vols : rien ne décolle sans que chaque écrou, chaque chaîne de caractères et chaque fonction n\'ait passé avec succès les tests de résistance.',
+      whenToUse: [
+        'Inspecter et corriger une erreur globale de compilation ou de démarrage (ex. f-string NameError sur Streamlit Cloud).',
+        'Restaurer une version précédente saine grâce à l\'historique des snapshots horodatés.',
+        'Mettre à jour la logique de session persistante (cookies sécurisés SameSite=Lax).',
+        'Synchroniser app.py et public/app.py pour garantir des téléchargements 100% fidèles.',
+      ],
+      safeGuards: [
+        'Validation ast.parse obligatoire : aucune version invalide ne peut écraser un fichier fonctionnel.',
+        'Création systématique d\'un fichier de secours avant écriture.',
+        'Bouclier contre les injections de code et exécutions arbitraires.',
+      ],
+      targetedFiles: [
+        'app.py (coeur 2800+ lignes)',
+        'public/app.py (miroir de téléchargement)',
+        'andrea_*.py (modules satellites)',
+        'requirements.txt & packages.txt',
+      ],
+      commonPitfalls: [
+        'Déployer sur Streamlit Cloud sans avoir exécuté une validation AST complète.',
+        'Modifier app.py sans synchroniser public/app.py.',
+      ],
+      practicalExample: {
+        userPrompt: 'Vérifie que app.py ne contient aucune erreur de syntaxe et que toutes les accolades de blocs CSS sont doublées.',
+        actionDescription: 'Exécute l\'analyse statique Python et vérifie l\'échappement dans les f-strings.',
+        codeSample: `import ast
+with open('app.py', 'r', encoding='utf-8') as f:
+    ast.parse(f.read())
+print("✅ Validation AST réussie : zéro erreur de syntaxe.")`,
+      },
+    },
     subLevels: [
       {
         id: '8.1',
@@ -415,18 +668,18 @@ export const LAB_LEVELS: Record<string, ModifLevel> = {
 
 export const SAMPLE_TARGET_SNIPPETS: Record<string, string> = {
   CSS_STYLES: `<style>
-.stApp { background: #121214 !important; }
-[data-testid="stSidebar"] { background: #121214 !important; border-right: 1px solid #27272a !important; }
-div[data-testid="stButton"]>button { background: #212121 !important; color: #f4f4f5 !important; border-radius: 12px !important; border: 1px solid #383838 !important; }
-div[data-testid="stChatMessage"] { background: #18181b !important; border: 1px solid #27272a !important; border-radius: 16px !important; }
-div[data-testid="stChatInput"] { background: #212121 !important; border: 1px solid #383838 !important; border-radius: 26px !important; }
+.stApp {{ background: #181135 !important; }}
+[data-testid="stSidebar"] {{ background: #120e28 !important; border-right: 1px solid #5A33FF33 !important; }}
+div[data-testid="stButton"]>button {{ background: #231a4a !important; color: #FFFFFF !important; border-radius: 12px !important; border: 1px solid #5A33FF66 !important; }}
+div[data-testid="stChatMessage"] {{ background: #1b143c !important; border: 1px solid #5A33FF33 !important; border-radius: 16px !important; }}
+div[data-testid="stChatInput"] {{ background: #201844 !important; border: 1px solid #5A33FF55 !important; border-radius: 24px !important; }}
 </style>`,
 
   page_chat: `def page_chat():
     st.markdown("### 💬 Discussion avec Andrea")
     if not st.session_state.messages:
         pt = (st.session_state.prefs or {}).get("profile_type") or "createur"
-        st.info("Bonjour, je suis Bea. Décris-moi un projet ou un blocage et je t'aide à repérer ce qui te freine, puis à construire un plan d'action mesurable.")
+        st.info("Bonjour, je suis Andrea. Décris-moi un projet ou un blocage et je t'aide à repérer ce qui te freine, puis à construire un plan d'action mesurable.")
         cols = st.columns(3)
         for i, q in enumerate(STARTER_CARDS.get(pt, [])):
             with cols[i % 3]:
@@ -448,45 +701,94 @@ div[data-testid="stChatInput"] { background: #212121 !important; border: 1px sol
         ...
     elif menu == "sous_titres":
         # Module de transcription automatique Whisper SRT/VTT
-        ...
-    elif menu == "miniature":
-        # Générateur 1280x720 haute conversion
         ...`,
 
-  SYSTEM_BEHAVIOR_BASE: `SYSTEM_BEHAVIOR_BASE = """Tu es Andrea, une IA d'analyse comportementale créée par BehaviorLab AI. Tu aides les entreprises, les indépendants et les créateurs de contenu à avancer sur leurs projets.
+  page_code: `def page_code():
+    st.markdown("### 💻 Éditeur & Bac à Sable Python")
+    code_input = st.text_area("Code source", value=DEFAULT_CODE, height=220)
+    if st.button("▶️ Exécuter le code"):
+        run_sandbox(code_input)`,
 
-PRINCIPE CENTRAL : tu apportes de la valeur dès ta toute première réponse. Tu ne poses JAMAIS de questions avant d'aider et tu ne conditionnes jamais ta réponse à des précisions.
+  page_app: `def page_app():
+    st.markdown("### 🌐 Atelier Web HTML & Applications")
+    st.caption("Génère une page web complète autonome avec boutons d'appel à l'action et styles élégants.")`,
 
-FORMAT PAR DÉFAUT :
-1. Une phrase qui reformule la situation.
-2. Problèmes possibles (4 à 6 blocages comportementaux identifiés).
-3. Leviers d'action concrets (4 à 6 leviers applicables sans attendre).
-4. Plan de démarrage (3 actions simples pour aujourd'hui ou cette semaine).
-5. UNE seule question facultative pour affiner."""`,
+  page_onboarding: `def page_onboarding():
+    st.markdown("### 🎓 Parcours d'accueil personnalisé")
+    p_type = st.radio("Ton profil principal :", list(PROFILE_OPTIONS.keys()))
+    if st.button("Valider mon profil"):
+        save_onboarding(p_type)`,
+
+  page_perso: `def page_perso():
+    st.markdown("### 🎨 Personnalisation d'Andrea")
+    st.selectbox("Style de réponse préféré", list(STYLE_HINT.keys()))`,
+
+  page_compte: `def page_compte():
+    st.markdown("### 💎 Mon Compte & Formules Andrea")
+    st.caption("Choisis ton niveau d'accès : Gratuit, Pro ou Ultra.")`,
+
+  page_memoire: `def page_memoire():
+    st.markdown("### 🧠 Mémoire Contextuelle & Apprentissages")
+    st.caption("Consulte et gère les informations qu'Andrea a retenues pour personnaliser ses réponses.")`,
+
+  page_projets: `def page_projets():
+    st.markdown("### 📁 Mes Projets & Livrables Enregistrés")`,
+
+  page_dev_portal: `def page_dev_portal():
+    st.markdown("### 🚪 Portail Développeur & Outils Avancés")`,
+
+  render_sidebar: `def render_sidebar():
+    with st.sidebar:
+        st.image(LOGO, width=42)
+        st.markdown("**Andrea** · BehaviorLab AI")
+        ...`,
+
+  page_vitrine: `def page_vitrine():
+    st.markdown("<div class='landing-copy'>...</div>", unsafe_allow_html=True)
+    ...`,
+
+  system_behavior: `def system_behavior(style_choice="Direct", profile_type="createur"):
+    base = SYSTEM_BEHAVIOR_BASE
+    extra = SYSTEM_USE_CASES.get(profile_type, "")
+    hint = STYLE_HINT.get(style_choice, "")
+    return f"{base}\\n\\n{extra}\\n\\nConsigne de style : {hint}"`,
+
+  SYSTEM_BEHAVIOR_BASE: `Tu es Andrea, une IA stratégique et comportementale d'exception conçue par BehaviorLab AI.
+RÈGLE CAPITALE SUR LES BLOCAGES :
+- N'INVENTE JAMAIS DE BLOCAGE ARTIFICIEL. Si l'utilisateur ne mentionne ni blocage, ni difficulté, réponds directement à sa question sans introduire de diagnostic imaginaire.
+- Tu n'explores les mécanismes psychologiques QUE si l'utilisateur exprime expressément un frein.`,
 
   SYSTEM_USE_CASES: `SYSTEM_USE_CASES = {
-    "clients": "MODE ANALYSE CLIENTS / PROSPECTS. Mobilise les biais cognitifs d'achat...",
-    "contenu": "MODE STRATÈGE CONTENU CRÉATEUR. Hooks qui arrêtent le scroll...",
-    "scolaire": "MODE ACCOMPAGNEMENT SCOLAIRE. Adaptation au programme du pays...",
-    "site": "MODE BÂTISSEUR DE SITE. Psychologie de la conversion...",
-    "code": "MODE COACH CODE. Debug et explications pas à pas...",
-  }`,
+    "clients": "MODE ANALYSE CLIENTS / PROSPECTS...",
+    "contenu": "MODE STRATÈGE CONTENU CRÉATEUR...",
+    "site": "MODE BÂTISSEUR DE SITE / PAGE...",
+    "code": "MODE MENTOR CODE & LOGIQUE...",
+    "scolaire": "MODE ACCOMPAGNEMENT SCOLAIRE..."
+}`,
 
-  SiteBuilder: `<!-- Moteur Bâtisseur de Site Web Andrea BehaviorLab AI -->
-<section class="hero-section">
-  <div class="badge">🔥 CONVERSION MAXIMALE · SCORE 98/100</div>
-  <h1>Transformez vos visiteurs en clients fidèles</h1>
-  <p>Une architecture validée par les sciences comportementales pour maximiser l'action.</p>
-  <div class="cta-group">
-    <a href="#tarifs" class="btn-primary">Démarrer maintenant</a>
-    <a href="#demo" class="btn-secondary">Voir la démo</a>
-  </div>
-</section>`,
+  SYSTEM_CODE: `Tu es le Mentor Code d'Andrea. Tu produis un code propre, modulaire et commenté.`,
+  SYSTEM_MONTAGE: `Tu es le Monteur Vidéo & Graphiste d'Andrea. Tu découpes les scripts en scènes rythmées.`,
+  SYSTEM_APP: `Tu es le Bâtisseur Web d'Andrea. Tu crées des pages HTML responsive avec Tailwind CSS.`,
 
-  MULTI_AGENTS: `# Orchestration Multi-Agents BehaviorLab AI
-def orchestrate_agents(user_prompt, context):
-    analysis = agent_psycho.analyze(user_prompt)
-    critique = agent_critic.evaluate(analysis)
+  save_onboarding: `def save_onboarding(prefs):
+    st.session_state.prefs = prefs
+    st.success("Profil enregistré !")`,
+
+  memories: `# Table Supabase 'memories'
+# colonnes: id, user_id, memory_type, content, score, created_at`,
+
+  PROFILE_OPTIONS: `PROFILE_OPTIONS = {
+    "createur": "Créateur de Contenu & Vidéaste",
+    "etudiant": "Lycéen ou Étudiant",
+    "independant": "Freelance, Consultant ou Coach",
+    "entreprise": "Entrepreneur ou Dirigeant",
+    "developpeur": "Développeur ou Tech Builder"
+}`,
+
+  MULTI_AGENTS: `# Architecture Multi-Agents Andrea
+def run_multi_agent_pipeline(user_query):
+    friction = agent_psycho.analyze(user_query)
+    critique = agent_critic.evaluate(friction)
     solution = agent_builder.construct(critique)
     return solution`,
 
@@ -497,11 +799,44 @@ SUPPORTED_LANGS = [
     "한국어", "Русский", "हिन्दी", "Türkçe", "Wolof"
 ]`,
 
-  FULL_FILE: `# Fichier complet app.py (2500+ lignes)
+  SiteBuilder: `// Moteur Bâtisseur de Site Web Andrea
+export const SiteBuilder = () => {
+    // Générateur complet de landing pages avec audit de conversion
+};`,
+
+  andrea_i18n: `# Module d'internationalisation Andrea
+from andrea_i18n import setup_i18n, tr, current_lang`,
+
+  FULL_FILE: `# Fichier complet app.py (2800+ lignes)
 # Architecture BehaviorLab AI avec Validation AST Strict
 import ast, base64, difflib, html, io, json, os, re, time, zipfile
 from collections import deque
 from datetime import datetime, timezone
 import streamlit as st
 ...`,
+
+  ast_check: `def ast_check(code_str):
+    try:
+        ast.parse(code_str)
+        return True, "Code syntaxiquement valide"
+    except SyntaxError as e:
+        return False, f"Erreur de syntaxe ligne {e.lineno}: {e.msg}"`,
+
+  quota_consume: `def quota_consume(user_id, tokens):
+    # Gestion des limites d'appels Supabase RPC
+    pass`,
+
+  STARTER_CARDS: `STARTER_CARDS = {
+    "createur": ["Comment accrocher en 3 secondes ?", "Idées de vidéos pour percer", "Découper mon script en 5 scènes"],
+    "etudiant": ["Vaincre la procrastination des devoirs", "Méthode de mémorisation active", "Préparer un examen sans stress"],
+    "independant": ["Analyser le message d'un prospect", "Rédiger une offre irrésistible", "Répondre à une objection de prix"],
+    "entreprise": ["Stratégie d'acquisition client", "Déléguer sans perdre le contrôle", "Identifier le goulot d'étranglement"]
+}`,
+
+  STYLE_HINT: `STYLE_HINT = {
+    "Direct": "Va droit au but, phrases courtes, sans détour.",
+    "Doux": "Ton bienveillant et encourageant, sans jamais être complaisant.",
+    "Détaillé": "Explique en détail ta lecture de la situation et le raisonnement.",
+    "Expert comportemental": "Utilise le vocabulaire de la psychologie comportementale en l'expliquant simplement."
+}`
 };

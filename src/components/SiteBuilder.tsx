@@ -345,7 +345,7 @@ export const SiteBuilder: React.FC<SiteBuilderProps> = ({ onNotify }) => {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `site_bea_v${siteVersion}.html`;
+    a.download = `site_andrea_v${siteVersion}.html`;
     a.click();
     URL.revokeObjectURL(url);
   };

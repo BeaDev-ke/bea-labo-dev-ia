@@ -190,7 +190,7 @@ export const VisualDesignStudio: React.FC<VisualDesignStudioProps> = () => {
     if (!dataUrl) return;
     const a = document.createElement('a');
     a.href = dataUrl;
-    a.download = `bea_visuel_${selectedFormat.id}.png`;
+    a.download = `andrea_visuel_${selectedFormat.id}.png`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);

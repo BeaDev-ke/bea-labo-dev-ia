@@ -25,7 +25,10 @@ import {
   Brain,
   Sliders,
   Compass,
-  ArrowUpRight
+  ArrowUpRight,
+  ChevronDown,
+  ChevronUp,
+  Info
 } from 'lucide-react';
 import { LAB_LEVELS, SAMPLE_TARGET_SNIPPETS } from '../data/labLevels';
 import { ModifLevelId, BackupItem, DiffLine, SubLevelItem } from '../types/bea';
@@ -38,6 +41,7 @@ interface DevLabProps {
 export const DevLab: React.FC<DevLabProps> = ({ onGoToProd, onViewFullCode }) => {
   const [selectedLevel, setSelectedLevel] = useState<ModifLevelId>('3');
   const [activeTab, setActiveTab] = useState<'modify' | 'diff' | 'backups' | 'guide' | 'roadmap'>('modify');
+  const [showLevelDeepGuide, setShowLevelDeepGuide] = useState(true);
   const [modelChoice, setModelChoice] = useState('llama-3.3-70b-versatile');
   const [backupName, setBackupName] = useState(`backup_lvl3_${new Date().toISOString().slice(0, 10).replace(/-/g, '')}`);
   const [selectedTargetLabel, setSelectedTargetLabel] = useState<string>("Comportement de base d'Andrea (SYSTEM_BEHAVIOR_BASE)");
@@ -428,6 +432,106 @@ export const DevLab: React.FC<DevLabProps> = ({ onGoToProd, onViewFullCode }) =>
                   );
                 })}
               </div>
+            </div>
+          )}
+
+          {/* EXPLICATIONS APPROFONDIES DU NIVEAU SÉLECTIONNÉ */}
+          {currentLevelInfo.deepGuide && (
+            <div className="bg-[#18181b] border border-zinc-800 rounded-2xl overflow-hidden shadow-lg transition-all">
+              <button
+                type="button"
+                onClick={() => setShowLevelDeepGuide(!showLevelDeepGuide)}
+                className="w-full px-5 py-3.5 bg-[#212121]/70 hover:bg-[#212121] flex items-center justify-between text-left transition"
+              >
+                <div className="flex items-center gap-2.5">
+                  <span className="p-1.5 rounded-lg bg-zinc-800 border border-zinc-700 text-zinc-300">
+                    <BookOpen className="w-4 h-4 text-purple-400" />
+                  </span>
+                  <div>
+                    <div className="text-xs font-bold text-white flex items-center gap-2">
+                      <span>Comprendre en profondeur le {currentLevelInfo.badge}</span>
+                      <span className="text-[10px] font-normal text-zinc-400">Architecture, Sécurité & Conseils</span>
+                    </div>
+                    <p className="text-[11px] text-zinc-400 line-clamp-1">{currentLevelInfo.deepGuide.summary}</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2 text-xs text-zinc-400">
+                  <span>{showLevelDeepGuide ? 'Masquer' : 'Afficher'}</span>
+                  {showLevelDeepGuide ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                </div>
+              </button>
+
+              {showLevelDeepGuide && (
+                <div className="p-5 space-y-4 text-xs border-t border-zinc-800 bg-[#18181b]">
+                  {/* Mental Model Banner */}
+                  <div className="p-3.5 rounded-xl bg-purple-950/20 border border-purple-500/30 flex items-start gap-2.5">
+                    <Brain className="w-4 h-4 text-purple-400 shrink-0 mt-0.5" />
+                    <div>
+                      <strong className="text-white block mb-0.5">Modèle mental de l'Architecte :</strong>
+                      <p className="text-[#d8ccff] leading-relaxed">{currentLevelInfo.deepGuide.mentalModel}</p>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {/* Quand l'utiliser */}
+                    <div className="p-3.5 rounded-xl bg-[#212121] border border-zinc-800 space-y-2">
+                      <div className="font-bold text-emerald-300 flex items-center gap-1.5">
+                        <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+                        <span>Quand utiliser ce niveau ?</span>
+                      </div>
+                      <ul className="space-y-1.5 text-zinc-300 text-[11px] list-disc list-inside">
+                        {currentLevelInfo.deepGuide.whenToUse.map((item, i) => (
+                          <li key={i} className="leading-relaxed">{item}</li>
+                        ))}
+                      </ul>
+                    </div>
+
+                    {/* Garanties & Sécurité */}
+                    <div className="p-3.5 rounded-xl bg-[#212121] border border-zinc-800 space-y-2">
+                      <div className="font-bold text-cyan-300 flex items-center gap-1.5">
+                        <ShieldCheck className="w-3.5 h-3.5 text-cyan-400" />
+                        <span>Garanties & Bouclier AST</span>
+                      </div>
+                      <ul className="space-y-1.5 text-zinc-300 text-[11px] list-disc list-inside">
+                        {currentLevelInfo.deepGuide.safeGuards.map((item, i) => (
+                          <li key={i} className="leading-relaxed">{item}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  </div>
+
+                  {/* Pièges & Exemple */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {/* Pièges fréquents */}
+                    <div className="p-3.5 rounded-xl bg-[#212121] border border-zinc-800 space-y-2">
+                      <div className="font-bold text-amber-300 flex items-center gap-1.5">
+                        <AlertTriangle className="w-3.5 h-3.5 text-amber-400" />
+                        <span>Pièges fréquents à éviter</span>
+                      </div>
+                      <ul className="space-y-1.5 text-zinc-300 text-[11px] list-disc list-inside">
+                        {currentLevelInfo.deepGuide.commonPitfalls.map((item, i) => (
+                          <li key={i} className="leading-relaxed">{item}</li>
+                        ))}
+                      </ul>
+                    </div>
+
+                    {/* Fichiers & Exemple concret */}
+                    <div className="p-3.5 rounded-xl bg-[#212121] border border-zinc-800 space-y-2">
+                      <div className="font-bold text-purple-300 flex items-center gap-1.5">
+                        <Code className="w-3.5 h-3.5 text-purple-400" />
+                        <span>Exemple concret d'intervention</span>
+                      </div>
+                      <div className="text-[11px] text-zinc-300 space-y-1">
+                        <div><strong className="text-white">Demande :</strong> « {currentLevelInfo.deepGuide.practicalExample.userPrompt} »</div>
+                        <div className="text-zinc-400 text-[10px]">{currentLevelInfo.deepGuide.practicalExample.actionDescription}</div>
+                        <pre className="bg-[#141416] p-2 rounded-lg border border-zinc-800 font-mono text-[10px] text-zinc-300 overflow-x-auto mt-1">
+                          {currentLevelInfo.deepGuide.practicalExample.codeSample}
+                        </pre>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           )}
 
@@ -975,20 +1079,82 @@ export const DevLab: React.FC<DevLabProps> = ({ onGoToProd, onViewFullCode }) =>
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
+          <div className="grid grid-cols-1 gap-4">
             {(Object.keys(LAB_LEVELS) as ModifLevelId[]).map(lvlId => {
               const lvl = LAB_LEVELS[lvlId];
               return (
-                <div key={lvlId} className="bg-[#212121] border border-zinc-700/80 rounded-xl p-4 space-y-2">
-                  <div className="flex items-center justify-between">
-                    <h4 className="text-xs font-bold text-white">{lvl.title}</h4>
-                    <span className={`text-[10px] font-semibold px-2 py-0.5 rounded border ${lvl.color}`}>
-                      {lvl.badge}
-                    </span>
+                <div key={lvlId} className="bg-[#212121] border border-zinc-700/80 rounded-2xl p-5 space-y-3.5">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-zinc-800 pb-3">
+                    <div className="flex items-center gap-2.5">
+                      <span className={`text-[10px] font-bold px-2.5 py-1 rounded-md border ${lvl.color}`}>
+                        {lvl.badge}
+                      </span>
+                      <h4 className="text-sm font-bold text-white">{lvl.title}</h4>
+                    </div>
+                    <button
+                      onClick={() => {
+                        handleLevelChange(lvlId);
+                        setActiveTab('modify');
+                      }}
+                      className="px-3 py-1 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-xs font-semibold text-white transition flex items-center gap-1.5 self-start sm:self-auto"
+                    >
+                      <span>Modifier avec ce niveau</span>
+                      <ArrowRight className="w-3.5 h-3.5" />
+                    </button>
                   </div>
-                  <p className="text-xs text-zinc-400 leading-relaxed">{lvl.description}</p>
-                  <div className="pt-2 border-t border-zinc-700/60 text-[11px] text-zinc-300">
-                    <strong>Sous-niveaux inclus :</strong> {lvl.subLevels.map(s => s.title).join(' · ')}
+
+                  <p className="text-xs text-zinc-300 leading-relaxed">{lvl.description}</p>
+
+                  {lvl.deepGuide && (
+                    <div className="space-y-3 pt-1">
+                      {/* Mental Model */}
+                      <div className="p-3 rounded-xl bg-purple-950/20 border border-purple-500/20 text-xs">
+                        <strong className="text-purple-300 block mb-0.5">💡 Modèle mental :</strong>
+                        <span className="text-[#d8ccff]">{lvl.deepGuide.mentalModel}</span>
+                      </div>
+
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
+                        {/* Quand l'utiliser */}
+                        <div className="p-3 rounded-xl bg-[#18181b] border border-zinc-800 space-y-1.5">
+                          <strong className="text-emerald-300 flex items-center gap-1 text-[11px]">
+                            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+                            <span>Cas d'usage recommandés :</span>
+                          </strong>
+                          <ul className="text-zinc-400 text-[11px] space-y-1 list-disc list-inside">
+                            {lvl.deepGuide.whenToUse.slice(0, 3).map((u, i) => (
+                              <li key={i}>{u}</li>
+                            ))}
+                          </ul>
+                        </div>
+
+                        {/* Pièges & Fichiers */}
+                        <div className="p-3 rounded-xl bg-[#18181b] border border-zinc-800 space-y-1.5">
+                          <strong className="text-amber-300 flex items-center gap-1 text-[11px]">
+                            <AlertTriangle className="w-3.5 h-3.5 text-amber-400" />
+                            <span>Pièges fréquents :</span>
+                          </strong>
+                          <ul className="text-zinc-400 text-[11px] space-y-1 list-disc list-inside">
+                            {lvl.deepGuide.commonPitfalls.slice(0, 3).map((p, i) => (
+                              <li key={i}>{p}</li>
+                            ))}
+                          </ul>
+                        </div>
+                      </div>
+
+                      {/* Exemple concret */}
+                      <div className="p-3 rounded-xl bg-[#18181b] border border-zinc-800 text-[11px]">
+                        <div className="flex items-center justify-between text-zinc-400 mb-1">
+                          <span><strong>Exemple de consigne :</strong> « {lvl.deepGuide.practicalExample.userPrompt} »</span>
+                        </div>
+                        <pre className="bg-[#121214] p-2 rounded-lg border border-zinc-800 font-mono text-[10px] text-zinc-300 overflow-x-auto">
+                          {lvl.deepGuide.practicalExample.codeSample}
+                        </pre>
+                      </div>
+                    </div>
+                  )}
+
+                  <div className="pt-2 border-t border-zinc-800 text-[11px] text-zinc-400">
+                    <strong className="text-zinc-300">Spécialisations (sous-niveaux) :</strong> {lvl.subLevels.map(s => s.title).join(' · ')}
                   </div>
                 </div>
               );

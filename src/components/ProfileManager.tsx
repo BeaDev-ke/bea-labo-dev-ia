@@ -75,7 +75,7 @@ export const ProfileManager: React.FC<ProfileManagerProps> = ({
 
       // 2. Scellement cryptographique d'intégrité anti-falsification
       const envelope = signData(updated);
-      localStorage.setItem('bea_user_profile_secure', JSON.stringify(envelope));
+      localStorage.setItem('andrea_user_profile_secure', JSON.stringify(envelope));
 
       // 3. Application au parent
       onUpdateProfile(updated);

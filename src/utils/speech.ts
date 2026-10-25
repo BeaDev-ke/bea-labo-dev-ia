@@ -118,4 +118,5 @@ class BeaVoiceEngine {
   }
 }
 
-export const beaVoice = new BeaVoiceEngine();
+export const andreaVoice = new BeaVoiceEngine();
+export const beaVoice = andreaVoice;

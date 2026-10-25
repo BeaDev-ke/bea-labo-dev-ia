@@ -13,7 +13,7 @@ import {
 } from 'lucide-react';
 import { DevPortal } from './components/DevPortal';
 import { DevLab } from './components/DevLab';
-import { BeaAppPreview } from './components/BeaAppPreview';
+import { AndreaAppPreview } from './components/AndreaAppPreview';
 import { AppPyViewer } from './components/AppPyViewer';
 import { VisitorLanding } from './components/VisitorLanding';
 
@@ -171,7 +171,7 @@ export default function App() {
                 Ouvrir le Labo Dev
               </button>
             </div>
-            <BeaAppPreview onOpenLab={() => setCurrentView('lab')} />
+            <AndreaAppPreview onOpenLab={() => setCurrentView('lab')} />
           </div>
         )}
 

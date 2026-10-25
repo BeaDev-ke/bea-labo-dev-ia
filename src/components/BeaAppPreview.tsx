@@ -34,13 +34,14 @@ import {
   Sliders
 } from 'lucide-react';
 import { ChatMessage, PageView, UserProfile, ProfileType, UseCaseType } from '../types/bea';
-import { beaVoice } from '../utils/speech';
+import { andreaVoice, beaVoice } from '../utils/speech';
 import { VisualDesignStudio } from './VisualDesignStudio';
 import { SiteBuilder } from './SiteBuilder';
 import { ProfileManager } from './ProfileManager';
 import { SalesOffers } from './SalesOffers';
 import { SecurityShield } from './SecurityShield';
 import { AiSettingsPanel } from './AiSettingsPanel';
+import { CreativeHub } from './CreativeHub';
 import { PROFILE_METAS } from '../data/profilesData';
 import { 
   inspectPromptSecurity, 
@@ -51,9 +52,10 @@ import {
   isHoneypotTriggered 
 } from '../utils/security';
 
-interface BeaAppPreviewProps {
+export interface AndreaAppPreviewProps {
   onOpenLab: () => void;
 }
+export type BeaAppPreviewProps = AndreaAppPreviewProps;
 
 const DEFAULT_PROFILE: UserProfile = {
   id: 'usr-1',
@@ -71,7 +73,7 @@ const DEFAULT_PROFILE: UserProfile = {
   momentumPoints: 140,
 };
 
-export const BeaAppPreview: React.FC<BeaAppPreviewProps> = ({ onOpenLab }) => {
+export const AndreaAppPreview: React.FC<AndreaAppPreviewProps> = ({ onOpenLab }) => {
   const [currentPage, setCurrentPage] = useState<PageView>('chat');
   const [inputMessage, setInputMessage] = useState('');
   const [speakingMsgId, setSpeakingMsgId] = useState<string | null>(null);
@@ -126,7 +128,7 @@ export const BeaAppPreview: React.FC<BeaAppPreviewProps> = ({ onOpenLab }) => {
   // Profile State (chargé et vérifié cryptographiquement)
   const [userProfile, setUserProfile] = useState<UserProfile>(() => {
     try {
-      const stored = localStorage.getItem('bea_user_profile_secure');
+      const stored = localStorage.getItem('andrea_user_profile_secure') || localStorage.getItem('bea_user_profile_secure');
       if (stored) {
         const parsed = JSON.parse(stored);
         return verifyData<UserProfile>(parsed, DEFAULT_PROFILE);
@@ -194,7 +196,7 @@ if __name__ == "__main__":
   // Arrêt de la voix au démontage
   useEffect(() => {
     return () => {
-      beaVoice.stop();
+      andreaVoice.stop();
     };
   }, [currentPage]);
 
@@ -203,7 +205,7 @@ if __name__ == "__main__":
     setUserProfile(updated);
     try {
       const envelope = signData(updated);
-      localStorage.setItem('bea_user_profile_secure', JSON.stringify(envelope));
+      localStorage.setItem('andrea_user_profile_secure', JSON.stringify(envelope));
     } catch (e) {
       console.error('Erreur sauvegarde profil', e);
     }
@@ -219,11 +221,11 @@ if __name__ == "__main__":
 
   const toggleSpeak = (msgId: string, text: string) => {
     if (speakingMsgId === msgId) {
-      beaVoice.stop();
+      andreaVoice.stop();
       setSpeakingMsgId(null);
     } else {
       setSpeakingMsgId(msgId);
-      beaVoice.speak(text, () => {
+      andreaVoice.speak(text, () => {
         setSpeakingMsgId(null);
       });
     }
@@ -489,6 +491,7 @@ Sur quel aspect spécifique souhaites-tu que nous approfondissions en premier ?`
           <div className="space-y-1">
             {[
               { id: 'chat', label: '💬 Discussion avec Andrea', icon: MessageSquare },
+              { id: 'creative_hub', label: '✨ Labo d\'IA (Création)', icon: Sparkles, badge: 'Viral' },
               { id: 'profil', label: '👤 Mon Profil & Rôle', icon: User, badge: 'Réparé' },
               { id: 'compte', label: '💎 Offres & Abonnements', icon: CreditCard, badge: 'Pro' },
               { id: 'studio', label: '🎨 Studio de Design Visuel', icon: Film },
@@ -553,6 +556,7 @@ Sur quel aspect spécifique souhaites-tu que nous approfondissions en premier ?`
           <div className="flex items-center gap-1.5 overflow-x-auto ml-auto justify-end">
             {[
               { id: 'chat', label: '💬 Discussion' },
+              { id: 'creative_hub', label: '✨ Labo d\'IA' },
               { id: 'studio', label: '🎨 Studio Visuel' },
               { id: 'app', label: '🌐 Site Web' },
               { id: 'code', label: '💻 Code' },
@@ -1012,6 +1016,20 @@ Sur quel aspect spécifique souhaites-tu que nous approfondissions en premier ?`
           </div>
         )}
 
+        {/* LABO D'IA & CRÉATION - DIRECTEMENT CONFORME À LA 2E IMAGE */}
+        {(currentPage === 'creative_hub' || currentPage === 'modeles') && (
+          <CreativeHub
+            onSelectAction={(action, promptText) => {
+              if (promptText) {
+                setInputMessage(promptText);
+                setCurrentPage('chat');
+              }
+            }}
+            onNavigate={(page) => setCurrentPage(page)}
+            onOpenVoice={handleToggleVoiceRecording}
+          />
+        )}
+
         {/* 2. PROFIL MANAGER VIEW (RÉPARATION DES PROFILS) */}
         {currentPage === 'profil' && (
           <div className="flex-1 p-6 overflow-y-auto">
@@ -1117,3 +1135,6 @@ Sur quel aspect spécifique souhaites-tu que nous approfondissions en premier ?`
     </div>
   );
 };
+
+export const BeaAppPreview = AndreaAppPreview;
+export default AndreaAppPreview;
