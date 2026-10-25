@@ -210,7 +210,7 @@ export const VisualDesignStudio: React.FC<VisualDesignStudioProps> = () => {
         <div>
           <h2 className="text-xl font-bold text-white flex items-center gap-2">
             <Sparkles className="w-5 h-5 text-purple-400" />
-            Studio de Design Visuel Bea
+            Studio de Design Visuel Andrea
           </h2>
           <p className="text-xs text-[#c4b5fd]">
             Modifiez la typographie, les calques, les thèmes et exportez en PNG haute définition sans quitter Bea.

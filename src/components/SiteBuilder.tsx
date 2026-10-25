@@ -226,7 +226,7 @@ const TEMPLATES: TemplatePreset[] = [
       </div>
       <ul style="text-align:left; font-size:14px; line-height:2; color:#d4d4d8; list-style:none; padding:0 20px;">
         <li>✓ Carnet relié rigide couverture luxe toucher velours</li>
-        <li>✓ Guide PDF d'analyse des blocages par Bea</li>
+        <li>✓ Guide PDF d'analyse des blocages par Andrea</li>
         <li>✓ Livraison suivie offerte en 48h</li>
         <li>✓ Garantie satisfait ou remboursé 30 jours</li>
       </ul>
@@ -249,7 +249,7 @@ const TEMPLATES: TemplatePreset[] = [
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Bea Scolaire · Réussir Sans le Stress des Devoirs</title>
+  <title>Andrea Scolaire · Réussir Sans le Stress des Devoirs</title>
   <style>
     :root { --bg: #121214; --card: #18181b; --border: #27272a; --text: #f4f4f5; }
     * { margin:0; padding:0; box-sizing:border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
@@ -267,7 +267,7 @@ const TEMPLATES: TemplatePreset[] = [
 <body>
   <div class="container">
     <header>
-      <div style="font-weight:800; font-size:18px;">🎓 Bea Scolaire</div>
+      <div style="font-weight:800; font-size:18px;">🎓 Andrea Scolaire</div>
       <button class="btn" onclick="alert('Diagnostic gratuit ouvert !')">Faire le test gratuit</button>
     </header>
     <section class="hero">
@@ -365,7 +365,7 @@ export const SiteBuilder: React.FC<SiteBuilderProps> = ({ onNotify }) => {
               </span>
             </div>
             <h2 className="text-2xl font-black text-white tracking-tight flex items-center gap-2">
-              🌐 Bâtisseur de Sites Web Ultra — Bea
+              🌐 Bâtisseur de Sites Web Ultra — Andrea
             </h2>
             <p className="text-xs text-zinc-400 max-w-xl">
               Générez et personnalisez des pages web complètes testées scientifiquement pour maximiser la conversion.
@@ -579,7 +579,7 @@ export const SiteBuilder: React.FC<SiteBuilderProps> = ({ onNotify }) => {
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-zinc-800">
             <div>
               <div className="inline-block px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 text-xs font-bold border border-emerald-500/30 mb-1">
-                Diagnostic Scientifique Bea
+                Diagnostic Scientifique Andrea
               </div>
               <h3 className="text-xl font-bold text-white">Audit Comportemental & Taux de Conversion</h3>
               <p className="text-xs text-zinc-400">Évaluation basée sur les leviers BJ Fogg (Motivation × Capacité × Déclencheur).</p>

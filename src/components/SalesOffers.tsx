@@ -35,13 +35,13 @@ export const SalesOffers: React.FC<SalesOffersProps> = ({
       case 'etudiant':
         return {
           title: '🎓 Recommandation Étudiant : Réussir ses devoirs et examens sans stress',
-          text: 'Avec le plan Bea Pro, accédez aux micro-défis cognitifs, aux explications de cours adaptées au programme de votre pays et gagnez 2h de temps libre chaque soir.',
+          text: 'Avec le plan Andrea Pro, accédez aux micro-défis cognitifs, aux explications de cours adaptées au programme de votre pays et gagnez 2h de temps libre chaque soir.',
           recommendedPlanId: 'pro',
         };
       case 'createur':
         return {
           title: '🎬 Recommandation Créateur : Publier chaque jour sans blocage de montage',
-          text: 'Le plan Bea Pro intègre le Studio de Design Visuel, les formats multi-écrans et la génération de hooks qui captent l’attention dès les 3 premières secondes.',
+          text: 'Le plan Andrea Pro intègre le Studio de Design Visuel, les formats multi-écrans et la génération de hooks qui captent l’attention dès les 3 premières secondes.',
           recommendedPlanId: 'pro',
         };
       case 'independant':
@@ -54,7 +54,7 @@ export const SalesOffers: React.FC<SalesOffersProps> = ({
       case 'developpeur':
         return {
           title: '💻 Recommandation Tech : Bâtisseur de site en 1 prompt & Coach code illimité',
-          text: 'Avec Bea Ultra, concevez des sites complets prêts à convertir et déboguez vos scripts complexes en temps réel sans aucune limite de tokens.',
+          text: 'Avec Andrea Ultra, concevez des sites complets prêts à convertir et déboguez vos scripts complexes en temps réel sans aucune limite de tokens.',
           recommendedPlanId: 'abo',
         };
       default:
@@ -70,16 +70,16 @@ export const SalesOffers: React.FC<SalesOffersProps> = ({
       a: 'Oui, absolument. Tous nos forfaits sont 100% sans engagement. Vous pouvez annuler en un seul clic depuis votre espace membre sans justificatif.',
     },
     {
-      q: 'Pourquoi Bea est-elle différente d’une autre IA standard ?',
-      a: 'Une IA classique donne des réponses génériques et passives. Bea est une IA comportementale de BehaviorLab AI : elle identifie précisément vos biais de blocage, élimine la friction de démarrage et vous fait passer à l’action en moins de 10 minutes avec des étapes concrètes.',
+      q: 'Pourquoi Andrea est-elle différente d’une autre IA standard ?',
+      a: 'Une IA classique donne des réponses génériques et passives. Andrea est une IA comportementale de BehaviorLab AI : elle identifie précisément vos biais de blocage, élimine la friction de démarrage et vous fait passer à l’action en moins de 10 minutes avec des étapes concrètes.',
     },
     {
-      q: 'Comment fonctionne la synthèse vocale de Bea ?',
-      a: 'La voix de Bea est 100% gratuite et intégrée nativement via la synthèse vocale de pointe de votre navigateur. Vous n’avez aucun abonnement supplémentaire à payer pour écouter ses réponses.',
+      q: "Comment fonctionne la synthèse vocale d'Andrea ?",
+      a: "La voix d'Andrea est 100% gratuite et intégrée nativement via la synthèse vocale de pointe de votre navigateur. Vous n’avez aucun abonnement supplémentaire à payer pour écouter ses réponses.",
     },
     {
       q: 'Mes données et mes projets sont-ils protégés ?',
-      a: 'Oui. Bea intègre un bouclier de sécurité anti-piratage multi-niveaux : désinfection XSS, pare-feu prompt injection, chiffrement d’intégrité des quotas et isolation sandbox stricte.',
+      a: 'Oui. Andrea intègre un bouclier de sécurité anti-piratage multi-niveaux : désinfection XSS, pare-feu prompt injection, chiffrement d’intégrité des quotas et isolation sandbox stricte.',
     },
   ];
 
@@ -239,12 +239,12 @@ export const SalesOffers: React.FC<SalesOffersProps> = ({
       <div className="bg-[#140e2b] border border-[#7c3aed]/40 rounded-3xl p-6 sm:p-8 space-y-4">
         <h3 className="text-base sm:text-lg font-extrabold text-white flex items-center gap-2">
           <Clock className="w-5 h-5 text-rose-400" />
-          <span>Le coût invisible de la procrastination vs. L'effet Bea</span>
+          <span>Le coût invisible de la procrastination vs. L'effet Andrea</span>
         </h3>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
           <div className="bg-[#1e1026] p-4 rounded-2xl border border-rose-500/30 space-y-2">
-            <span className="text-rose-400 font-bold block uppercase text-[10px]">Sans Bea (Ce que vous perdez) :</span>
+            <span className="text-rose-400 font-bold block uppercase text-[10px]">Sans Andrea (Ce que vous perdez) :</span>
             <ul className="space-y-1.5 text-rose-200">
               <li>• 3 à 5 heures perdues par projet à hésiter sur la première étape</li>
               <li>• Épuisement mental causé par des tâches reportées au lendemain</li>
@@ -254,7 +254,7 @@ export const SalesOffers: React.FC<SalesOffersProps> = ({
           </div>
 
           <div className="bg-[#0f1f28] p-4 rounded-2xl border border-emerald-500/30 space-y-2">
-            <span className="text-emerald-400 font-bold block uppercase text-[10px]">Avec Bea (Ce que vous gagnez) :</span>
+            <span className="text-emerald-400 font-bold block uppercase text-[10px]">Avec Andrea (Ce que vous gagnez) :</span>
             <ul className="space-y-1.5 text-emerald-200">
               <li>• Passage à l'action garanti en moins de 10 minutes avec des étapes simples</li>
               <li>• Sérénité d'esprit : un plan clair et zéro charge mentale inutile</li>

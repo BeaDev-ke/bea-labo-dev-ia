@@ -40,7 +40,7 @@ export const DevLab: React.FC<DevLabProps> = ({ onGoToProd, onViewFullCode }) =>
   const [activeTab, setActiveTab] = useState<'modify' | 'diff' | 'backups' | 'guide' | 'roadmap'>('modify');
   const [modelChoice, setModelChoice] = useState('llama-3.3-70b-versatile');
   const [backupName, setBackupName] = useState(`backup_lvl3_${new Date().toISOString().slice(0, 10).replace(/-/g, '')}`);
-  const [selectedTargetLabel, setSelectedTargetLabel] = useState<string>('Comportement de base de Bea (SYSTEM_BEHAVIOR_BASE)');
+  const [selectedTargetLabel, setSelectedTargetLabel] = useState<string>("Comportement de base d'Andrea (SYSTEM_BEHAVIOR_BASE)");
   const [selectedSubLevelId, setSelectedSubLevelId] = useState<string>('3.1');
   const [applyMode, setApplyMode] = useState<'direct' | 'diff'>('direct');
   const [prompt, setPrompt] = useState('Insérer une grille de diagnostic Fogg pour chaque problème soumis.');
@@ -76,7 +76,7 @@ export const DevLab: React.FC<DevLabProps> = ({ onGoToProd, onViewFullCode }) =>
       level: '3',
       target: 'SYSTEM_BEHAVIOR_BASE',
       summary: 'Grille d\'analyse Fogg et 5 étapes opérationnelles',
-      codeSnippet: 'SYSTEM_BEHAVIOR_BASE = """Tu es Bea, une IA d\'analyse comportementale..."""',
+      codeSnippet: 'SYSTEM_BEHAVIOR_BASE = """Tu es Andrea, une IA d\'analyse comportementale..."""',
     },
     {
       id: 'bk-2',
@@ -149,7 +149,7 @@ export const DevLab: React.FC<DevLabProps> = ({ onGoToProd, onViewFullCode }) =>
     await new Promise(r => setTimeout(r, 400));
 
     // Step 2: Cerveau IA
-    setProcessStep(`2/5 - Raisonnement par le Moteur IA Bea (BehaviorLab AI)...`);
+    setProcessStep(`2/5 - Raisonnement par le Moteur IA Andrea (BehaviorLab AI)...`);
     await new Promise(r => setTimeout(r, 550));
 
     // Step 3: Génération
@@ -226,10 +226,10 @@ export const DevLab: React.FC<DevLabProps> = ({ onGoToProd, onViewFullCode }) =>
               </span>
             </div>
             <h1 className="text-2xl md:text-3xl font-black text-white tracking-tight flex items-center gap-2">
-              🧪 Labo Dev IA <span className="text-zinc-400">Bea</span>
+              🧪 Labo Dev IA <span className="text-zinc-400">Andrea</span>
             </h1>
             <p className="text-xs md:text-sm text-zinc-400 max-w-2xl mt-1 leading-relaxed">
-              Pilotez l'architecture de Bea par niveaux et sous-niveaux ultra-ciblés : de la micro-retouche visuelle jusqu'aux moteurs multi-agents, bâtisseur web, mémoire vectorielle et sécurité globale.
+              Pilotez l'architecture d'Andrea par niveaux et sous-niveaux ultra-ciblés : de la micro-retouche visuelle jusqu'aux moteurs multi-agents, bâtisseur web, mémoire vectorielle et sécurité globale.
             </p>
           </div>
 
@@ -624,7 +624,7 @@ export const DevLab: React.FC<DevLabProps> = ({ onGoToProd, onViewFullCode }) =>
               <span>Analyse Stratégique & Feuille de Route BehaviorLab AI</span>
             </div>
             <h2 className="text-2xl md:text-3xl font-black text-white tracking-tight">
-              Ce qui sépare Bea d'un outil IA dans le TOP 10 MONDIAL
+              Ce qui sépare Andrea d'un outil IA dans le TOP 10 MONDIAL
             </h2>
             <p className="text-xs md:text-sm text-zinc-300 leading-relaxed max-w-3xl">
               Pour offrir une intelligence artificielle de rang mondial, un outil ne peut pas se contenter d'un simple chat passif. Il doit être <strong>multimodal, proactif, doté d'une mémoire cognitive profonde et d'un environnement de création en direct</strong>.
@@ -823,14 +823,14 @@ export const DevLab: React.FC<DevLabProps> = ({ onGoToProd, onViewFullCode }) =>
           {/* MATRICE COMPARATIVE */}
           <div className="p-6 bg-[#212121] border border-zinc-700 rounded-2xl space-y-4">
             <h3 className="font-bold text-base text-white flex items-center gap-2">
-              <span>Matrice d'excellence : Bea vs IA Générique Standard vs Outils de Code Classiques</span>
+              <span>Matrice d'excellence : Andrea vs IA Générique Standard vs Outils de Code Classiques</span>
             </h3>
             <div className="overflow-x-auto">
               <table className="w-full text-xs text-left">
                 <thead className="text-[11px] uppercase text-zinc-400 border-b border-zinc-700">
                   <tr>
                     <th className="py-2.5 pr-4">Capacité</th>
-                    <th className="py-2.5 px-3 font-bold text-white">Bea (BehaviorLab AI)</th>
+                    <th className="py-2.5 px-3 font-bold text-white">Andrea (BehaviorLab AI)</th>
                     <th className="py-2.5 px-3 text-zinc-400">IA Conversationnelle Standard</th>
                     <th className="py-2.5 px-3 text-zinc-400">Outils de Code Classiques</th>
                   </tr>

@@ -125,7 +125,7 @@ export const ProfileManager: React.FC<ProfileManagerProps> = ({
       {saveStatus === 'saved' && (
         <div className="p-3.5 rounded-2xl bg-emerald-500/10 border-2 border-emerald-500/40 text-emerald-300 text-xs font-bold flex items-center gap-2 animate-in fade-in">
           <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
-          <span>Profil enregistré et synchronisé avec succès ! Vos interactions avec Bea sont désormais personnalisées.</span>
+          <span>Profil enregistré et synchronisé avec succès ! Vos interactions avec Andrea sont désormais personnalisées.</span>
         </div>
       )}
 
@@ -144,7 +144,7 @@ export const ProfileManager: React.FC<ProfileManagerProps> = ({
               <Compass className="w-4 h-4 text-purple-400" />
               1. Qui êtes-vous ? (Sélectionnez votre profil d'activité)
             </h3>
-            <p className="text-xs text-[#a78bfa]">Bea adaptera ses réponses, son vocabulaire et ses propositions à votre contexte réel.</p>
+            <p className="text-xs text-[#a78bfa]">Andrea adaptera ses réponses, son vocabulaire et ses propositions à votre contexte réel.</p>
           </div>
         </div>
 
@@ -217,7 +217,7 @@ export const ProfileManager: React.FC<ProfileManagerProps> = ({
 
           <div>
             <label className="block text-xs font-bold text-[#c4b5fd] mb-1.5">
-              Ton de Bea souhaité
+              Ton d'Andrea souhaité
             </label>
             <select
               value={formData.preferredStyle}

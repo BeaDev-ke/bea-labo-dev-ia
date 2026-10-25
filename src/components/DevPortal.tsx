@@ -111,7 +111,7 @@ export const DevPortal: React.FC<DevPortalProps> = ({
             <div>
               <div className="text-[10px] font-bold text-zinc-400 mb-1">8 NIVEAUX & SOUS-NIVEAUX</div>
               <h2 className="text-lg font-bold text-white group-hover:text-zinc-200 transition-colors">
-                Labo Dev IA Bea
+                Labo Dev IA Andrea
               </h2>
               <p className="text-xs text-zinc-400 mt-1 leading-relaxed">
                 Intervention chirurgicale sur les 8 niveaux (Design, Chat, Fogg, Mémoire, Multi-Agents, Bâtisseur Web, 15 Langues, Sécurité AST).
@@ -150,7 +150,7 @@ export const DevPortal: React.FC<DevPortalProps> = ({
             <div>
               <div className="text-[10px] font-bold text-zinc-400 mb-1">SESSION ACTIVE</div>
               <h2 className="text-lg font-bold text-white group-hover:text-zinc-200 transition-colors">
-                Application Bea (Prod)
+                Application Andrea (Prod)
               </h2>
               <p className="text-xs text-zinc-400 mt-1 leading-relaxed">
                 Accédez à l'application complète telle qu'utilisée : chat avec dictée vocale, studio visuel, atelier web, code et gestion de compte.

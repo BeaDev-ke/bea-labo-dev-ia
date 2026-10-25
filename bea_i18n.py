@@ -1,4 +1,4 @@
-"""Traduction complète de l'interface Bea + langue des réponses.
+"""Traduction complète de l'interface Andrea + langue des réponses.
 
 Principe : les fonctions d'affichage de Streamlit (st.markdown, st.button, st.tabs...)
 sont enveloppées pour traduire leurs textes à la volée. Les textes inconnus sont
@@ -16,7 +16,7 @@ import streamlit as st
 from groq import Groq
 from streamlit.delta_generator import DeltaGenerator
 
-# Langues parlées par les modèles Groq utilisés par Bea.
+# Langues parlées par les modèles Groq utilisés par Andrea.
 # Les 8 premières sont officiellement supportées par Llama 3.1 / 3.3 ;
 # les suivantes sont bien maîtrisées par GPT-OSS 120B / Llama 3.3 70B.
 LANGUAGES = {
@@ -139,11 +139,11 @@ t = tr
 
 def _translate_batch(items, lang_name):
     system = (
-        f"You are a professional UI translator for the web app 'Bea' by BehaviorLab AI. "
+        f"You are a professional UI translator for the web app 'Andrea' by BehaviorLab AI. "
         f"Translate every French string of the given JSON array into {lang_name}. "
         "Return a JSON object {\"translations\": [...]} with exactly the same number of items, in the same order. "
         "Preserve Markdown, HTML tags and attributes, emojis, line breaks, placeholders, numbers, prices, URLs and e-mail addresses. "
-        "Never translate brand or product names: Bea, Bea Pro, Bea Ultra, BehaviorLab AI, Groq, Supabase, Stripe, TikTok, Reels, Shorts, YouTube, LinkedIn, PDF, Word, SRT, VTT, HTML, FFmpeg. "
+        "Never translate brand or product names: Andrea, Andrea Pro, Andrea Ultra, BehaviorLab AI, Groq, Supabase, Stripe, TikTok, Reels, Shorts, YouTube, LinkedIn, PDF, Word, SRT, VTT, HTML, FFmpeg. "
         "Keep the friendly informal tone (French 'tu'). If a string is already in the target language or is not natural language, return it unchanged."
     )
     payload = json.dumps({"strings": items}, ensure_ascii=False)
@@ -289,7 +289,7 @@ def setup_i18n():
 
 
 def md_raw(text, **kwargs):
-    """Affiche du Markdown sans le traduire (messages de l'utilisateur et de Bea)."""
+    """Affiche du Markdown sans le traduire (messages de l'utilisateur et d'Andrea)."""
     return _orig().get("markdown", st.markdown)(text, **kwargs)
 
 
@@ -340,7 +340,7 @@ def render_landing_nav():
 
 
 def language_instruction():
-    """Consigne à ajouter au prompt système pour que Bea réponde dans la langue choisie."""
+    """Consigne à ajouter au prompt système pour que Andrea réponde dans la langue choisie."""
     lang = current_lang()
     if lang == DEFAULT_LANG:
         return ""

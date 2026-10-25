@@ -112,7 +112,7 @@ def page_dev_lab():
             Fichier Principal Streamlit : <code className="text-cyan-300 font-mono">app.py</code>
           </h2>
           <p className="text-xs text-[#c4b5fd] mt-1">
-            Ce fichier contient l'application Streamlit complète de Bea avec le Labo Dev IA amélioré (support des 5 Niveaux de modification, validation AST, diff et rollback).
+            Ce fichier contient l'application Streamlit complète d'Andrea avec le Labo Dev IA amélioré (support des 5 Niveaux de modification, validation AST, diff et rollback).
           </p>
         </div>
 

@@ -39,7 +39,7 @@ const TRANSLATIONS: Record<SupportedLanguageCode, {
   fr: {
     tagline: 'L\'IA d\'analyse comportementale qui transforme l\'intention en action régulière.',
     subtagline: 'Clarifiez vos blocages, comprenez vos mécanismes décisionnels et avancez chaque jour sans procrastination.',
-    ctaConnect: 'Se connecter à Bea',
+    ctaConnect: 'Se connecter à Andrea',
     ctaDiscover: 'Tester la discussion',
     ctaOffers: 'Voir les offres & tarifs',
     aboutTitle: 'Une intelligence pensée pour votre progression réelle',
@@ -51,7 +51,7 @@ const TRANSLATIONS: Record<SupportedLanguageCode, {
   en: {
     tagline: 'The behavioral AI that turns intention into daily, compounding momentum.',
     subtagline: 'Identify mental friction, understand your decision patterns, and execute without procrastination.',
-    ctaConnect: 'Sign in to Bea',
+    ctaConnect: 'Sign in to Andrea',
     ctaDiscover: 'Try the conversation',
     ctaOffers: 'View Plans & Pricing',
     aboutTitle: 'Artificial Intelligence designed for tangible progress',
@@ -63,7 +63,7 @@ const TRANSLATIONS: Record<SupportedLanguageCode, {
   es: {
     tagline: 'La IA de análisis conductual que convierte la intención en acción constante.',
     subtagline: 'Clarifica tus bloqueos, supera la procrastinación y avanza paso a paso con rigor científico.',
-    ctaConnect: 'Iniciar sesión en Bea',
+    ctaConnect: 'Iniciar sesión en Andrea',
     ctaDiscover: 'Probar la conversación',
     ctaOffers: 'Ver planes y precios',
     aboutTitle: 'Inteligencia diseñada para tu progreso medible',
@@ -75,7 +75,7 @@ const TRANSLATIONS: Record<SupportedLanguageCode, {
   de: {
     tagline: 'Die verhaltensbasierte KI, die Absicht in tägliche Umsetzung verwandelt.',
     subtagline: 'Blockaden erkennen, kognitive Reibung abbauen und nachhaltige Gewohnheiten etablieren.',
-    ctaConnect: 'Bei Bea anmelden',
+    ctaConnect: 'Bei Andrea anmelden',
     ctaDiscover: 'Gespräch testen',
     ctaOffers: 'Angebote & Preise ansehen',
     aboutTitle: 'Künstliche Intelligenz für messbare Fortschritte',
@@ -87,7 +87,7 @@ const TRANSLATIONS: Record<SupportedLanguageCode, {
   pt: {
     tagline: 'A IA comportamental que transforma intenção em ação consistente diária.',
     subtagline: 'Esclareça bloqueios mentais, supere a procrastinação e avance com métodos validados.',
-    ctaConnect: 'Entrar na Bea',
+    ctaConnect: 'Entrar na Andrea',
     ctaDiscover: 'Experimentar o chat',
     ctaOffers: 'Ver planos e preços',
     aboutTitle: 'Inteligência focada em resultados reais',
@@ -111,7 +111,7 @@ const TRANSLATIONS: Record<SupportedLanguageCode, {
   nl: {
     tagline: 'De gedrags-AI die intentie omzet in dagelijkse concrete vooruitgang.',
     subtagline: 'Doorbreek uitstelgedrag en bereik consistente resultaten met bewezen methodes.',
-    ctaConnect: 'Inloggen bij Bea',
+    ctaConnect: 'Inloggen bij Andrea',
     ctaDiscover: 'Probeer het gesprek',
     ctaOffers: 'Bekijk abonnementen',
     aboutTitle: 'AI ontwikkeld voor meetbare groei',
@@ -123,7 +123,7 @@ const TRANSLATIONS: Record<SupportedLanguageCode, {
   ar: {
     tagline: 'الذكاء الاصطناعي السلوكي الذي يحول النية إلى إنجاز يومي ملموس.',
     subtagline: 'تغلب على التسويف، وافهم معوقاتك النفسية، وحقق أهدافك خطوة بخطوة.',
-    ctaConnect: 'تسجيل الدخول إلى Bea',
+    ctaConnect: 'تسجيل الدخول إلى Andrea',
     ctaDiscover: 'تجربة المحادثة',
     ctaOffers: 'عرض الخطط والأسعار',
     aboutTitle: 'ذكاء اصطناعي مكرس لتقدمك الحقيقي',
@@ -135,7 +135,7 @@ const TRANSLATIONS: Record<SupportedLanguageCode, {
   zh: {
     tagline: '将意图转化为每日持续行动的行为分析人工智能。',
     subtagline: '清晰识别行动阻力，破解拖延症，以科学方法稳步达成目标。',
-    ctaConnect: '登录 Bea',
+    ctaConnect: '登录 Andrea',
     ctaDiscover: '体验对话',
     ctaOffers: '查看方案与价格',
     aboutTitle: '专为实际进步打造的人工智能',
@@ -147,7 +147,7 @@ const TRANSLATIONS: Record<SupportedLanguageCode, {
   ja: {
     tagline: '意思を行動へと変え、毎日の前進を支える行動科学AI。',
     subtagline: '先延ばしを克服し、意思決定の摩擦を解消して着実に成果を積み上げます。',
-    ctaConnect: 'Bea にログイン',
+    ctaConnect: 'Andrea にログイン',
     ctaDiscover: '会話を試す',
     ctaOffers: '料金プランを見る',
     aboutTitle: '真の成果のために設計されたインテリジェンス',
@@ -159,7 +159,7 @@ const TRANSLATIONS: Record<SupportedLanguageCode, {
   ko: {
     tagline: '의도를 매일의 실천으로 전환하는 행동 분석 인공지능.',
     subtagline: '미루는 습관을 극복하고, 인지적 마찰을 줄여 한 단계씩 확실하게 성장하세요.',
-    ctaConnect: 'Bea 로그인',
+    ctaConnect: 'Andrea 로그인',
     ctaDiscover: '대화 체험하기',
     ctaOffers: '요금제 및 혜택 확인',
     aboutTitle: '실질적인 성장을 위해 설계된 AI',
@@ -171,7 +171,7 @@ const TRANSLATIONS: Record<SupportedLanguageCode, {
   ru: {
     tagline: 'Поведенческий ИИ, превращающий намерения в ежедневные измеримые действия.',
     subtagline: 'Преодолейте прокрастинацию, выявите скрытые барьеры и двигайтесь вперед каждый день.',
-    ctaConnect: 'Войти в Bea',
+    ctaConnect: 'Войти в Andrea',
     ctaDiscover: 'Попробовать диалог',
     ctaOffers: 'Тарифы и возможности',
     aboutTitle: 'Искусственный интеллект для реального прогресса',
@@ -183,7 +183,7 @@ const TRANSLATIONS: Record<SupportedLanguageCode, {
   hi: {
     tagline: 'व्यवहार विश्लेषण एआई जो विचारों को दैनिक क्रियान्वयन में बदलता है।',
     subtagline: 'टालमटोल पर काबू पाएं, मानसिक बाधाओं को पहचानें और हर दिन आगे बढ़ें।',
-    ctaConnect: 'Bea में लॉग इन करें',
+    ctaConnect: 'Andrea में लॉग इन करें',
     ctaDiscover: 'बातचीत आज़माएं',
     ctaOffers: 'ऑफ़र और मूल्य देखें',
     aboutTitle: 'वास्तविक प्रगति के लिए निर्मित बुद्धिमत्ता',
@@ -207,7 +207,7 @@ const TRANSLATIONS: Record<SupportedLanguageCode, {
   wo: {
     tagline: 'Xam-xam bu xel miy soppi sa yéene def ko jëf ju teey bu bés bu nekk.',
     subtagline: 'Dindi ay jafe-jafe, fexee baña teel a tàbbi ci liggéey bi te yokk sa doole.',
-    ctaConnect: 'Dugg ci Bea',
+    ctaConnect: 'Dugg ci Andrea',
     ctaDiscover: 'Jéem waxtaan wi',
     ctaOffers: 'Xool paj yi ak njëg yi',
     aboutTitle: 'Xel mu xereñ ngir sa kanam gu wér',
@@ -230,7 +230,7 @@ export const VisitorLanding: React.FC<VisitorLandingProps> = ({ onEnterApp, onOp
   const handleSimulateLogin = (e: React.FormEvent) => {
     e.preventDefault();
     if (!loginEmail) return;
-    setAuthSuccessNotice(`Authentification réussie pour ${loginEmail}. Redirection vers Bea...`);
+    setAuthSuccessNotice(`Authentification réussie pour ${loginEmail}. Redirection vers Andrea...`);
     setTimeout(() => {
       onEnterApp();
     }, 700);
@@ -248,7 +248,7 @@ export const VisitorLanding: React.FC<VisitorLandingProps> = ({ onEnterApp, onOp
             </div>
             <div>
               <div className="font-extrabold text-base tracking-tight text-white flex items-center gap-1.5">
-                <span>Bea</span>
+                <span>Andrea</span>
                 <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-zinc-800 text-zinc-300 border border-zinc-700">
                   IA
                 </span>
@@ -334,7 +334,7 @@ export const VisitorLanding: React.FC<VisitorLandingProps> = ({ onEnterApp, onOp
               ))}
             </select>
             <div className="text-[10px] text-zinc-500 px-1">
-              Traduction temps réel par les modèles haute vitesse Bea.
+              Traduction temps réel par les modèles haute vitesse Andrea.
             </div>
           </div>
         </div>
@@ -345,7 +345,7 @@ export const VisitorLanding: React.FC<VisitorLandingProps> = ({ onEnterApp, onOp
             onClick={onEnterApp}
             className="w-full py-2.5 px-3 rounded-xl bg-white text-black font-bold text-xs hover:bg-zinc-200 transition flex items-center justify-center gap-2 shadow-sm"
           >
-            <span>Entrer dans Bea (Prod)</span>
+            <span>Entrer dans Andrea (Prod)</span>
             <ArrowRight className="w-3.5 h-3.5" />
           </button>
 
@@ -483,7 +483,7 @@ export const VisitorLanding: React.FC<VisitorLandingProps> = ({ onEnterApp, onOp
               <div className="bg-[#18181b] border border-zinc-700 rounded-2xl p-5 flex flex-col justify-between space-y-4 relative">
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
-                    <h3 className="font-bold text-base text-white">Bea</h3>
+                    <h3 className="font-bold text-base text-white">Andrea</h3>
                     <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-purple-500/20 text-purple-300 border border-purple-500/30">Populaire</span>
                   </div>
                   <div className="text-3xl font-black text-white">9 € <span className="text-xs font-normal text-zinc-400">/mois</span></div>
@@ -496,49 +496,49 @@ export const VisitorLanding: React.FC<VisitorLandingProps> = ({ onEnterApp, onOp
                   </ul>
                 </div>
                 <button onClick={onEnterApp} className="w-full py-2.5 rounded-xl bg-white text-black font-bold text-xs hover:bg-zinc-200 transition shadow">
-                  Choisir Bea · 9 €
+                  Choisir Andrea · 9 €
                 </button>
               </div>
 
-              {/* Plan 3: Bea Pro 14.90€ */}
+              {/* Plan 3: Andrea Pro 14.90€ */}
               <div className="bg-[#18181b] border border-zinc-800 rounded-2xl p-5 flex flex-col justify-between space-y-4">
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
-                    <h3 className="font-bold text-base text-white">Bea Pro</h3>
+                    <h3 className="font-bold text-base text-white">Andrea Pro</h3>
                     <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-500/20 text-blue-300 border border-blue-500/30">Créateurs & Études</span>
                   </div>
                   <div className="text-3xl font-black text-white">14,90 € <span className="text-xs font-normal text-zinc-400">/mois</span></div>
                   <p className="text-xs text-zinc-400 leading-relaxed">Pour créateurs de contenu, étudiants et indépendants en phase d'accélération.</p>
                   <ul className="space-y-1.5 text-xs text-zinc-300 pt-2 border-t border-zinc-800">
-                    <li className="flex items-center gap-2"><Check className="w-3.5 h-3.5 text-blue-400" /> Tout le plan Bea</li>
+                    <li className="flex items-center gap-2"><Check className="w-3.5 h-3.5 text-blue-400" /> Tout le plan Andrea</li>
                     <li className="flex items-center gap-2"><Check className="w-3.5 h-3.5 text-blue-400" /> Studio de design visuel</li>
                     <li className="flex items-center gap-2"><Check className="w-3.5 h-3.5 text-blue-400" /> Sous-titres Whisper SRT/VTT</li>
                     <li className="flex items-center gap-2"><Check className="w-3.5 h-3.5 text-blue-400" /> Accompagnement scolaire</li>
                   </ul>
                 </div>
                 <button onClick={onEnterApp} className="w-full py-2.5 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-white font-semibold text-xs transition">
-                  Choisir Bea Pro · 14,90 €
+                  Choisir Andrea Pro · 14,90 €
                 </button>
               </div>
 
-              {/* Plan 4: Bea Ultra 16€ */}
+              {/* Plan 4: Andrea Ultra 16€ */}
               <div className="bg-[#18181b] border border-amber-500/40 rounded-2xl p-5 flex flex-col justify-between space-y-4 relative shadow-lg">
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
-                    <h3 className="font-bold text-base text-white">Bea Ultra</h3>
+                    <h3 className="font-bold text-base text-white">Andrea Ultra</h3>
                     <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30">Full-Stack</span>
                   </div>
                   <div className="text-3xl font-black text-white">16 € <span className="text-xs font-normal text-zinc-400">/mois</span></div>
                   <p className="text-xs text-zinc-400 leading-relaxed">Accès complet illimité avec bâtisseur de site web et coach code Python/JS.</p>
                   <ul className="space-y-1.5 text-xs text-zinc-300 pt-2 border-t border-zinc-800">
-                    <li className="flex items-center gap-2"><Check className="w-3.5 h-3.5 text-amber-400" /> Tout Bea Pro</li>
+                    <li className="flex items-center gap-2"><Check className="w-3.5 h-3.5 text-amber-400" /> Tout Andrea Pro</li>
                     <li className="flex items-center gap-2"><Check className="w-3.5 h-3.5 text-amber-400" /> Bâtisseur de site web complet</li>
                     <li className="flex items-center gap-2"><Check className="w-3.5 h-3.5 text-amber-400" /> Éditeur de code assisté</li>
                     <li className="flex items-center gap-2"><Check className="w-3.5 h-3.5 text-amber-400" /> Zéro limite de messages</li>
                   </ul>
                 </div>
                 <button onClick={onEnterApp} className="w-full py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-black font-bold text-xs transition shadow">
-                  Choisir Bea Ultra · 16 €
+                  Choisir Andrea Ultra · 16 €
                 </button>
               </div>
             </div>
@@ -566,7 +566,7 @@ export const VisitorLanding: React.FC<VisitorLandingProps> = ({ onEnterApp, onOp
                   <span>1. Pourquoi la majorité des outils IA échouent à vous faire avancer</span>
                 </h3>
                 <p className="text-xs text-zinc-400 leading-relaxed">
-                  Poser 10 questions avant d'aider crée de la surcharge cognitive. Bea adopte une approche opposée : elle formule immédiatement des hypothèses explicites, propose une lecture claire des blocages et donne 3 actions concrètes pour aujourd'hui.
+                  Poser 10 questions avant d'aider crée de la surcharge cognitive. Andrea adopte une approche opposée : elle formule immédiatement des hypothèses explicites, propose une lecture claire des blocages et donne 3 actions concrètes pour aujourd'hui.
                 </p>
               </div>
 
@@ -575,7 +575,7 @@ export const VisitorLanding: React.FC<VisitorLandingProps> = ({ onEnterApp, onOp
                   <span>2. Le modèle BJ Fogg intégré</span>
                 </h3>
                 <p className="text-xs text-zinc-400 leading-relaxed">
-                  Le comportement est le résultat de la Motivation, de la Capacité (facilité d'action) et d'un Déclencheur au même instant. Lorsque la motivation chute, Bea réduit drastiquement la friction pour que vous continuiez à avancer.
+                  Le comportement est le résultat de la Motivation, de la Capacité (facilité d'action) et d'un Déclencheur au même instant. Lorsque la motivation chute, Andrea réduit drastiquement la friction pour que vous continuiez à avancer.
                 </p>
               </div>
 
@@ -594,7 +594,7 @@ export const VisitorLanding: React.FC<VisitorLandingProps> = ({ onEnterApp, onOp
                 onClick={onEnterApp}
                 className="px-6 py-3 rounded-2xl bg-white text-black font-bold text-xs hover:bg-zinc-200 transition flex items-center gap-2 shadow"
               >
-                <span>Démarrer avec Bea</span>
+                <span>Démarrer avec Andrea</span>
                 <ArrowRight className="w-4 h-4" />
               </button>
             </div>
@@ -608,7 +608,7 @@ export const VisitorLanding: React.FC<VisitorLandingProps> = ({ onEnterApp, onOp
               <div className="w-12 h-12 rounded-2xl bg-zinc-800 border border-zinc-700 flex items-center justify-center mx-auto text-2xl">
                 🔑
               </div>
-              <h2 className="text-2xl font-black text-white">Espace Utilisateur Bea</h2>
+              <h2 className="text-2xl font-black text-white">Espace Utilisateur Andrea</h2>
               <p className="text-xs text-zinc-400">Connectez-vous pour retrouver votre mémoire et vos projets.</p>
             </div>
 
@@ -653,7 +653,7 @@ export const VisitorLanding: React.FC<VisitorLandingProps> = ({ onEnterApp, onOp
                 type="submit"
                 className="w-full py-3 rounded-xl bg-white text-black font-bold text-xs hover:bg-zinc-200 transition shadow"
               >
-                Continuer vers Bea
+                Continuer vers Andrea
               </button>
 
               <div className="text-center pt-2 text-xs text-zinc-500">

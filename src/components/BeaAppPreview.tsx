@@ -174,7 +174,7 @@ Voici comment compresser ta production de 5h à 45 minutes :
 **2. Le découplage des tâches (Batching) :**
 Ne filme jamais et ne monte jamais dans la même session. La fatigue décisionnelle après le tournage te fait hésiter sur chaque coupe. Découpe en deux créneaux :
 - Bloc A : Écriture et tournage d'affilée de 3 vidéos brutes.
-- Bloc B : Montage standardisé le lendemain avec un template pré-calibré dans le Studio Bea.
+- Bloc B : Montage standardisé le lendemain avec un template pré-calibré dans le Studio Andrea.
 
 Veux-tu qu'on applique cette trame directement à ton prochain sujet de vidéo ?`,
       timestamp: '11:21',
@@ -273,7 +273,7 @@ if __name__ == "__main__":
       momentumPoints: prev.momentumPoints + 5,
     }));
 
-    // Réponse intelligente, adaptative et profonde de Bea (sans blocage automatique inventé)
+    // Réponse intelligente, adaptative et profonde d'Andrea (sans blocage automatique inventé)
     setTimeout(() => {
       const lower = cleanInput.toLowerCase();
       let responseContent = '';
@@ -286,7 +286,7 @@ if __name__ == "__main__":
       const isStudyRequest = useCase === 'scolaire' || /cours|révis|examen|devoir|formule|leçon/i.test(lower);
 
       if (isHelpOrGreeting) {
-        responseContent = `Bonjour ! Je suis Bea, ton partenaire d'analyse et de stratégie propulsé par BehaviorLab AI.
+        responseContent = `Bonjour ! Je suis Andrea, ton partenaire d'analyse et de stratégie propulsé par BehaviorLab AI.
 
 Je t'accompagne sur tes projets, tes créations de contenu, ton code et tes décisions stratégiques. Dis-moi ce sur quoi tu veux travailler aujourd'hui, et nous passons directement à l'action.`;
       } else if (isCodeRequest) {
@@ -398,7 +398,7 @@ Sur quel aspect spécifique souhaites-tu que nous approfondissions en premier ?`
             <div className="w-12 h-12 mx-auto rounded-2xl bg-gradient-to-tr from-[#1d4ed8] via-[#7c3aed] to-[#db2777] flex items-center justify-center text-2xl shadow-lg shadow-purple-900/40">
               🧠
             </div>
-            <div className="font-extrabold text-lg text-[#f5f3ff] mt-2 tracking-tight">Bea</div>
+            <div className="font-extrabold text-lg text-[#f5f3ff] mt-2 tracking-tight">Andrea</div>
             <div className="text-[10px] font-bold text-[#c4b5fd] tracking-widest uppercase">BehaviorLab AI</div>
           </div>
 
@@ -488,14 +488,14 @@ Sur quel aspect spécifique souhaites-tu que nous approfondissions en premier ?`
           {/* Navigation Menu */}
           <div className="space-y-1">
             {[
-              { id: 'chat', label: '💬 Discussion avec Bea', icon: MessageSquare },
+              { id: 'chat', label: '💬 Discussion avec Andrea', icon: MessageSquare },
               { id: 'profil', label: '👤 Mon Profil & Rôle', icon: User, badge: 'Réparé' },
               { id: 'compte', label: '💎 Offres & Abonnements', icon: CreditCard, badge: 'Pro' },
               { id: 'studio', label: '🎨 Studio de Design Visuel', icon: Film },
               { id: 'app', label: '🌐 Site Web en 1 Prompt', icon: Globe },
               { id: 'code', label: '💻 Code & Débogage', icon: Code2 },
               { id: 'securite', label: '🛡️ Bouclier Anti-Piratage', icon: ShieldCheck, badge: 'Actif' },
-              { id: 'memoire', label: '🧠 Mémoire de Bea', icon: Brain },
+              { id: 'memoire', label: "🧠 Mémoire d'Andrea", icon: Brain },
               { id: 'parametres', label: '⚙️ Paramètres IA', icon: Sliders, badge: 'Pro' },
             ].map(item => {
               const active = currentPage === item.id;
@@ -522,7 +522,7 @@ Sur quel aspect spécifique souhaites-tu que nous approfondissions en premier ?`
           </div>
         </div>
 
-        {/* Dev Lab Launcher from Inside Bea */}
+        {/* Dev Lab Launcher from Inside Andrea */}
         <div className="pt-4 border-t border-[#7c3aed]/30 space-y-2">
           <div className="text-[10px] font-extrabold text-[#a855f7] tracking-wider uppercase">
             PORTAIL DÉVELOPPEUR
@@ -543,7 +543,7 @@ Sur quel aspect spécifique souhaites-tu que nous approfondissions en premier ?`
         {/* TOP NAVIGATION BAR - MENUS ALIGNÉS À DROITE AVEC THÈME VIOLET FONCÉ */}
         <div className="bg-[#150f2e] px-4 py-2 border-b border-[#5A33FF33] flex items-center justify-between gap-3 shrink-0">
           <div className="flex items-center gap-2">
-            <span className="font-extrabold text-sm text-white">Bea</span>
+            <span className="font-extrabold text-sm text-white">Andrea</span>
             <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-[#231a4a] text-[#c4b5fd] border border-[#5A33FF33]">
               BehaviorLab AI
             </span>
@@ -706,7 +706,7 @@ Sur quel aspect spécifique souhaites-tu que nous approfondissions en premier ?`
             <div className="p-4 border-b border-[#7c3aed]/30 flex items-center justify-between bg-[#15112a]">
               <div>
                 <h2 className="text-base font-bold text-white flex items-center gap-2">
-                  <span>💬 Discussion avec Bea</span>
+                  <span>💬 Discussion avec Andrea</span>
                   <span className="text-[11px] px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 flex items-center gap-1">
                     <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
                     Voix 100% Gratuite Active
@@ -753,7 +753,7 @@ Sur quel aspect spécifique souhaites-tu que nous approfondissions en premier ?`
                   >
                     <div className="flex items-center justify-between mb-2">
                       <span className="text-xs font-bold text-[#c4b5fd] flex items-center gap-1.5">
-                        {msg.role === 'user' ? `👤 ${userProfile.displayName}` : '🧠 Bea (BehaviorLab AI)'}
+                        {msg.role === 'user' ? `👤 ${userProfile.displayName}` : '🧠 Andrea (BehaviorLab AI)'}
                       </span>
                       <span className="text-[10px] text-[#c4b5fd]/60">{msg.timestamp}</span>
                     </div>
@@ -769,10 +769,10 @@ Sur quel aspect spécifique souhaites-tu que nous approfondissions en premier ?`
                               ? 'bg-rose-500/20 text-rose-300 border border-rose-500/40 animate-pulse'
                               : 'bg-[#231a4a] text-[#c4b5fd] hover:text-white hover:bg-[#2a2057] border border-[#5A33FF44]'
                           }`}
-                          title="Écouter la réponse de Bea à voix haute (100% gratuit)"
+                          title="Écouter la réponse d'Andrea à voix haute (100% gratuit)"
                         >
                           {speakingMsgId === msg.id ? <VolumeX className="w-3.5 h-3.5" /> : <Volume2 className="w-3.5 h-3.5 text-[#8B70FF]" />}
-                          <span>{speakingMsgId === msg.id ? 'Arrêter la voix' : '🔊 Écouter Bea'}</span>
+                          <span>{speakingMsgId === msg.id ? 'Arrêter la voix' : '🔊 Écouter Andrea'}</span>
                         </button>
 
                         <button 
@@ -843,7 +843,7 @@ Sur quel aspect spécifique souhaites-tu que nous approfondissions en premier ?`
                           handleSend();
                         }
                       }}
-                      placeholder={`Envoyer un message à Bea (${PROFILE_METAS[userProfile.profileType]?.label})...`}
+                      placeholder={`Envoyer un message à Andrea (${PROFILE_METAS[userProfile.profileType]?.label})...`}
                       className="w-full bg-transparent text-white text-[15px] placeholder-[#c4b5fd]/60 resize-none focus:outline-none min-h-[42px] max-h-[160px] leading-relaxed selection:bg-[#5A33FF]/40"
                     />
                   </div>
@@ -1005,7 +1005,7 @@ Sur quel aspect spécifique souhaites-tu que nous approfondissions en premier ?`
 
                 {/* Discreet helper underneath */}
                 <div className="text-center text-[11px] text-[#c4b5fd]/70 pt-2">
-                  <span>Bea peut faire des erreurs. BehaviorLab AI. Modèle actif : {modelChoice === 'rapide' ? '⚡ Llama instant' : '🧠 Puissant (70B)'}</span>
+                  <span>Andrea peut faire des erreurs. BehaviorLab AI. Modèle actif : {modelChoice === 'rapide' ? '⚡ Llama instant' : '🧠 Puissant (70B)'}</span>
                 </div>
               </div>
             </div>
@@ -1064,7 +1064,7 @@ Sur quel aspect spécifique souhaites-tu que nous approfondissions en premier ?`
                   <Code2 className="w-5 h-5 text-purple-400" />
                   💻 Éditeur de Code avec IA
                 </h2>
-                <p className="text-xs text-[#c4b5fd]">Écrivez, testez et demandez à Bea d'améliorer votre script</p>
+                <p className="text-xs text-[#c4b5fd]">Écrivez, testez et demandez à Andrea d'améliorer votre script</p>
               </div>
               <button className="px-3.5 py-1.5 rounded-xl bg-[#7c3aed] text-white font-bold text-xs flex items-center gap-1.5">
                 <Download className="w-3.5 h-3.5" />
@@ -1094,7 +1094,7 @@ Sur quel aspect spécifique souhaites-tu que nous approfondissions en premier ?`
             <div className="p-8 rounded-2xl bg-[#15112a] border border-[#7c3aed] text-center space-y-3">
               <Sparkles className="w-8 h-8 text-purple-400 mx-auto" />
               <p className="text-xs text-[#c4b5fd]">
-                Module <code className="text-purple-300 font-mono">{currentPage}</code> connecté et actif dans Bea.
+                Module <code className="text-purple-300 font-mono">{currentPage}</code> connecté et actif dans Andrea.
               </p>
               <button
                 onClick={onOpenLab}

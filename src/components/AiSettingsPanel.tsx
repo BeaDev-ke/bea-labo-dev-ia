@@ -144,7 +144,7 @@ export const AiSettingsPanel: React.FC<AiSettingsPanelProps> = ({ onNotify }) =>
                   </span>
                 </h2>
                 <p className="text-xs text-[#A89CFF]">
-                  Configurez la température, le modèle, la fenêtre de contexte et les instructions système de Bea.
+                  Configurez la température, le modèle, la fenêtre de contexte et les instructions système d'Andrea.
                 </p>
               </div>
             </div>
@@ -397,7 +397,7 @@ export const AiSettingsPanel: React.FC<AiSettingsPanelProps> = ({ onNotify }) =>
           <div>
             <h3 className="text-sm font-bold text-white flex items-center gap-2">
               <Brain className="w-4 h-4 text-[#8B70FF]" />
-              Persona & Posture Psychologique de Bea
+              Persona & Posture Psychologique d'Andrea
             </h3>
             <p className="text-xs text-[#A89CFF] mt-1">
               Définit la manière dont l'IA vous répond et le niveau d'exigence comportementale appliqué.
@@ -495,7 +495,7 @@ export const AiSettingsPanel: React.FC<AiSettingsPanelProps> = ({ onNotify }) =>
               Outils & Capacités Avancées (Tools & Multimodal)
             </h3>
             <p className="text-xs text-[#A89CFF] mt-1">
-              Activez ou désactivez les capacités dynamiques intégrées à Bea.
+              Activez ou désactivez les capacités dynamiques intégrées à Andrea.
             </p>
           </div>
 
@@ -504,7 +504,7 @@ export const AiSettingsPanel: React.FC<AiSettingsPanelProps> = ({ onNotify }) =>
               {
                 key: 'webSearchGrounding',
                 label: 'Recherche Web en temps réel (Grounding)',
-                desc: 'Permet à Bea d\'extraire des faits récents, tendances et documentations à jour.',
+                desc: 'Permet à Andrea d\'extraire des faits récents, tendances et documentations à jour.',
                 icon: Globe,
                 state: settings.webSearchGrounding
               },

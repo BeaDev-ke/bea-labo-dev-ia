@@ -1,8 +1,8 @@
-"""Voix de Bea (synthèse vocale).
+"""Voix d'Andrea (synthèse vocale).
 
 Ordre des moteurs :
 1. MiniMax (si le secret MINIMAX_API_KEY est défini) : voix très naturelle, payant à l'usage.
-2. Edge TTS (gratuit, sans clé) : voix neuronales Microsoft, toutes les langues de Bea.
+2. Edge TTS (gratuit, sans clé) : voix neuronales Microsoft, toutes les langues d'Andrea.
 3. gTTS (gratuit, sans clé) : secours si Edge TTS est indisponible.
 """
 
@@ -160,8 +160,8 @@ def queue_autoplay(text):
 
 
 def render_voice_button(key):
-    """Petit bouton 🔊 à placer dans la rangée d'actions d'un message de Bea."""
-    if st.button("🔊", key=f"tts_btn_{key}", help=tr("Écouter la réponse de Bea")):
+    """Petit bouton 🔊 à placer dans la rangée d'actions d'un message d'Andrea."""
+    if st.button("🔊", key=f"tts_btn_{key}", help=tr("Écouter la réponse d'Andrea")):
         st.session_state[f"_tts_on_{key}"] = True
         st.session_state[f"_tts_play_{key}"] = True
 
@@ -172,7 +172,7 @@ def render_voice_player(text, key):
     auto = st.session_state.get("_tts_autoplay_id") == text_id
     if not (auto or st.session_state.get(f"_tts_on_{key}")):
         return
-    with st.spinner(tr("Bea prépare sa voix...")):
+    with st.spinner(tr("Andrea prépare sa voix...")):
         audio = synthesize(text, current_lang())
     if not audio:
         st.caption(tr("La voix est indisponible pour le moment. Réessaie dans un instant."))
@@ -192,9 +192,9 @@ def render_voice_settings():
         st.session_state[AUTO_KEY] = st.session_state["_w_voice_auto"]
 
     st.toggle(
-        "🔊 Voix de Bea automatique",
+        "🔊 Voix d'Andrea automatique",
         value=st.session_state[AUTO_KEY],
         key="_w_voice_auto",
         on_change=on_change,
-        help="Bea lit ses nouvelles réponses à voix haute dans la langue choisie.",
+        help="Andrea lit ses nouvelles réponses à voix haute dans la langue choisie.",
     )

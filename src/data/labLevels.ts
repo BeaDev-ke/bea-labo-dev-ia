@@ -11,7 +11,7 @@ export const LAB_LEVELS: Record<string, ModifLevel> = {
     targets: {
       'Styles CSS globaux (classes, fonds, bordures)': 'CSS_STYLES',
       'Cartes d\'accroche (STARTER_CARDS)': 'STARTER_CARDS',
-      'Styles de réponse de Bea (STYLE_HINT)': 'STYLE_HINT',
+      "Styles de réponse d'Andrea (STYLE_HINT)": 'STYLE_HINT',
       'Textes de la page d\'accueil (page_vitrine)': 'page_vitrine',
       'Barre latérale & badges (render_sidebar)': 'render_sidebar',
     },
@@ -117,11 +117,11 @@ export const LAB_LEVELS: Record<string, ModifLevel> = {
     title: '🧠 Niveau 3 : Moteur Comportemental & Psychologie IA',
     badge: 'Niveau 3 — Cœur Psychologique',
     scope: 'Prompts système, détection de biais, protocole 5 étapes, relances d\'action',
-    description: 'Ajuste la psychologie et la méthode d\'analyse de Bea (biais cognitifs, 5 étapes, cadrage, relances).',
+    description: "Ajuste la psychologie et la méthode d'analyse d'Andrea (biais cognitifs, 5 étapes, cadrage, relances).",
     color: 'from-emerald-900/30 to-zinc-800/40 border-emerald-500/40 text-emerald-300',
     targets: {
       'Système de prompt dynamique (system_behavior)': 'system_behavior',
-      'Comportement de base de Bea (SYSTEM_BEHAVIOR_BASE)': 'SYSTEM_BEHAVIOR_BASE',
+      "Comportement de base d'Andrea (SYSTEM_BEHAVIOR_BASE)": 'SYSTEM_BEHAVIOR_BASE',
       'Cas d\'usage spécialisés (SYSTEM_USE_CASES)': 'SYSTEM_USE_CASES',
       'Prompt de l\'IA Code (SYSTEM_CODE)': 'SYSTEM_CODE',
       'Prompt du Monteur Vidéo (SYSTEM_MONTAGE)': 'SYSTEM_MONTAGE',
@@ -170,7 +170,7 @@ export const LAB_LEVELS: Record<string, ModifLevel> = {
     title: '💾 Niveau 4 : Mémoire Contextuelle (RAG) & Profils',
     badge: 'Niveau 4 — Mémoire Profonde',
     scope: 'Mémoire vectorielle, profilage adaptatif, historique des blocages résolus',
-    description: 'Gère la mémoire durable de Bea pour qu\'elle se souvienne des projets, forces, faiblesses et habitudes de l\'utilisateur.',
+    description: "Gère la mémoire durable d'Andrea pour qu'elle se souvienne des projets, forces, faiblesses et habitudes de l'utilisateur.",
     color: 'from-amber-900/30 to-zinc-800/40 border-amber-500/40 text-amber-300',
     targets: {
       'Page Mémoire Utilisateur (page_memoire)': 'page_memoire',
@@ -220,7 +220,7 @@ export const LAB_LEVELS: Record<string, ModifLevel> = {
     title: '🤖 Niveau 5 : Multi-Agents Autonomes & Orchestration',
     badge: 'Niveau 5 — Intelligence Collective',
     scope: 'Agents spécialisés collaboratifs : Analyste, Critique, Bâtisseur, Stratège',
-    description: 'Fait collaborer plusieurs sous-agents IA spécialisés pour valider, challenger et enrichir les solutions de Bea.',
+    description: "Fait collaborer plusieurs sous-agents IA spécialisés pour valider, challenger et enrichir les solutions d'Andrea.",
     color: 'from-purple-900/30 to-zinc-800/40 border-purple-500/40 text-purple-300',
     targets: {
       'Système Multi-Agents': 'MULTI_AGENTS',
@@ -319,12 +319,12 @@ export const LAB_LEVELS: Record<string, ModifLevel> = {
     title: '🌍 Niveau 7 : Moteur Multilingue & Internationalisation',
     badge: 'Niveau 7 — Présence Mondiale',
     scope: '15 langues majeures des modèles IA, adaptation culturelle des idiomes comportementaux',
-    description: 'Permet à Bea de dialoguer et d\'analyser dans les 15 langues majeures parlées par les meilleurs modèles de pointe mondiaux.',
+    description: 'Permet à Andrea de dialoguer et d\'analyser dans les 15 langues majeures parlées par les meilleurs modèles de pointe mondiaux.',
     color: 'from-indigo-900/30 to-zinc-800/40 border-indigo-500/40 text-indigo-300',
     targets: {
       'Sélecteur de Langue Vitrine (page_vitrine)': 'page_vitrine',
       'Système Multilingue (LANGUAGES)': 'LANGUAGES',
-      'Prompt Multilingue Bea (system_behavior)': 'system_behavior',
+      'Prompt Multilingue Andrea (system_behavior)': 'system_behavior',
     },
     presets: [
       'Ajouter le sélecteur des 15 langues dans la barre latérale du site visiteur',
@@ -391,7 +391,7 @@ export const LAB_LEVELS: Record<string, ModifLevel> = {
       {
         id: '8.2',
         title: 'Prompt Shield & Détection d\'Injection',
-        description: 'Filtre anti-jailbreak pour protéger les instructions système fondamentales de Bea.',
+        description: "Filtre anti-jailbreak pour protéger les instructions système fondamentales d'Andrea.",
         target: 'FULL_FILE',
         defaultPreset: 'Bloquer toute tentative de modification non autorisée des clés d\'accès.',
       },
@@ -423,7 +423,7 @@ div[data-testid="stChatInput"] { background: #212121 !important; border: 1px sol
 </style>`,
 
   page_chat: `def page_chat():
-    st.markdown("### 💬 Discussion avec Bea")
+    st.markdown("### 💬 Discussion avec Andrea")
     if not st.session_state.messages:
         pt = (st.session_state.prefs or {}).get("profile_type") or "createur"
         st.info("Bonjour, je suis Bea. Décris-moi un projet ou un blocage et je t'aide à repérer ce qui te freine, puis à construire un plan d'action mesurable.")
@@ -444,7 +444,7 @@ div[data-testid="stChatInput"] { background: #212121 !important; border: 1px sol
     menu = st.session_state.studio_menu
     st.markdown(f"### 🎬 Studio créateur — {studio_section_label(menu)}")
     if menu == "composer":
-        # Studio de Design Visuel Bea
+        # Studio de Design Visuel Andrea
         ...
     elif menu == "sous_titres":
         # Module de transcription automatique Whisper SRT/VTT
@@ -453,7 +453,7 @@ div[data-testid="stChatInput"] { background: #212121 !important; border: 1px sol
         # Générateur 1280x720 haute conversion
         ...`,
 
-  SYSTEM_BEHAVIOR_BASE: `SYSTEM_BEHAVIOR_BASE = """Tu es Bea, une IA d'analyse comportementale créée par BehaviorLab AI. Tu aides les entreprises, les indépendants et les créateurs de contenu à avancer sur leurs projets.
+  SYSTEM_BEHAVIOR_BASE: `SYSTEM_BEHAVIOR_BASE = """Tu es Andrea, une IA d'analyse comportementale créée par BehaviorLab AI. Tu aides les entreprises, les indépendants et les créateurs de contenu à avancer sur leurs projets.
 
 PRINCIPE CENTRAL : tu apportes de la valeur dès ta toute première réponse. Tu ne poses JAMAIS de questions avant d'aider et tu ne conditionnes jamais ta réponse à des précisions.
 
@@ -472,7 +472,7 @@ FORMAT PAR DÉFAUT :
     "code": "MODE COACH CODE. Debug et explications pas à pas...",
   }`,
 
-  SiteBuilder: `<!-- Moteur Bâtisseur de Site Web Bea BehaviorLab AI -->
+  SiteBuilder: `<!-- Moteur Bâtisseur de Site Web Andrea BehaviorLab AI -->
 <section class="hero-section">
   <div class="badge">🔥 CONVERSION MAXIMALE · SCORE 98/100</div>
   <h1>Transformez vos visiteurs en clients fidèles</h1>

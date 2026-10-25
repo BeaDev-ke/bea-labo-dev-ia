@@ -50,7 +50,7 @@ export function sanitizeXSS(input: string): string {
 
 /**
  * 2. Détection et neutralisation du Prompt Injection & Jailbreak LLM
- * Protège les prompts de Bea contre les tentatives de détournement de personnalité,
+ * Protège les prompts d'Andrea contre les tentatives de détournement de personnalité,
  * extraction de clés d'API, contournement des règles éthiques ("DAN mode", "ignore all instructions")
  */
 const INJECTION_PATTERNS = [

@@ -1,5 +1,5 @@
 /**
- * Moteur Vocal 100% Gratuit pour Bea
+ * Moteur Vocal 100% Gratuit pour Andrea
  * Utilise l'API standard Web Speech Synthesis du navigateur :
  * - 0 € pour toujours (aucun abonnement, aucun token payant)
  * - Aucune clé API requise

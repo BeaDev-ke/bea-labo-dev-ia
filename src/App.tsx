@@ -38,7 +38,7 @@ export default function App() {
             </button>
             <div>
               <div className="flex items-center gap-2">
-                <span className="font-extrabold text-lg text-white tracking-tight">Bea</span>
+                <span className="font-extrabold text-lg text-white tracking-tight">Andrea</span>
                 <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-zinc-800 text-zinc-300 border border-zinc-700">
                   BehaviorLab AI
                 </span>
@@ -161,7 +161,7 @@ export default function App() {
             <div className="flex items-center justify-between bg-[#15112a] border border-[#7c3aed]/40 p-3.5 rounded-xl text-xs text-[#c4b5fd]">
               <div className="flex items-center gap-2">
                 <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse" />
-                <span>Vous visualisez le <strong>Site Fonctionnel (Prod) de Bea</strong>. Cliquez sur le bouton pour demander une modification au Labo.</span>
+                <span>Vous visualisez le <strong>Site Fonctionnel (Prod) d'Andrea</strong>. Cliquez sur le bouton pour demander une modification au Labo.</span>
               </div>
               <button
                 onClick={() => setCurrentView('lab')}
@@ -183,8 +183,8 @@ export default function App() {
       {/* Minimal Footer */}
       <footer className="border-t border-[#7c3aed]/30 py-4 px-6 text-center text-xs text-[#8a7ab8]">
         <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2">
-          <span>BehaviorLab AI · Système Bea Labo Dev IA (Modifications par Niveau)</span>
-          <span className="text-[#a78bfa]">Moteur IA Comportementale Bea · ast.parse Anti-Plantage</span>
+          <span>BehaviorLab AI · Système Andrea Labo Dev IA (Modifications par Niveau)</span>
+          <span className="text-[#a78bfa]">Moteur IA Comportementale Andrea · ast.parse Anti-Plantage</span>
         </div>
       </footer>
     </div>

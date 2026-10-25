@@ -53,7 +53,7 @@ try:
 except Exception:
     HAS_VOICE = False
 
-st.set_page_config(page_title="Bea", page_icon=_icon, layout="wide", initial_sidebar_state="expanded")
+st.set_page_config(page_title="Andrea", page_icon=_icon, layout="wide", initial_sidebar_state="expanded")
 if HAS_I18N:
     try:
         setup_i18n()
@@ -61,7 +61,7 @@ if HAS_I18N:
         pass
 AVATAR = LOGO or "🧠"
 
-STRIPE_BEA_9 = "https://buy.stripe.com/test_8x27sMei58IC6Rg3OM3wQ01"
+STRIPE_ANDREA_9 = "https://buy.stripe.com/test_8x27sMei58IC6Rg3OM3wQ01"
 STRIPE_PRO_1490 = "https://buy.stripe.com/test_cNieVea1P0c62B08523wQ00"
 STRIPE_ABO_16 = "https://buy.stripe.com/test_8x27sMei58IC6Rg3OM3wQ01"
 
@@ -81,7 +81,7 @@ CONTACT_EMAIL = st.secrets.get("CONTACT_EMAIL", "")
 REQUIRE_LOGIN_CODE = str(st.secrets.get("REQUIRE_LOGIN_CODE", "false")).strip().lower() in ("1", "true", "yes", "oui")
 
 PLANS = ("free", "bea", "pro", "abo")
-PLAN_LABEL = {"free": "Gratuit", "bea": "Bea", "pro": "Bea Pro", "abo": "Bea Ultra"}
+PLAN_LABEL = {"free": "Gratuit", "bea": "Andrea", "pro": "Andrea Pro", "abo": "Andrea Ultra"}
 WHISPER_MODEL = "whisper-large-v3-turbo"
 MAX_AUDIO_BYTES = 25 * 1024 * 1024
 EXT = {"python": "py", "javascript": "js", "typescript": "ts", "html": "html", "css": "css", "json": "json", "sql": "sql"}
@@ -185,7 +185,7 @@ html, body, .stApp, [data-testid="stAppViewContainer"], [data-testid="stMain"], 
 [data-testid="stSidebar"], [data-testid="stSidebar"] > div {{background:#150f2e!important; border-right:1px solid rgba(124,58,237,0.25)!important;}}
 [data-testid="stSidebar"] *{{color:#e4e4e7!important;}}
 header[data-testid="stHeader"]{{background:#181135!important; border-bottom:1px solid rgba(124,58,237,0.2)!important;}}
-.block-container{{max-width:1440px!important; width:100%!important; padding-top:2rem!important; padding-bottom:7rem!important;}}
+.block-container{{max-width:1440px!important; width:100%!important; padding-top:5rem!important; padding-bottom:7rem!important;}}
 #MainMenu,footer{{visibility:hidden;}}
 div[data-testid="stButton"]>button{{background:#231a4a!important; color:#FFFFFF!important; border:1px solid #5A33FF66!important; border-radius:12px!important; font-weight:600!important; font-size:13px!important; min-height:44px!important; transition:all 0.2s ease!important;}}
 div[data-testid="stButton"]>button:hover{{background:#2e2260!important; border-color:#8B70FF!important; box-shadow:0 0 12px rgba(90,51,255,0.3)!important;}}
@@ -197,22 +197,30 @@ div[data-baseweb="input"], div[data-baseweb="textarea"], div[data-baseweb="selec
 div[data-baseweb="base-input"]{{background:transparent!important; border:none!important;}}
 div[data-baseweb="input"] input, div[data-baseweb="textarea"] textarea, div[data-baseweb="select"] input{{background:transparent!important; color:{TEXT}!important; border:none!important; box-shadow:none!important; outline:none!important;}}
 
-/* Chat Input Bar - Capsule layout relative container */
-div[data-testid="stChatInput"]{{
+/* Discussion box - Large 2-tier card matching preview perfectly (Image 3) */
+div[data-testid="stChatInput"]{
     max-width:920px!important; margin:0 auto!important; width:100%!important;
-    background:#201844!important; border:1px solid #5A33FF55!important; border-radius:26px!important;
-    padding:0!important; min-height:52px!important; box-shadow:0 4px 20px rgba(15,10,35,0.5)!important;
+    background:#201844!important; border:1px solid #5A33FF55!important; border-radius:24px!important;
+    padding-top:12px!important; padding-left:14px!important; padding-right:14px!important; padding-bottom:48px!important;
+    min-height:98px!important; box-shadow:0 4px 24px rgba(15,10,35,0.6)!important;
     position:relative!important; box-sizing:border-box!important;
-}}
+    transition:border-color 0.2s ease, box-shadow 0.2s ease!important;
+}
+div[data-testid="stChatInput"]:focus-within{
+    border-color:#8B70FF!important;
+    box-shadow:0 0 16px rgba(139,112,255,0.3)!important;
+}
 div[data-testid="stChatInput"] > div,
-div[data-testid="stChatInput"] [data-baseweb="base-input"]{{
+div[data-testid="stChatInput"] [data-baseweb="base-input"]{
     position:static!important; background:transparent!important; border:none!important; box-shadow:none!important; width:100%!important;
-}}
-div[data-testid="stChatInput"] textarea{{
-    padding-left:56px!important; padding-right:102px!important; padding-top:14px!important; padding-bottom:14px!important;
-    font-size:15px!important; background:transparent!important; color:#FFFFFF!important;
+}
+div[data-testid="stChatInput"] textarea{
+    padding:2px 4px!important; min-height:42px!important;
+    font-size:15px!important; line-height:1.5!important;
+    background:transparent!important; color:#FFFFFF!important;
     border:none!important; outline:none!important; box-shadow:none!important; width:100%!important; box-sizing:border-box!important;
-}}
+    resize:none!important;
+}
 div[data-testid="stBottom"]{{background:transparent!important; position:relative!important;}}
 div[data-testid="stBottom"]>div{{background:transparent!important; max-width:920px!important; margin:0 auto!important;}}
 .bea-hero-title{{font-size:34px; font-weight:800; color:{TEXT}; text-align:center; margin:8px 0 2px 0; letter-spacing:-0.5px;}}
@@ -226,11 +234,11 @@ div[data-testid="stBottom"]>div{{background:transparent!important; max-width:920
 .limit-badge{{background:#231a4a; border:1px solid {BORDER}; border-radius:8px; padding:6px 10px; font-size:11px; color:{TEXT_SEC}; margin-bottom:10px;}}
 .soon{{font-size:12px; color:#7a70a8;}}
 
-/* Send button styling - EXACT 36px circular button at right:10px */
+/* Send button styling - EXACT 36px circular button at bottom-right (right:14px) */
 div[data-testid="stChatInput"] button[data-testid="stChatInputSubmitButton"],
 div[data-testid="stChatInput"] button[aria-label*="Send"],
 div[data-testid="stChatInput"] button[aria-label*="Envoyer"]{{
-    position:absolute!important; right:10px!important; bottom:8px!important; top:auto!important; left:auto!important; z-index:30!important;
+    position:absolute!important; right:14px!important; bottom:8px!important; top:auto!important; left:auto!important; z-index:30!important;
     width:36px!important; height:36px!important; min-width:36px!important; min-height:36px!important; max-width:36px!important; max-height:36px!important;
     border-radius:50%!important; background:#ffffff!important; color:#181135!important;
     border:none!important; display:flex!important; align-items:center!important; justify-content:center!important;
@@ -243,30 +251,30 @@ div[data-testid="stChatInput"] button[aria-label*="Envoyer"] svg{{
     width:18px!important; height:18px!important; fill:#181135!important; stroke:#181135!important;
 }}
 
-/* Microphone styling - EXACT 36px circular button at right:54px (NEVER SUPERPOSED) */
+/* Microphone styling - EXACT 36px circular button at bottom-right (right:58px, NEVER CUT OFF / NO OVERFLOW HIDDEN) */
 div[data-testid="stChatInput"] div[data-testid="stAudioInput"]{{
-    position:absolute!important; right:54px!important; bottom:8px!important; top:auto!important; left:auto!important; z-index:30!important;
+    position:absolute!important; right:58px!important; bottom:8px!important; top:auto!important; left:auto!important; z-index:30!important;
     width:36px!important; height:36px!important; min-width:36px!important; min-height:36px!important; max-width:36px!important; max-height:36px!important;
     margin:0!important; padding:0!important; background:transparent!important; border:none!important;
     display:flex!important; align-items:center!important; justify-content:center!important;
-    overflow:hidden!important; transform:none!important;
+    overflow:visible!important; transform:none!important;
 }}
-div[data-testid="stChatInput"] div[data-testid="stAudioInput"] > div{{background:transparent!important; border:none!important; margin:0!important; padding:0!important; width:36px!important; height:36px!important; display:flex!important; align-items:center!important; justify-content:center!important;}}
+div[data-testid="stChatInput"] div[data-testid="stAudioInput"] > div{{background:transparent!important; border:none!important; margin:0!important; padding:0!important; width:36px!important; height:36px!important; display:flex!important; align-items:center!important; justify-content:center!important; overflow:visible!important;}}
 div[data-testid="stChatInput"] div[data-testid="stAudioInput"] label{{display:none!important;}}
 div[data-testid="stChatInput"] div[data-testid="stAudioInput"] button{{
     background:#2a2057!important; border:1px solid #5A33FF66!important; border-radius:50%!important;
     width:36px!important; height:36px!important; min-width:36px!important; min-height:36px!important; max-width:36px!important; max-height:36px!important;
     padding:0!important; margin:0!important; display:flex!important; align-items:center!important; justify-content:center!important;
-    color:#e4e4e7!important; box-shadow:0 2px 6px rgba(0,0,0,0.3)!important; cursor:pointer!important;
+    color:#c4b5fd!important; box-shadow:0 2px 6px rgba(0,0,0,0.3)!important; cursor:pointer!important;
 }}
 div[data-testid="stChatInput"] div[data-testid="stAudioInput"] button:hover{{background:#372b6e!important; border-color:#8B70FF!important; color:#ffffff!important;}}
 div[data-testid="stChatInput"] div[data-testid="stAudioInput"] svg{{width:18px!important; height:18px!important; fill:currentColor!important;}}
 div[data-testid="stChatInput"] div[data-testid="stAudioInput"] [data-baseweb="file-uploader"]{{background:transparent!important; border:none!important;}}
 
-/* Plus button styling inside chat input - EXACT 36px circular button at left:10px */
+/* Plus button styling inside chat input - EXACT 36px circular button at bottom-left (left:14px) */
 div[data-testid="stChatInput"] > div[data-testid="stPopover"],
 div[data-testid="stChatInput"] > .chat-plus-popover{{
-    position:absolute!important; left:10px!important; bottom:8px!important; top:auto!important; right:auto!important; z-index:31!important;
+    position:absolute!important; left:14px!important; bottom:8px!important; top:auto!important; right:auto!important; z-index:31!important;
     width:36px!important; height:36px!important; min-width:36px!important; min-height:36px!important; max-width:36px!important; max-height:36px!important;
     margin:0!important; padding:0!important; transform:none!important;
 }}
@@ -274,7 +282,7 @@ div[data-testid="stChatInput"] > div[data-testid="stPopover"] > button,
 div[data-testid="stChatInput"] > .chat-plus-popover button{{
     width:36px!important; height:36px!important; min-width:36px!important; min-height:36px!important; max-width:36px!important; max-height:36px!important;
     border-radius:50%!important; background:#2a2057!important; border:1px solid #5A33FF66!important;
-    color:#e4e4e7!important; display:flex!important; align-items:center!important; justify-content:center!important;
+    color:#c4b5fd!important; display:flex!important; align-items:center!important; justify-content:center!important;
     padding:0!important; margin:0!important; font-size:18px!important; cursor:pointer!important; line-height:1!important;
 }}
 div[data-testid="stChatInput"] > div[data-testid="stPopover"] > button:hover,
@@ -296,7 +304,7 @@ STYLE_HINT = {
     "Expert comportemental": "Utilise le vocabulaire de la psychologie comportementale (déclencheurs, renforcement, friction, habitudes) en l'expliquant simplement.",
 }
 
-SYSTEM_BEHAVIOR_BASE = """Tu es Bea, une IA stratégique et comportementale d'exception conçue par BehaviorLab AI. Tu accompagnes les créateurs, entrepreneurs, étudiants et professionnels avec une pensée profonde, agile et hautement perspicace.
+SYSTEM_BEHAVIOR_BASE = """Tu es Andrea, une IA stratégique et comportementale d'exception conçue par BehaviorLab AI. Tu accompagnes les créateurs, entrepreneurs, étudiants et professionnels avec une pensée profonde, agile et hautement perspicace.
 
 INTELLIGENCE ET POSTURE :
 - Tu penses en profondeur avant de répondre : tu analyses les sous-jacents, les dynamiques réelles et les leviers d'impact.
@@ -346,7 +354,7 @@ SYSTEM_USE_CASES = {
         "2. **Texte de chaque section** : une proposition concrète prête à coller, avec une alternative courte.\n"
         "3. **Appel à l'action** : un CTA précis, ancré dans un bénéfice, avec le biais activé (urgence douce, rareté, preuve sociale).\n"
         "4. **Conseils visuels** : 3 points clés pour guider l'œil et réduire la friction (contraste, hiérarchie, espace blanc).\n"
-        "5. **Si Bea Ultra** : propose en plus un fichier HTML one-page prêt à l'emploi (renvoie vers la page App web du studio).\n"
+        "5. **Si Andrea Ultra** : propose en plus un fichier HTML one-page prêt à l'emploi (renvoie vers la page App web du studio).\n"
         "RÈGLES : pas de promesses trompeuses, pas de statistiques inventées. Réponds dans la langue de l'utilisateur."
     ),
     "code": (
@@ -369,7 +377,7 @@ SYSTEM_USE_CASES = {
     ),
 }
 
-SYSTEM_CODE = ("Tu es l'IA code de Bea. Tu aides à comprendre, déboguer et améliorer du code. Réponds en français sauf demande contraire. "
+SYSTEM_CODE = ("Tu es l'IA code d'Andrea. Tu aides à comprendre, déboguer et améliorer du code. Réponds en français sauf demande contraire. "
                "Quand tu proposes une correction, donne le code complet corrigé dans un bloc de code puis explique brièvement les changements. "
                "Si le code fourni ne suffit pas pour répondre, dis-le au lieu d'inventer.")
 
@@ -722,7 +730,7 @@ def render_message(m, idx):
             st.markdown(m["content"])
             c0,c1,c2,c3,c4,c5 = st.columns([1,1,1,1,1,2])
             with c0:
-                if st.button("🔊", key=f"speak_{idx}", help="Écouter Bea (100% gratuit - Web Speech)"):
+                if st.button("🔊", key=f"speak_{idx}", help="Écouter Andrea (100% gratuit - Web Speech)"):
                     clean_speech = json.dumps(m["content"].replace("**","").replace("#","").replace("`","")[:3500])
                     components.html(f"""
                     <script>
@@ -793,7 +801,7 @@ def generate_reply():
         try:
             text = st.write_stream(stream_groq(build_model_messages(st.session_state.messages)))
         except Exception:
-            st.error("Bea n'a pas pu répondre (service IA indisponible). Utilise « Régénérer » ou « Continuer » pour réessayer.")
+            st.error("Andrea n'a pas pu répondre (service IA indisponible). Utilise « Régénérer » ou « Continuer » pour réessayer.")
             return False
     text = clean_text(text, 12000)
     if not text:
@@ -837,9 +845,9 @@ def handle_send(prompt, up):
         st.rerun()
 
 def export_markdown():
-    lines = ["# Discussion avec Bea\n"]
+    lines = ["# Discussion avec Andrea\n"]
     for m in st.session_state.messages:
-        lines.append(f"**{'Moi' if m['role'] == 'user' else 'Bea'}** :\n\n{m['content']}\n")
+        lines.append(f"**{'Moi' if m['role'] == 'user' else 'Andrea'}** :\n\n{m['content']}\n")
     return "\n".join(lines)
 
 def privacy_md():
@@ -853,9 +861,9 @@ def render_offers():
     st.markdown("## Découvrir les offres")
     c1, c2, c3 = st.columns(3, gap="medium")
     cards = [
-        ("bea", c1, "Bea : 9 € par mois", "L'IA de base, sans personnalisation", STRIPE_BEA_9, "Choisir Bea - 9 €"),
-        ("pro", c2, "Bea Pro : 14,90 € par mois", "Bea + prompts spécialisés + outils créateurs", STRIPE_PRO_1490, "Choisir Bea Pro - 14,90 €"),
-        ("abo", c3, "Bea Ultra : 16 € par mois", "Tout illimité : app, studio, code, aucun plafond", STRIPE_ABO_16, "S'abonner - 16 €"),
+        ("bea", c1, "Andrea : 9 € par mois", "L'IA de base, sans personnalisation", STRIPE_ANDREA_9, "Choisir Andrea - 9 €"),
+        ("pro", c2, "Andrea Pro : 14,90 € par mois", "Andrea + prompts spécialisés + outils créateurs", STRIPE_PRO_1490, "Choisir Andrea Pro - 14,90 €"),
+        ("abo", c3, "Andrea Ultra : 16 € par mois", "Tout illimité : app, studio, code, aucun plafond", STRIPE_ABO_16, "S'abonner - 16 €"),
     ]
     for key, col, title, caption, url, label in cards:
         with col:
@@ -879,7 +887,7 @@ def render_offers():
                         )
                     elif key == "pro":
                         st.markdown(
-                            "**Tout Bea, plus les prompts spécialisés et les outils créateurs.**\n"
+                            "**Tout Andrea, plus les prompts spécialisés et les outils créateurs.**\n"
                             "- 60 requêtes chat + 30 requêtes code / mois\n"
                             "- **Prompts personnalisés activés :**\n"
                             "  • Analyse clients (biais cognitifs d'achat)\n"
@@ -891,12 +899,12 @@ def render_offers():
                             "- Plans de montage IA\n"
                             "- Studio de Design Visuel avec modèles\n"
                             "- Export PDF/Word, dictée vocale\n"
-                            "- ❌ Génération d'app web réservée à Bea Ultra"
+                            "- ❌ Génération d'app web réservée à Andrea Ultra"
                         )
                         st.markdown('<div class="soon">Studio complet avec FFmpeg : audio, texte, effets, filtres, transitions.</div>', unsafe_allow_html=True)
                     else:
                         st.markdown(
-                            "**Tout Bea Pro, sans aucune limite.**\n"
+                            "**Tout Andrea Pro, sans aucune limite.**\n"
                             "- Aucune limite de messages (usage équitable)\n"
                             "- Génération d'app web complète (HTML unique)\n"
                             "- Tous les prompts spécialisés + Coach code\n"
@@ -907,7 +915,7 @@ def render_offers():
                 st.link_button(label, url, use_container_width=True)
 
 def page_dev_portal():
-    st.markdown("### 🛠️ Portail Développeur - Bea")
+    st.markdown("### 🛠️ Portail Développeur - Andrea")
     st.success(f"Développeur reconnu : {st.session_state.user.email}")
     c1,c2 = st.columns(2, gap="large")
     with c1:
@@ -949,15 +957,15 @@ LAB_LEVELS = {
         "targets": {
             "Styles CSS globaux (classes, fonds, bordures)": "CSS_STYLES",
             "Cartes d'accroche (STARTER_CARDS)": "STARTER_CARDS",
-            "Styles de réponse de Bea (STYLE_HINT)": "STYLE_HINT",
+            "Styles de réponse d'Andrea (STYLE_HINT)": "STYLE_HINT",
             "Textes de la page d'accueil (page_vitrine)": "page_vitrine",
             "Barre latérale & badges (render_sidebar)": "render_sidebar",
         },
         "presets": [
-            "Changer le texte d'accueil de Bea pour le rendre plus direct et orienté action",
+            "Changer le texte d'accueil d'Andrea pour le rendre plus direct et orienté action",
             "Remplacer la couleur violette d'accent par un bleu électrique #2563eb",
             "Ajouter 3 nouvelles questions d'accroche pour les indépendants dans STARTER_CARDS",
-            "Modifier le libellé du bouton Se connecter en Continuer vers Bea"
+            "Modifier le libellé du bouton Se connecter en Continuer vers Andrea"
         ]
     },
     "2": {
@@ -990,10 +998,10 @@ LAB_LEVELS = {
         "title": "🧠 Niveau 3 : Moteur Comportemental & Prompts IA",
         "badge": "Niveau 3 - Intelligence IA",
         "scope": "Prompts système, biais cognitifs, règles d'analyse comportementale",
-        "description": "Ajuste la psychologie et la méthode d'analyse de Bea (biais cognitifs, 5 étapes, cadrage, relances).",
+        "description": "Ajuste la psychologie et la méthode d'analyse d'Andrea (biais cognitifs, 5 étapes, cadrage, relances).",
         "targets": {
             "Système de prompt dynamique (system_behavior)": "system_behavior",
-            "Comportement de base de Bea (SYSTEM_BEHAVIOR_BASE)": "SYSTEM_BEHAVIOR_BASE",
+            "Comportement de base d'Andrea (SYSTEM_BEHAVIOR_BASE)": "SYSTEM_BEHAVIOR_BASE",
             "Cas d'usage spécialisés (SYSTEM_USE_CASES)": "SYSTEM_USE_CASES",
             "Prompt de l'IA Code (SYSTEM_CODE)": "SYSTEM_CODE",
             "Prompt du Monteur Vidéo (SYSTEM_MONTAGE)": "SYSTEM_MONTAGE",
@@ -1010,7 +1018,7 @@ LAB_LEVELS = {
         "title": "⚡ Niveau 4 : Nouveau Module ou Fonctionnalité",
         "badge": "Niveau 4 - Évolution fonctionnelle",
         "scope": "Ajout de nouvelle page, nouvelle section studio, nouveau profil utilisateur",
-        "description": "Ajoute une nouvelle brique fonctionnelle dans Bea avec mise à jour automatique des menus et du routage.",
+        "description": "Ajoute une nouvelle brique fonctionnelle dans Andrea avec mise à jour automatique des menus et du routage.",
         "targets": {
             "Nouveau profil utilisateur (PROFILE_OPTIONS)": "PROFILE_OPTIONS",
             "Nouvel outil dans le Studio (STUDIO_SECTIONS)": "STUDIO_SECTIONS",
@@ -1175,7 +1183,7 @@ def page_dev_lab():
             model_id = DEV_MODELES.get(st.session_state.dev_model_choice, "llama-3.3-70b-versatile")
             
             # Prompt système ultra-précis selon le niveau
-            SYSTEM_DEV = f"""Tu es l'architecte expert de Bea (BehaviorLab AI).
+            SYSTEM_DEV = f"""Tu es l'architecte expert d'Andrea (BehaviorLab AI).
 Tu travailles au NIVEAU {level_key} ({lvl_info['title']}).
 RÈGLES D'OR :
 1. Tu ne modifies QUE l'élément ciblé ({target_id}) selon la consigne.
@@ -1307,7 +1315,7 @@ def page_vitrine():
     with st.sidebar:
         if LOGO:
             st.image(LOGO, width=64)
-        st.markdown('<div style="font-size:18px; font-weight:800; color:#f5f3ff;">Bea</div><div style="font-size:11px; font-weight:600; color:#a1a1aa; margin-bottom:14px;">BehaviorLab AI</div>', unsafe_allow_html=True)
+        st.markdown('<div style="font-size:18px; font-weight:800; color:#f5f3ff;">Andrea</div><div style="font-size:11px; font-weight:600; color:#a1a1aa; margin-bottom:14px;">BehaviorLab AI</div>', unsafe_allow_html=True)
         st.caption("Navigation Visiteur")
         if st.button("💬 Accueil & Connexion", key="v_nav_home", use_container_width=True):
             st.session_state.landing_tab = "connexion"
@@ -1323,19 +1331,20 @@ def page_vitrine():
         st.selectbox("Langue", ALL_LANGUAGES, key="landing_language", label_visibility="collapsed")
         st.caption("15 langues majeures intégrées (GPT OSS, Llama 3.3, Whisper).")
 
+    st.markdown('<div style="height:1.5rem;"></div>', unsafe_allow_html=True)
     if LOGO:
         _, c, _ = st.columns([1, 0.3, 1])
         with c:
             st.image(LOGO, width=96)
-    st.markdown('<div class="bea-hero-title">Bea</div><div class="bea-hero-sub">BehaviorLab AI</div>', unsafe_allow_html=True)
+    st.markdown('<div class="bea-hero-title">Andrea</div><div class="bea-hero-sub">BehaviorLab AI</div>', unsafe_allow_html=True)
     landing_tab = st.session_state.get("landing_tab", "connexion")
     if landing_tab == "about":
         st.markdown("""
         <div class="landing-copy">
             <h2>Une intelligence artificielle pensée pour votre progression</h2>
             <p><strong>BehaviorLab AI</strong> développe des intelligences artificielles dédiées à votre réussite. Notre conviction est simple : les blocages qui vous freinent — procrastination, doute, désorganisation, difficulté à décider — ne relèvent pas d'un manque de volonté, mais de mécanismes comportementaux identifiables et sur lesquels on peut agir.</p>
-            <p>Nous combinons la science du comportement, l'analyse fine des situations et un accompagnement concret pour transformer une intention en progrès visible. Bea lit ce qui se passe derrière une décision, repère les patterns qui se répètent et propose des leviers adaptés à votre contexte — pas des conseils génériques.</p>
-            <p>Que vous soyez entrepreneur, indépendant, créateur de contenu, étudiant ou salarié, Bea vous aide à voir clair dans vos blocages, à reprendre des décisions que vous repoussez, à construire des routines qui tiennent dans le temps et à transformer vos idées en actions concrètes. Chaque échange vise une prochaine étape utile, mesurable et suffisamment simple pour être appliquée dès aujourd'hui.</p>
+            <p>Nous combinons la science du comportement, l'analyse fine des situations et un accompagnement concret pour transformer une intention en progrès visible. Andrea lit ce qui se passe derrière une décision, repère les patterns qui se répètent et propose des leviers adaptés à votre contexte — pas des conseils génériques.</p>
+            <p>Que vous soyez entrepreneur, indépendant, créateur de contenu, étudiant ou salarié, Andrea vous aide à voir clair dans vos blocages, à reprendre des décisions que vous repoussez, à construire des routines qui tiennent dans le temps et à transformer vos idées en actions concrètes. Chaque échange vise une prochaine étape utile, mesurable et suffisamment simple pour être appliquée dès aujourd'hui.</p>
             <p>Au-delà de la conversation, BehaviorLab AI construit des outils dédiés : un éditeur de code, un studio créateur pour vos contenus vidéo, un générateur d'applications web et un système de mémoire qui apprend de vos échanges pour mieux vous accompagner au fil du temps.</p>
         </div>
         """, unsafe_allow_html=True)
@@ -1343,7 +1352,7 @@ def page_vitrine():
         st.markdown("""
         <div class="landing-copy">
             <h2>Choisissez le niveau d'accompagnement qui vous convient</h2>
-            <p>Commencez avec les fonctions essentielles de Bea pour clarifier vos blocages, organiser vos idées et construire des plans d'action concrets. Vous gardez une expérience simple, utile et directement orientée vers votre prochaine étape.</p>
+            <p>Commencez avec les fonctions essentielles d'Andrea pour clarifier vos blocages, organiser vos idées et construire des plans d'action concrets. Vous gardez une expérience simple, utile et directement orientée vers votre prochaine étape.</p>
             <p>Lorsque vos besoins grandissent, les offres supérieures ajoutent la personnalisation, les analyses spécialisées, l'accompagnement scolaire, les outils de création de contenu, l'édition de code et la génération d'applications web. Chaque formule vous permet d'avancer avec les bons outils, sans complexité inutile.</p>
         </div>
         """, unsafe_allow_html=True)
@@ -1352,7 +1361,7 @@ def page_vitrine():
         st.markdown("""
         <div class="landing-copy">
             <h2>Clarifiez vos idées. Comprenez vos blocages. Avancez.</h2>
-            <p>Bea vous accompagne lorsque vous savez que vous devez avancer, mais que le prochain pas reste flou. Elle transforme votre situation en une lecture claire, des options réalistes et un plan d'action que vous pouvez commencer dès maintenant.</p>
+            <p>Andrea vous accompagne lorsque vous savez que vous devez avancer, mais que le prochain pas reste flou. Elle transforme votre situation en une lecture claire, des options réalistes et un plan d'action que vous pouvez commencer dès maintenant.</p>
             <p>Elle vous aide à identifier ce qui vous ralentit vraiment : une priorité mal définie, une décision repoussée, une routine difficile à tenir ou une idée qui reste au stade de projet. Ses réponses sont conçues pour être concrètes, lisibles et adaptées à votre réalité.</p>
             <p>Que vous développiez une activité, prépariez un contenu, organisiez un projet ou cherchiez une meilleure routine, l'objectif reste le même : vous aider à passer de la réflexion à une progression régulière, étape après étape.</p>
         </div>
@@ -1499,7 +1508,7 @@ def render_sidebar():
         if st.session_state.page == "studio":
             st.markdown('<div style="text-align:center; font-size:18px; font-weight:800;">🎬 Studio créateur</div>', unsafe_allow_html=True)
             st.caption("Choisis une action ci-dessous")
-            if st.button("← Retour à Bea", key="back_bea", use_container_width=True):
+            if st.button("← Retour à Andrea", key="back_bea", use_container_width=True):
                 st.session_state.page = "chat"
                 st.rerun()
             st.divider()
@@ -1521,7 +1530,7 @@ def render_sidebar():
             _, c, _ = st.columns([1, 1, 1])
             with c:
                 st.image(LOGO, width=62)
-        st.markdown('<div style="text-align:center; font-size:18px; font-weight:800; color:#f5f3ff;">Bea</div><div style="text-align:center; font-size:11px; font-weight:700; letter-spacing:0.8px; margin-bottom:12px;">BehaviorLab AI</div>', unsafe_allow_html=True)
+        st.markdown('<div style="text-align:center; font-size:18px; font-weight:800; color:#f5f3ff;">Andrea</div><div style="text-align:center; font-size:11px; font-weight:700; letter-spacing:0.8px; margin-bottom:12px;">BehaviorLab AI</div>', unsafe_allow_html=True)
         q = st.session_state.quota or {}
         def fmt(x):
             return f"{x['used']}/{x['limit']}" if x else "?"
@@ -1664,34 +1673,34 @@ USE_CASE_LABEL = {
 
 PROMPT_OFFER_RECOMMENDATIONS = {
     "clients": {
-        "plan": "pro", "title": "Bea Pro", "reason": "son prompt Analyse clients correspond à ton besoin",
+        "plan": "pro", "title": "Andrea Pro", "reason": "son prompt Analyse clients correspond à ton besoin",
         "description": "Analyse des messages clients, émotions, objections et biais cognitifs d'achat, avec réponses prêtes à envoyer.",
-        "url": STRIPE_PRO_1490, "label": "Choisir Bea Pro - 14,90 €",
+        "url": STRIPE_PRO_1490, "label": "Choisir Andrea Pro - 14,90 €",
     },
     "contenu": {
-        "plan": "pro", "title": "Bea Pro", "reason": "son prompt Stratégie contenu correspond à ton besoin",
+        "plan": "pro", "title": "Andrea Pro", "reason": "son prompt Stratégie contenu correspond à ton besoin",
         "description": "Hooks qui arrêtent le scroll, biais d'attention, titres, miniatures et plans de contenu adaptés à la plateforme.",
-        "url": STRIPE_PRO_1490, "label": "Choisir Bea Pro - 14,90 €",
+        "url": STRIPE_PRO_1490, "label": "Choisir Andrea Pro - 14,90 €",
     },
     "scolaire": {
-        "plan": "pro", "title": "Bea Pro", "reason": "son accompagnement scolaire correspond à ton besoin",
+        "plan": "pro", "title": "Andrea Pro", "reason": "son accompagnement scolaire correspond à ton besoin",
         "description": "Méthodes de révision, aide aux devoirs, explications progressives et adaptation au programme du pays choisi.",
-        "url": STRIPE_PRO_1490, "label": "Choisir Bea Pro - 14,90 €",
+        "url": STRIPE_PRO_1490, "label": "Choisir Andrea Pro - 14,90 €",
     },
     "general": {
-        "plan": "bea", "title": "Bea", "reason": "son accompagnement comportemental général correspond à ton besoin",
+        "plan": "bea", "title": "Andrea", "reason": "son accompagnement comportemental général correspond à ton besoin",
         "description": "Une IA comportementale pour clarifier tes blocages et construire des plans d'action concrets.",
-        "url": STRIPE_BEA_9, "label": "Choisir Bea - 9 €",
+        "url": STRIPE_ANDREA_9, "label": "Choisir Andrea - 9 €",
     },
     "site": {
-        "plan": "abo", "title": "Bea Ultra", "reason": "son bâtisseur de site et sa génération d'app correspondent à ton besoin",
+        "plan": "abo", "title": "Andrea Ultra", "reason": "son bâtisseur de site et sa génération d'app correspondent à ton besoin",
         "description": "Psychologie de conversion, structure de page et génération d'app web complète en HTML.",
-        "url": STRIPE_ABO_16, "label": "Choisir Bea Ultra - 16 €",
+        "url": STRIPE_ABO_16, "label": "Choisir Andrea Ultra - 16 €",
     },
     "code": {
-        "plan": "abo", "title": "Bea Ultra", "reason": "son Coach code et ses outils avancés correspondent à ton besoin",
+        "plan": "abo", "title": "Andrea Ultra", "reason": "son Coach code et ses outils avancés correspondent à ton besoin",
         "description": "Coach code, éditeur de projets, génération d'applications et usage sans limite de messages.",
-        "url": STRIPE_ABO_16, "label": "Choisir Bea Ultra - 16 €",
+        "url": STRIPE_ABO_16, "label": "Choisir Andrea Ultra - 16 €",
     },
 }
 
@@ -1776,8 +1785,8 @@ def save_onboarding(profile_type, use_case, display_name, goal, school_country=N
 def page_onboarding():
     step = int(st.session_state.get("onboarding_step", 1))
     if step == 1:
-        st.markdown("### Bienvenue chez Bea")
-        st.caption("Étape 1 sur 4 — quelques réponses pour adapter Bea à ton profil.")
+        st.markdown("### Bienvenue chez Andrea")
+        st.caption("Étape 1 sur 4 — quelques réponses pour adapter Andrea à ton profil.")
         prof = st.radio("Qu'est-ce qui te décrit le plus ?", [k for k, _ in PROFILE_OPTIONS],
                         format_func=lambda x: dict(PROFILE_OPTIONS)[x], key="onboarding_profile_choice", horizontal=False)
         study_country = None
@@ -1793,7 +1802,7 @@ def page_onboarding():
         return
 
     if step == 2:
-        st.markdown("### Ton but avec Bea")
+        st.markdown("### Ton but avec Andrea")
         st.caption("Étape 2 sur 4 — choisis un prompt ou décris ton besoin librement.")
         choices = [("clients", "Analyse clients / prospects"), ("contenu", "Stratégie contenu et réseaux sociaux"),
                    ("site", "Créer un site ou une application"), ("code", "Coach code"),
@@ -1815,7 +1824,7 @@ def page_onboarding():
         with c_next:
             if st.button("Valider", key="onboarding_goal_next", use_container_width=True, type="primary"):
                 if goal == "custom" and not clean_text(custom_goal, 300):
-                    st.warning("Décris ton besoin pour que Bea puisse te recommander la bonne offre.")
+                    st.warning("Décris ton besoin pour que Andrea puisse te recommander la bonne offre.")
                 else:
                     st.session_state.onboarding_goal = goal
                     st.session_state.onboarding_recommended_use_case = recommend_use_case(goal, custom_goal)
@@ -1839,7 +1848,7 @@ def page_onboarding():
             st.rerun()
         return
 
-    st.markdown("### Comment veux-tu que Bea t'appelle ?")
+    st.markdown("### Comment veux-tu que Andrea t'appelle ?")
     st.caption("Étape 4 sur 4 — tu pourras modifier ce nom plus tard.")
     nom = st.text_input("Prénom ou pseudo", key="onboarding_name", max_chars=40)
     goal = st.session_state.get("onboarding_goal", "general")
@@ -1855,20 +1864,20 @@ def page_onboarding():
             st.session_state.onboarding_step = 3
             st.rerun()
     with c_finish:
-        if st.button("Valider et entrer dans Bea", key="onboarding_finish", use_container_width=True, type="primary"):
+        if st.button("Valider et entrer dans Andrea", key="onboarding_finish", use_container_width=True, type="primary"):
             if save_onboarding(st.session_state.get("onboarding_profile", "autre"), use_case, nom, saved_goal, school_country, study_country, study_level):
                 st.session_state.page = "chat"
                 st.rerun()
 
 def page_chat():
-    st.markdown("### 💬 Discussion avec Bea")
+    st.markdown("### 💬 Discussion avec Andrea")
     if not st.session_state.messages:
         pt = (st.session_state.prefs or {}).get("profile_type") or st.session_state.get("profile_type") or "createur"
         if pt not in STARTER_CARDS:
             pt = "createur"
         st.markdown("""
         <div style="background:#231a4a; border:1px solid #5A33FF55; border-radius:16px; padding:18px 22px; margin-bottom:18px; box-shadow:0 4px 20px rgba(15,10,35,0.6);">
-            <div style="font-size:16px; font-weight:700; color:#FFFFFF; margin-bottom:4px;">Bonjour, je suis Bea.</div>
+            <div style="font-size:16px; font-weight:700; color:#FFFFFF; margin-bottom:4px;">Bonjour, je suis Andrea.</div>
             <div style="font-size:14px; color:#c4b5fd; line-height:1.6;">Ton partenaire d'analyse stratégique, de créativité et de passage à l'action. Sur quel sujet souhaites-tu avancer aujourd'hui ?</div>
         </div>
         """, unsafe_allow_html=True)
@@ -1928,14 +1937,14 @@ def page_chat():
         up = st.file_uploader("Glisser un fichier ici", type=["txt", "md", "csv", "json", "py", "pdf"], key=f"chat_up_{st.session_state.up_key}")
         st.download_button("Télécharger la discussion", export_markdown(), file_name="discussion_bea.md", key=f"dl_menu_{st.session_state.up_key}", use_container_width=True)
         components.html("""
-        <button onclick="(navigator.share ? navigator.share({title:'Discussion avec Bea', text:window.parent.document.body.innerText.slice(-5000)}) : navigator.clipboard.writeText(window.parent.document.body.innerText.slice(-5000)))" style="width:100%;padding:10px;border-radius:10px;border:1px solid #5A33FF;background:#1E1B8C;color:white;font-weight:700;cursor:pointer">Partager la discussion</button>
+        <button onclick="(navigator.share ? navigator.share({title:'Discussion avec Andrea', text:window.parent.document.body.innerText.slice(-5000)}) : navigator.clipboard.writeText(window.parent.document.body.innerText.slice(-5000)))" style="width:100%;padding:10px;border-radius:10px;border:1px solid #5A33FF;background:#1E1B8C;color:white;font-weight:700;cursor:pointer">Partager la discussion</button>
         """, height=48)
 
     if up:
         st.caption(f"Fichier prêt à être envoyé : {up.name}")
 
     default = st.session_state.transcribed_text if st.session_state.get("transcribed_text") else ""
-    prompt = st.chat_input("Écris ton message à Bea..." if not default else default)
+    prompt = st.chat_input("Écris ton message à Andrea..." if not default else default)
     audio = st.audio_input("micro", key=f"mic_{st.session_state.up_key}", label_visibility="collapsed")
 
     components.html("""
@@ -1953,6 +1962,8 @@ def page_chat():
                 chat.style.maxWidth = '920px';
                 chat.style.margin = '0 auto';
                 chat.style.width = '100%';
+                chat.style.minHeight = '98px';
+                chat.style.padding = '12px 14px 48px 14px';
                 chat.style.boxSizing = 'border-box';
 
                 const mic = doc.querySelector('div[data-testid="stAudioInput"]');
@@ -1974,18 +1985,18 @@ def page_chat():
 
                 const input = chat.querySelector('textarea');
                 if(input){
-                    input.style.paddingLeft = '56px';
-                    input.style.paddingRight = '102px';
+                    input.style.padding = '2px 4px';
+                    input.style.minHeight = '42px';
                     input.style.background = 'transparent';
                     input.style.color = '#FFFFFF';
                     input.style.boxSizing = 'border-box';
                 }
 
-                // Ancrer le bouton Plus à GAUCHE (left: 10px, bottom: 8px, 36px x 36px)
+                // Ancrer le bouton Plus en bas à GAUCHE (left: 14px, bottom: 8px, 36px x 36px)
                 if(plus && !chat.contains(plus)){
                     plus.classList.add('chat-plus-popover');
                     plus.style.position = 'absolute';
-                    plus.style.left = '10px';
+                    plus.style.left = '14px';
                     plus.style.bottom = '8px';
                     plus.style.top = 'auto';
                     plus.style.right = 'auto';
@@ -1995,16 +2006,17 @@ def page_chat():
                     chat.appendChild(plus);
                 }
 
-                // Ancrer le micro à DROITE avec décalage précis (right: 54px, bottom: 8px, 36px x 36px)
+                // Ancrer le micro en bas à DROITE (right: 58px, bottom: 8px, 36px x 36px, visible sans coupure)
                 if(mic && !chat.contains(mic)){
                     mic.style.position = 'absolute';
-                    mic.style.right = '54px';
+                    mic.style.right = '58px';
                     mic.style.bottom = '8px';
                     mic.style.top = 'auto';
                     mic.style.left = 'auto';
                     mic.style.zIndex = '30';
                     mic.style.width = '36px';
                     mic.style.height = '36px';
+                    mic.style.overflow = 'visible';
                     chat.appendChild(mic);
                     
                     const micBtn = mic.querySelector('button');
@@ -2023,11 +2035,11 @@ def page_chat():
                         micBtn.style.justifyContent = 'center';
                         micBtn.style.padding = '0';
                         micBtn.style.margin = '0';
-                        micBtn.style.color = '#e4e4e7';
+                        micBtn.style.color = '#c4b5fd';
                     }
                 }
                 
-                // Ancrer le bouton d'envoi STRICTEMENT tout à droite (right: 10px, bottom: 8px, 36px x 36px)
+                // Ancrer le bouton d'envoi en bas tout à droite (right: 14px, bottom: 8px, 36px x 36px)
                 // Attention : ne JAMAIS sélectionner le micro ou le plus !
                 const allButtons = Array.from(chat.querySelectorAll('button'));
                 const sendBtn = allButtons.find(b => {
@@ -2040,7 +2052,7 @@ def page_chat():
 
                 if(sendBtn && (!mic || !mic.contains(sendBtn)) && (!plus || !plus.contains(sendBtn))){
                     sendBtn.style.position = 'absolute';
-                    sendBtn.style.right = '10px';
+                    sendBtn.style.right = '14px';
                     sendBtn.style.bottom = '8px';
                     sendBtn.style.top = 'auto';
                     sendBtn.style.left = 'auto';
@@ -2209,8 +2221,8 @@ def page_projets():
                     st.rerun()
 
 def page_memoire():
-    st.markdown("### 🧠 Mémoire de Bea")
-    st.caption("Bea retient des infos utiles sur toi pour mieux t'aider. Tu peux tout voir et supprimer à tout moment.")
+    st.markdown("### 🧠 Mémoire d'Andrea")
+    st.caption("Andrea retient des infos utiles sur toi pour mieux t'aider. Tu peux tout voir et supprimer à tout moment.")
     mems = st.session_state.memories or []
     new_mem = st.text_input("Ajouter une info à retenir", placeholder="Ex : Je lance une chaîne TikTok sur la productivité", key="new_mem_input")
     if st.button("Mémoriser", use_container_width=True) and clean_text(new_mem,200):
@@ -2252,7 +2264,7 @@ def generate_app(prompt, mode):
         messages.append({"role": "user", "content": "Modifie-la sans supprimer les fonctionnalités existantes sauf si je le demande. Demande de retouche : " + clean_text(prompt, 4000)})
     else:
         messages.append({"role": "user", "content": clean_text(prompt, 12000)})
-    with st.spinner("Bea construit ton application..."):
+    with st.spinner("Andrea construit ton application..."):
         try:
             raw = "".join(stream_groq(messages, 10000))
             html_code = extract_html(raw)
@@ -2273,7 +2285,7 @@ def generate_app(prompt, mode):
 def build_web_app_pack(html_code: str):
     stream = io.BytesIO()
     manifest = json.dumps({
-        "name": "Application créée avec Bea",
+        "name": "Application créée avec Andrea",
         "short_name": "Mon application",
         "start_url": ".",
         "display": "standalone",
@@ -2294,7 +2306,7 @@ def build_web_app_pack(html_code: str):
 def page_app():
     st.markdown("### 🌐 Atelier de création web")
     if st.session_state.plan != "abo":
-        locked("L'atelier complet de création web est inclus dans Bea Ultra.")
+        locked("L'atelier complet de création web est inclus dans Andrea Ultra.")
         return
     st.caption("Décris ton idée, construis une première version, puis demande des retouches sans repartir de zéro. Chaque résultat est un fichier HTML autonome.")
     with st.container(border=True):
@@ -2314,7 +2326,7 @@ def page_app():
             if generate_app(brief, "initial"):
                 st.rerun()
     if not st.session_state.app_result:
-        st.info("Commence par remplir le brief. Bea générera une interface avec de vraies interactions, un état vide et des données de démonstration.")
+        st.info("Commence par remplir le brief. Andrea générera une interface avec de vraies interactions, un état vide et des données de démonstration.")
         return
     st.divider()
     st.markdown("#### 2. Teste et améliore")
@@ -2441,8 +2453,8 @@ def page_studio():
 
     if menu == "composer":
         if st.session_state.plan != "abo":
-            studio_step_card(1, "Studio de Design Visuel Bea", "Crée un visuel complet avec un canvas central, des modèles et tes photos.")
-            locked("Le canvas, les modèles et les exports visuels sont inclus dans Bea Ultra.")
+            studio_step_card(1, "Studio de Design Visuel Andrea", "Crée un visuel complet avec un canvas central, des modèles et tes photos.")
+            locked("Le canvas, les modèles et les exports visuels sont inclus dans Andrea Ultra.")
             return
         studio_step_card(1, "Construis ton visuel", "Choisis un format de publication, dépose tes photos, sélectionne une mise en page et ajuste ton texte.")
         formats = {
@@ -2505,7 +2517,7 @@ def page_studio():
         LANGS = {"Détection automatique": None, "Français": "fr", "English": "en"}
         if st.session_state.plan not in ("pro", "abo"):
             studio_step_card(1, "Sous-titres automatiques", "Transcription par IA au format SRT et VTT, prêts à importer dans ton logiciel de montage.")
-            st.warning("🔒 Cette fonction est incluse dans Bea Pro et Bea Ultra.")
+            st.warning("🔒 Cette fonction est incluse dans Andrea Pro et Andrea Ultra.")
             st.button("Voir les offres", key="locked_sub", on_click=goto, args=("compte",))
         else:
             studio_step_card(1, "Génère des sous-titres automatiques", "Transcription par IA (Whisper) avec horodatage. Audio ou vidéo, 25 Mo maximum. Tu récupères les fichiers SRT et VTT.")
@@ -2620,9 +2632,9 @@ def page_studio():
         st.caption("Le format sera appliqué à ton export vidéo.")
 
 def page_perso():
-    st.markdown("### 🎨 Personnaliser Bea")
+    st.markdown("### 🎨 Personnaliser Andrea")
     if st.session_state.pop("perso_saved", False):
-        st.success("Personnalisation enregistrée : Bea l'utilisera dans toutes tes discussions.")
+        st.success("Personnalisation enregistrée : Andrea l'utilisera dans toutes tes discussions.")
     p = st.session_state.prefs or {}
     styles = list(STYLE_HINT)
     profs = [k for k,_ in PROFILE_OPTIONS]
@@ -2632,12 +2644,12 @@ def page_perso():
     if not ucs:
         ucs = ["general"]
     with st.form("form_perso"):
-        nom = st.text_input("Comment Bea doit-elle t'appeler ?", value=p.get("display_name") or "", max_chars=40)
+        nom = st.text_input("Comment Andrea doit-elle t'appeler ?", value=p.get("display_name") or "", max_chars=40)
         style = st.selectbox("Style de réponse", styles, index=styles.index(p["style"]) if p.get("style") in styles else 0)
         objectif = st.text_input("Objectif principal", value=p.get("goal") or "", max_chars=160, placeholder="Ex : arrêter de procrastiner sur mes vidéos")
         prof = st.selectbox("Profil", profs, index=profs.index(p["profile_type"]) if p.get("profile_type") in profs else 0,
                             format_func=lambda x: dict(PROFILE_OPTIONS)[x])
-        uc = st.selectbox("Ton but avec Bea", ucs, index=ucs.index(p["use_case"]) if p.get("use_case") in ucs else len(ucs)-1,
+        uc = st.selectbox("Ton but avec Andrea", ucs, index=ucs.index(p["use_case"]) if p.get("use_case") in ucs else len(ucs)-1,
                           format_func=lambda x: USE_CASE_LABEL.get(x, x))
         school_country = None
         if uc == "scolaire":

@@ -142,7 +142,7 @@ export const SecurityShield: React.FC = () => {
             <span className="w-2 h-2 rounded-full bg-emerald-400" />
           </div>
           <p className="text-[11px] text-[#c4b5fd] leading-relaxed">
-            Interception préventive des attaques "Jailbreak", "DAN mode", "Ignore previous instructions" et tentatives d'extraction du prompt système de Bea.
+            Interception préventive des attaques "Jailbreak", "DAN mode", "Ignore previous instructions" et tentatives d'extraction du prompt système d'Andrea.
           </p>
           <div className="text-[10px] text-emerald-400 font-mono bg-[#0e0a1f] p-1.5 rounded-lg border border-emerald-500/20">
             Enceinte de confinement stricte
@@ -222,7 +222,7 @@ export const SecurityShield: React.FC = () => {
             Simulateur de Test d'Intrusion & Vérification en Direct
           </h3>
           <p className="text-xs text-[#a78bfa]">
-            Testez une chaîne malveillante pour vérifier en direct comment les filtres défensifs de Bea neutralisent l'attaque.
+            Testez une chaîne malveillante pour vérifier en direct comment les filtres défensifs d'Andrea neutralisent l'attaque.
           </p>
         </div>
 
@@ -232,7 +232,7 @@ export const SecurityShield: React.FC = () => {
           <button
             type="button"
             onClick={() => {
-              const attack = "<script>alert('Piratage XSS')</script>Bonjour Bea";
+              const attack = "<script>alert('Piratage XSS')</script>Bonjour Andrea";
               setTestInput(attack);
               runSecurityTest(attack);
             }}
