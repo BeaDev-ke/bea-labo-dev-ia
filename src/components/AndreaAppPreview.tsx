@@ -320,8 +320,8 @@ if __name__ == "__main__":
 
   return (
     <div className="bg-[#181135] border border-[#5A33FF44] rounded-2xl md:rounded-3xl overflow-hidden shadow-2xl flex flex-col md:flex-row w-full min-h-[85vh] lg:min-h-[calc(100vh-140px)]">
-      {/* SIDEBAR NAVIGATION */}
-      <div className="w-full md:w-64 lg:w-72 bg-[#150f2e] border-r border-[#5A33FF33] p-4 flex flex-col justify-between shrink-0">
+      {/* SIDEBAR NAVIGATION AVEC SCROLL PROPRE SANS COUPURE */}
+      <div className="w-full md:w-64 lg:w-72 bg-[#150f2e] border-r border-[#5A33FF33] p-4 flex flex-col justify-between shrink-0 overflow-y-auto max-h-[85vh] lg:max-h-[calc(100vh-140px)] space-y-4">
         <div className="space-y-4">
           {/* Logo & Identity */}
           <div className="text-center pt-2">
@@ -444,7 +444,7 @@ if __name__ == "__main__":
               { id: 'profil', label: '👤 Mon Profil & Rôle', icon: User, badge: 'Réparé' },
               { id: 'compte', label: '💎 Offres & Abonnements', icon: CreditCard, badge: 'Pro' },
               { id: 'studio', label: '🎨 Studio de Design Visuel', icon: Film },
-              { id: 'app', label: '🌐 Site Web en 1 Prompt', icon: Globe },
+              { id: 'app', label: '🌐 Création de Site Web', icon: Globe, badge: 'Pro' },
               { id: 'code', label: '💻 Code & Débogage', icon: Code2 },
               { id: 'securite', label: '🛡️ Bouclier Anti-Piratage', icon: ShieldCheck, badge: 'Actif' },
               { id: 'memoire', label: "🧠 Mémoire d'Andrea", icon: Brain },
@@ -507,13 +507,13 @@ if __name__ == "__main__":
             </div>
           </div>
 
-          {/* Menus alignés à droite */}
-          <div className="flex items-center gap-1.5 overflow-x-auto ml-auto justify-end">
+          {/* Menus horizontaux avec scroll propre et zéro troncature */}
+          <div className="flex items-center gap-1.5 overflow-x-auto min-w-0 flex-1 justify-end py-0.5">
             {[
               { id: 'chat', label: '💬 Discussion' },
               { id: 'creative_hub', label: '✨ Labo d\'IA' },
               { id: 'studio', label: '🎨 Studio Visuel' },
-              { id: 'app', label: '🌐 Site Web' },
+              { id: 'app', label: '🌐 Création de Site' },
               { id: 'code', label: '💻 Code' },
               { id: 'profil', label: '👤 Profil' },
               { id: 'compte', label: '💎 Offres' },
@@ -524,9 +524,9 @@ if __name__ == "__main__":
               <button
                 key={tab.id}
                 onClick={() => setCurrentPage(tab.id as PageView)}
-                className={`px-2.5 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition ${
+                className={`px-2.5 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap shrink-0 transition ${
                   currentPage === tab.id
-                    ? 'bg-gradient-to-r from-[#1E1B8C] to-[#5A33FF] text-white shadow-sm border border-[#5A33FF] font-semibold'
+                    ? 'bg-gradient-to-r from-[#1E1B8C] to-[#5A33FF] text-white shadow-sm border border-[#5A33FF]'
                     : 'text-[#c4b5fd] hover:text-white hover:bg-[#231a4a]'
                 }`}
               >
@@ -536,7 +536,7 @@ if __name__ == "__main__":
             {onOpenStudio && (
               <button
                 onClick={onOpenStudio}
-                className="ml-1.5 px-3 py-1.5 rounded-lg bg-gradient-to-r from-purple-900 to-indigo-900 hover:from-purple-800 hover:to-indigo-800 border border-purple-500 text-white text-xs font-bold whitespace-nowrap shadow flex items-center gap-1.5 transition"
+                className="ml-1 px-3 py-1.5 rounded-lg bg-gradient-to-r from-purple-900 to-indigo-900 hover:from-purple-800 hover:to-indigo-800 border border-purple-500 text-white text-xs font-bold whitespace-nowrap shrink-0 shadow flex items-center gap-1.5 transition"
                 title="Ouvrir le Studio Créateur en Plein Écran"
               >
                 <Film className="w-3.5 h-3.5 text-purple-300" />
@@ -545,7 +545,7 @@ if __name__ == "__main__":
             )}
             <button
               onClick={onOpenLab}
-              className="ml-1.5 px-3 py-1.5 rounded-lg bg-transparent hover:bg-[#1E1B8C]/40 border border-[#5A33FF] text-white text-xs font-medium whitespace-nowrap shadow-sm flex items-center gap-1.5 transition"
+              className="ml-1 px-3 py-1.5 rounded-lg bg-transparent hover:bg-[#1E1B8C]/40 border border-[#5A33FF] text-white text-xs font-medium whitespace-nowrap shrink-0 shadow-sm flex items-center gap-1.5 transition"
             >
               <Wand2 className="w-3.5 h-3.5 text-[#8B70FF]" />
               <span>🧪 Labo Dev</span>
@@ -553,8 +553,8 @@ if __name__ == "__main__":
             {onSignOut && (
               <button
                 onClick={onSignOut}
-                className="ml-1 px-2.5 py-1.5 rounded-lg bg-[#201844] hover:bg-rose-950/60 border border-[#5A33FF33] text-[#c4b5fd] hover:text-rose-200 text-xs font-medium whitespace-nowrap transition"
-                title="Se déconnecter et revenir à la page de connexion"
+                className="ml-1 px-2.5 py-1.5 rounded-lg bg-[#201844] hover:bg-rose-950/60 border border-[#5A33FF33] text-[#c4b5fd] hover:text-rose-200 text-xs font-medium whitespace-nowrap shrink-0 transition"
+                title="Se déconnecter"
               >
                 Déconnexion
               </button>
@@ -720,6 +720,70 @@ if __name__ == "__main__":
             {/* Chat Messages */}
             <div className="flex-1 overflow-y-auto p-4 md:p-6 space-y-4">
               <div className="max-w-4xl mx-auto w-full space-y-4">
+                {/* ÉCRAN D'ACCUEIL CHALEUREUX QUAND IL N'Y A PAS ENCORE DE MESSAGES */}
+                {messages.length === 0 && (
+                  <div className="py-4 sm:py-6 flex flex-col items-center justify-center text-center max-w-2xl mx-auto space-y-4 animate-in fade-in duration-300">
+                    <div className="w-14 h-14 rounded-2xl bg-gradient-to-tr from-[#1E1B8C] via-[#5A33FF] to-[#db2777] flex items-center justify-center text-2xl shadow-xl shadow-purple-900/40 ring-4 ring-[#5A33FF22]">
+                      🧠
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#201844] border border-[#5A33FF44] text-[#c4b5fd] text-xs font-semibold">
+                        <span>👋 Bonjour {userProfile.preferredCallName || userProfile.displayName}</span>
+                        <span className="text-[10px] text-emerald-400 font-bold">({userProfile.plan ? userProfile.plan.toUpperCase() : 'BASIQUE'})</span>
+                      </div>
+                      <h3 className="text-xl sm:text-2xl font-extrabold text-white tracking-tight">
+                        Sur quoi souhaitez-vous avancer aujourd'hui ?
+                      </h3>
+                      <p className="text-xs text-[#c4b5fd] max-w-md mx-auto leading-relaxed">
+                        Posez une question, débloquez une idée ou cliquez sur une action rapide pour démarrer avec Andrea sans friction.
+                      </p>
+                    </div>
+
+                    {/* Quick Starter Action Cards */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 w-full pt-1 text-left">
+                      {[
+                        {
+                          title: '⚡ Plan d\'action 15 minutes',
+                          desc: 'Débloquer une tâche sans remettre à plus tard',
+                          prompt: 'Donne-moi un plan d\'action concret en 3 étapes simples de 5 minutes pour passer à l\'action maintenant.',
+                        },
+                        {
+                          title: '🎬 Créer du contenu percutant',
+                          desc: 'Accroches et structure à fort impact visuel',
+                          prompt: 'Aide-moi à trouver 3 hooks percutants et une idée de visuel pour mon prochain sujet.',
+                        },
+                        {
+                          title: '🎓 Clarifier une notion complexe',
+                          desc: 'Explication limpide et méthode de mémorisation',
+                          prompt: 'Explique-moi ce concept simplement avec une métaphore du quotidien et un exemple pratique.',
+                        },
+                        {
+                          title: '💼 Diagnostic stratégique & offre',
+                          desc: 'Lever une objection et clarifier ma valeur',
+                          prompt: 'Comment formuler mon offre pour que la valeur saute aux yeux et supprime les objections de prix ?',
+                        },
+                      ].map((item, idx) => (
+                        <button
+                          key={idx}
+                          type="button"
+                          onClick={() => {
+                            setInputMessage(item.prompt);
+                          }}
+                          className="p-3 rounded-2xl bg-[#1b143c] hover:bg-[#231a4a] border border-[#5A33FF33] hover:border-[#8B70FF] transition text-left group shadow-sm hover:scale-[1.01]"
+                        >
+                          <div className="text-xs font-bold text-white group-hover:text-purple-300 transition">
+                            {item.title}
+                          </div>
+                          <div className="text-[11px] text-[#c4b5fd]/80 mt-0.5">
+                            {item.desc}
+                          </div>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
                 {messages.map(msg => (
                   <div
                     key={msg.id}

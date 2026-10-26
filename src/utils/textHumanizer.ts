@@ -136,7 +136,7 @@ export function generateHumanAndreaResponse(userPrompt: string, userProfile: Use
   const isGreeting = /^(bonjour|salut|hello|coucou|qui es-tu|présente-toi)/i.test(cleanInput);
   const isCodeRequest = /code|script|fonction|python|react|javascript|bug|erreur|api|composant|dev/i.test(lower);
   const isExplicitStruggle = /peur|bloqu|procrastin|doute|difficile|n'arrive pas|décourag|épuis|angoisse|panique|retard|friction/i.test(lower);
-  const isCreativeOrVideo = /vidéo|montage|tiktok|reels|youtube|accroche|hook|script|contenu|post|cam|visuel/i.test(lower);
+  const isCreativeOrVideo = /vidéo|montage|format_court|publication|accroche|hook|script|contenu|post|cam|visuel/i.test(lower);
   const isBusinessOrSales = /client|prix|vente|offre|prospect|devis|négocier|chiffre|marketing|déléguer/i.test(lower);
   const isStudyRequest = userProfile.useCase === 'scolaire' || /cours|révis|examen|devoir|formule|leçon/i.test(lower);
 

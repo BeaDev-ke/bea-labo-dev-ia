@@ -81,7 +81,7 @@ export const CreativeHub: React.FC<CreativeHubProps> = ({
       title: 'Clip Match & Célébration',
       badge: '00:16',
       duration: '00:16',
-      tag: 'Sport & Reels',
+      tag: 'Sport & Vidéo dynamique',
       views: '1.9M',
       prompt: 'Montage dynamique de 16 secondes d\'un joueur en maillot de football avec ralenti sur la frappe et transition rythmée.',
       imageBg: 'from-blue-600 via-indigo-700 to-sky-800',
@@ -262,7 +262,7 @@ export const CreativeHub: React.FC<CreativeHubProps> = ({
             <button
               onClick={() => {
                 setActiveActionModal('video');
-                onSelectAction('video', "Crée une vidéo IA : génère le prompt complet et les visuels pour une vidéo TikTok / Reel virale.");
+                onSelectAction('video', "Crée une vidéo IA : génère le prompt complet et les visuels pour une vidéo courte virale.");
               }}
               className="px-4 py-2.5 rounded-full bg-[#201844] hover:bg-[#2a2057] border border-[#5A33FF55] hover:border-[#8B70FF] text-white text-xs sm:text-sm font-semibold flex items-center gap-2 shadow-md transition-all hover:scale-[1.02]"
             >
