@@ -1,12 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { 
   MessageSquare, 
   Film, 
   Code2, 
   Globe, 
-  FolderGit2, 
   Brain, 
-  Palette, 
   CreditCard, 
   Send, 
   Mic, 
@@ -19,9 +17,7 @@ import {
   Volume2,
   VolumeX,
   Flame,
-  Trophy,
   Zap,
-  CheckCircle2,
   Wand2,
   Check,
   Award,
@@ -29,12 +25,13 @@ import {
   ShieldCheck,
   AlertTriangle,
   RotateCcw,
-  ArrowRight,
   ArrowUp,
-  Sliders
+  Sliders,
+  LogOut,
+  ExternalLink
 } from 'lucide-react';
 import { ChatMessage, PageView, UserProfile, ProfileType, UseCaseType } from '../types/bea';
-import { andreaVoice, beaVoice } from '../utils/speech';
+import { andreaVoice } from '../utils/speech';
 import { VisualDesignStudio } from './VisualDesignStudio';
 import { SiteBuilder } from './SiteBuilder';
 import { ProfileManager } from './ProfileManager';
@@ -51,7 +48,7 @@ import {
   verifyData, 
   isHoneypotTriggered 
 } from '../utils/security';
-import { generateHumanAndreaResponse, humanizeAndreaResponse } from '../utils/textHumanizer';
+import { generateHumanAndreaResponse } from '../utils/textHumanizer';
 
 export interface AndreaAppPreviewProps {
   onOpenLab: () => void;
@@ -59,6 +56,7 @@ export interface AndreaAppPreviewProps {
   onSignOut?: () => void;
   currentUser?: UserProfile;
 }
+
 export type BeaAppPreviewProps = AndreaAppPreviewProps;
 
 const DEFAULT_PROFILE: UserProfile = {
@@ -91,6 +89,9 @@ export const AndreaAppPreview: React.FC<AndreaAppPreviewProps> = ({
   const [isRecordingVoice, setIsRecordingVoice] = useState(false);
   const [showPlusMenu, setShowPlusMenu] = useState(false);
   const [modelChoice, setModelChoice] = useState<'rapide' | 'puissant'>('rapide');
+  
+  // Ref to automatically scroll to the bottom of the conversation (WhatsApp behavior)
+  const messagesEndRef = useRef<HTMLDivElement | null>(null);
 
   const handleToggleVoiceRecording = () => {
     const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
@@ -159,13 +160,9 @@ export const AndreaAppPreview: React.FC<AndreaAppPreviewProps> = ({
   const useCase: UseCaseType = userProfile.useCase;
   const [showChallengeInfo, setShowChallengeInfo] = useState(false);
 
-  // PSYCHOLOGIE & RÉTENTION SELON LES CONSIGNES EXACTES :
-  // 1. Compteur de série : STRICTEMENT réservé à 'contenu' et 'scolaire'
+  // PSYCHOLOGIE & RÉTENTION :
   const hasStreak = useCase === 'contenu' || useCase === 'scolaire';
-
-  // 2. Micro-défis : STRICTEMENT réservés à 'scolaire' (accompagnement scolaire)
   const hasDailyChallenge = useCase === 'scolaire';
-
   const [dailyChallengeDone, setDailyChallengeDone] = useState(false);
   const [showCelebration, setShowCelebration] = useState(false);
 
@@ -192,22 +189,27 @@ Voici comment compresser ta production de 5h à 45 minutes :
 **2. Le découplage des tâches (Batching) :**
 Ne filme jamais et ne monte jamais dans la même session. La fatigue décisionnelle après le tournage te fait hésiter sur chaque coupe. Découpe en deux créneaux :
 - Bloc A : Écriture et tournage d'affilée de 3 vidéos brutes.
-- Bloc B : Montage standardisé le lendemain avec un template pré-calibré dans le Studio Andrea.
+- Bloc B : Montage standardisé le lendemain avec un template pré-calibré dans l'outil de Montage Andrea.
 
-Veux-tu qu'on applique cette trame directement à ton prochain sujet de vidéo ?`,
+Veux-tu qu'on applique cette trame directement à ton prochain sujet ?`,
       timestamp: '11:21',
       securityShield: true,
     },
   ]);
 
+  // Auto-scroll to bottom like WhatsApp whenever messages change
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [messages]);
+
   const [codeContent, setCodeContent] = useState(`import streamlit as st
 
-def hello_bea():
+def hello_andrea():
     st.title("Bienvenue sur BehaviorLab AI")
     st.write("Analyse comportementale en temps réel avec protection active")
 
 if __name__ == "__main__":
-    hello_bea()`);
+    hello_andrea()`);
 
   // Arrêt de la voix au démontage
   useEffect(() => {
@@ -249,7 +251,6 @@ if __name__ == "__main__":
 
   // ENVOI SÉCURISÉ AVEC TRIPLE COUCHE ANTI-PIRATAGE
   const handleSend = () => {
-    // 1. Détection piége Honeypot anti-bot
     if (isHoneypotTriggered(honeypot)) {
       console.warn('[SECURITY] Bot piégé par le Honeypot.');
       return;
@@ -257,86 +258,106 @@ if __name__ == "__main__":
 
     if (!inputMessage.trim()) return;
 
-    // 2. Rate limiting anti-flood
-    const rateCheck = checkRateLimit('user-chat-session', 25, 60000);
+    // Rate limiting anti-flood
+    const rateCheck = checkRateLimit('user-chat-app', 15, 60000);
     if (!rateCheck.allowed) {
-      setSecurityAlert(`Ralentissez : trop de requêtes rapprochées. Réessayez dans ${rateCheck.resetInSec}s.`);
+      setSecurityAlert(`Anti-flood activé : veuillez patienter ${rateCheck.resetInSec} secondes.`);
       return;
     }
 
-    // 3. Pare-feu Prompt Injection & Sanitisation XSS
-    const secInspection = inspectPromptSecurity(inputMessage);
-    if (!secInspection.isSafe) {
-      setSecurityAlert(`Alerte de sécurité : ${secInspection.threat}. Votre prompt a été neutralisé.`);
-    } else {
-      setSecurityAlert(null);
+    // Inspection prompt injection & jailbreak
+    const secReport = inspectPromptSecurity(inputMessage);
+    if (!secReport.isSafe) {
+      setSecurityAlert(secReport.threat || 'Requête suspecte bloquée par le bouclier.');
+      return;
     }
 
-    const cleanInput = secInspection.sanitized;
+    // Assainissement XSS
+    const sanitizedText = sanitizeXSS(inputMessage.trim());
 
     const userMsg: ChatMessage = {
-      id: `u-${Date.now()}`,
+      id: Date.now().toString(),
       role: 'user',
-      content: cleanInput,
-      timestamp: 'À l\'instant',
+      content: sanitizedText,
+      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
     };
 
-    const newMsgs = [...messages, userMsg];
-    setMessages(newMsgs);
+    setMessages(prev => [...prev, userMsg]);
     setInputMessage('');
-    
-    // Gain de points momentum
-    setUserProfile(prev => ({
-      ...prev,
-      momentumPoints: prev.momentumPoints + 5,
-    }));
+    setShowPlusMenu(false);
 
-    // Génération humanisée, naturelle et chaleureuse de la réponse d'Andrea
+    // Progression comportementale
+    if (userProfile.streakDays) {
+      const updatedProfile = {
+        ...userProfile,
+        momentumPoints: (userProfile.momentumPoints || 50) + 10,
+      };
+      handleUpdateProfile(updatedProfile);
+    }
+
+    // Réponse humanisée d'Andrea
     setTimeout(() => {
-      const responseContent = generateHumanAndreaResponse(cleanInput, userProfile);
-
+      const replyText = generateHumanAndreaResponse(sanitizedText, userProfile);
       const assistantMsg: ChatMessage = {
-        id: `a-${Date.now()}`,
+        id: (Date.now() + 1).toString(),
         role: 'assistant',
-        content: responseContent,
-        timestamp: 'À l\'instant',
+        content: replyText,
+        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
         securityShield: true,
       };
-      setMessages([...newMsgs, assistantMsg]);
-    }, 600);
+      setMessages(prev => [...prev, assistantMsg]);
+    }, 450);
   };
 
+  // Validation du micro-défi quotidien
   const completeDailyChallenge = () => {
     if (dailyChallengeDone) return;
     setDailyChallengeDone(true);
-    setUserProfile(prev => ({
-      ...prev,
-      momentumPoints: prev.momentumPoints + 25,
-      streakDays: prev.streakDays + 1,
-    }));
     setShowCelebration(true);
+    const updated = {
+      ...userProfile,
+      momentumPoints: (userProfile.momentumPoints || 50) + 25,
+      streakDays: (userProfile.streakDays || 1) + 1,
+    };
+    handleUpdateProfile(updated);
     setTimeout(() => setShowCelebration(false), 4000);
   };
 
+  // Handle switching to montage editor
+  const handleOpenMontage = () => {
+    if (onOpenStudio) {
+      onOpenStudio();
+    } else {
+      setCurrentPage('studio');
+    }
+  };
+
   return (
-    <div className="bg-[#181135] border border-[#5A33FF44] rounded-2xl md:rounded-3xl overflow-hidden shadow-2xl flex flex-col md:flex-row w-full min-h-[85vh] lg:min-h-[calc(100vh-140px)]">
-      {/* SIDEBAR NAVIGATION AVEC SCROLL PROPRE SANS COUPURE */}
-      <div className="w-full md:w-64 lg:w-72 bg-[#150f2e] border-r border-[#5A33FF33] p-4 flex flex-col justify-between shrink-0 overflow-y-auto max-h-[85vh] lg:max-h-[calc(100vh-140px)] space-y-4">
-        <div className="space-y-4">
-          {/* Logo & Identity */}
-          <div className="text-center pt-2">
-            <div className="w-12 h-12 mx-auto rounded-2xl bg-gradient-to-tr from-[#1d4ed8] via-[#7c3aed] to-[#db2777] flex items-center justify-center text-2xl shadow-lg shadow-purple-900/40">
-              🧠
+    <div className="h-full w-full flex bg-[#181135] text-white font-sans overflow-hidden select-none">
+      
+      {/* 1. LEFT SIDEBAR */}
+      <aside className="w-64 md:w-72 bg-[#100b24] border-r border-[#5A33FF33] flex flex-col justify-between shrink-0 h-full overflow-y-auto z-20 shadow-2xl">
+        <div className="p-3.5 space-y-3.5">
+          
+          {/* Logo Andrea (logo_bea.png) */}
+          <div className="flex flex-col items-center justify-center text-center pt-1">
+            <div className="w-14 h-14 rounded-2xl bg-[#161033] border border-[#5A33FF55] p-1 shadow-lg mb-1.5 flex items-center justify-center overflow-hidden hover:scale-105 transition-transform">
+              <img 
+                src="/logo_bea.png" 
+                alt="Andrea Logo" 
+                className="w-full h-full object-contain"
+                onError={(e) => { e.currentTarget.src = "/logo_andrea.png"; }}
+              />
             </div>
-            <div className="font-extrabold text-lg text-[#f5f3ff] mt-2 tracking-tight">Andrea</div>
-            <div className="text-[10px] font-bold text-[#c4b5fd] tracking-widest uppercase">BehaviorLab AI</div>
+            <div className="font-extrabold text-base text-white tracking-tight">Andrea</div>
+            <div className="text-[10px] font-bold text-[#a78bfa] tracking-widest uppercase">BehaviorLab AI</div>
           </div>
 
-          {/* ACTIVE USER PROFILE CHIP (Cliquez pour éditer) */}
+          {/* ACTIVE USER PROFILE CHIP */}
           <button
             onClick={() => setCurrentPage('profil')}
-            className="w-full bg-[#181135] hover:bg-[#231a4a] border border-[#7c3aed]/50 p-2.5 rounded-2xl text-left transition flex items-center justify-between shadow-inner"
-            title="Gérer et réparer votre profil utilisateur"
+            className="w-full bg-[#181135] hover:bg-[#231a4a] border border-[#5A33FF44] p-2.5 rounded-2xl text-left transition flex items-center justify-between shadow-inner"
+            title="Gérer votre profil utilisateur"
           >
             <div className="flex items-center gap-2 overflow-hidden">
               <span className="text-xl shrink-0">{PROFILE_METAS[userProfile.profileType]?.icon || '👤'}</span>
@@ -351,7 +372,7 @@ if __name__ == "__main__":
           </button>
 
           {/* MODE SELECTOR */}
-          <div className="bg-[#15112a] border border-[#7c3aed]/40 rounded-xl p-1.5 space-y-1 text-xs">
+          <div className="bg-[#15112a] border border-[#5A33FF33] rounded-xl p-1.5 space-y-1 text-xs">
             <span className="text-[10px] text-[#a78bfa] font-bold block px-1">Cas d'usage actif :</span>
             <div className="grid grid-cols-2 gap-1">
               {[
@@ -365,7 +386,7 @@ if __name__ == "__main__":
                   onClick={() => handleUseCaseSwitch(m.id as any)}
                   className={`px-2 py-1.5 rounded-lg text-[11px] font-semibold transition text-left ${
                     useCase === m.id
-                      ? 'bg-[#7c3aed] text-white shadow-sm'
+                      ? 'bg-[#5A33FF] text-white shadow-sm'
                       : 'text-[#c4b5fd] hover:bg-[#231a4a]'
                   }`}
                 >
@@ -376,9 +397,9 @@ if __name__ == "__main__":
             </div>
           </div>
 
-          {/* COMPTEUR DE SÉRIE : STRICTEMENT POUR 'scolaire' et 'contenu' */}
+          {/* COMPTEUR DE SÉRIE */}
           {hasStreak && (
-            <div className="bg-gradient-to-br from-[#1e143b] to-[#140e2b] border border-[#7c3aed]/50 rounded-2xl p-3 space-y-2 shadow-inner animate-in fade-in">
+            <div className="bg-gradient-to-br from-[#1e143b] to-[#140e2b] border border-[#5A33FF44] rounded-2xl p-2.5 space-y-1.5 shadow-inner">
               <div className="flex items-center justify-between">
                 <span className="text-[11px] font-bold text-white flex items-center gap-1.5">
                   <Flame className="w-3.5 h-3.5 text-amber-400 fill-amber-400" />
@@ -390,15 +411,8 @@ if __name__ == "__main__":
                   {userProfile.momentumPoints} pts
                 </span>
               </div>
-
-              <div>
-                <div className="flex justify-between text-[10px] text-[#c4b5fd] mb-1">
-                  <span>{useCase === 'scolaire' ? 'Objectif régularité' : 'Rythme créateur'}</span>
-                  <span>80% atteint</span>
-                </div>
-                <div className="w-full h-1.5 bg-[#0a0718] rounded-full overflow-hidden">
-                  <div className="h-full bg-gradient-to-r from-[#7c3aed] via-[#a855f7] to-[#ec4899] rounded-full transition-all duration-500 w-[80%]" />
-                </div>
+              <div className="w-full h-1.5 bg-[#0a0718] rounded-full overflow-hidden">
+                <div className="h-full bg-gradient-to-r from-[#5A33FF] via-[#a855f7] to-[#ec4899] rounded-full transition-all duration-500 w-[80%]" />
               </div>
             </div>
           )}
@@ -409,14 +423,14 @@ if __name__ == "__main__":
               setMessages([]);
               setCurrentPage('chat');
             }}
-            className="w-full py-2 px-3 rounded-xl bg-[#15112a] hover:bg-[#231a4a] border-2 border-[#7c3aed] text-xs font-bold text-white transition flex items-center justify-center gap-1.5 shadow"
+            className="w-full py-2 px-3 rounded-xl bg-[#171131] hover:bg-[#231a4a] border border-[#5A33FF66] text-xs font-bold text-white transition flex items-center justify-center gap-1.5 shadow"
           >
             <Plus className="w-3.5 h-3.5 text-purple-400" />
             Nouvelle discussion
           </button>
 
-          {/* NOM PAR LEQUEL ANDREA/BEA APPELLE LE CLIENT AU DESSUS DES MENUS */}
-          <div className="bg-[#201844] border border-[#5A33FF55] rounded-2xl p-3 shadow-md space-y-1">
+          {/* NOM PAR LEQUEL ANDREA APPELLE LE CLIENT */}
+          <div className="bg-[#181135] border border-[#5A33FF33] rounded-2xl p-2.5 shadow-md space-y-1">
             <div className="flex items-center justify-between">
               <span className="text-[10px] font-bold text-[#c4b5fd] uppercase tracking-wider">
                 Espace Personnel
@@ -426,7 +440,7 @@ if __name__ == "__main__":
               </span>
             </div>
             <div className="flex items-center gap-2">
-              <span className="text-base">👋</span>
+              <span className="text-sm">👋</span>
               <div className="truncate">
                 <span className="text-[10px] text-[#c4b5fd] block">Andrea vous appelle :</span>
                 <span className="text-xs font-extrabold text-white truncate block">
@@ -436,234 +450,152 @@ if __name__ == "__main__":
             </div>
           </div>
 
-          {/* Navigation Menu */}
-          <div className="space-y-1">
+          {/* Navigation Menu (Sans doublons, avec Création de Site en place de Profil, et Montage) */}
+          <nav className="space-y-1">
             {[
-              { id: 'chat', label: '💬 Discussion avec Andrea', icon: MessageSquare },
-              { id: 'creative_hub', label: '✨ Labo d\'IA (Création)', icon: Sparkles, badge: 'Viral' },
-              { id: 'profil', label: '👤 Mon Profil & Rôle', icon: User, badge: 'Réparé' },
-              { id: 'compte', label: '💎 Offres & Abonnements', icon: CreditCard, badge: 'Pro' },
-              { id: 'studio', label: '🎨 Studio de Design Visuel', icon: Film },
-              { id: 'app', label: '🌐 Création de Site Web', icon: Globe, badge: 'Pro' },
-              { id: 'code', label: '💻 Code & Débogage', icon: Code2 },
-              { id: 'securite', label: '🛡️ Bouclier Anti-Piratage', icon: ShieldCheck, badge: 'Actif' },
-              { id: 'memoire', label: "🧠 Mémoire d'Andrea", icon: Brain },
-              { id: 'parametres', label: '⚙️ Paramètres IA', icon: Sliders, badge: 'Pro' },
+              { id: 'chat', label: '💬 Discussion avec Andrea', isAction: false },
+              { id: 'app', label: '🌐 Création de Site Web', isAction: false, badge: 'Pro' },
+              { id: 'studio', label: '🎬 Montage Vidéo & Visuel', isAction: true },
+              { id: 'creative_hub', label: '✨ Labo d\'IA (Création)', isAction: false, badge: 'Viral' },
+              { id: 'profil', label: '👤 Mon Profil & Rôle', isAction: false },
+              { id: 'compte', label: '💎 Offres & Abonnements', isAction: false },
+              { id: 'code', label: '💻 Code & Débogage', isAction: false },
+              { id: 'memoire', label: "🧠 Mémoire d'Andrea", isAction: false },
+              { id: 'parametres', label: '⚙️ Paramètres IA', isAction: false },
             ].map(item => {
               const active = currentPage === item.id;
               return (
                 <button
                   key={item.id}
-                  onClick={() => setCurrentPage(item.id as PageView)}
+                  onClick={() => {
+                    if (item.id === 'studio') {
+                      handleOpenMontage();
+                    } else {
+                      setCurrentPage(item.id as PageView);
+                    }
+                  }}
                   className={`w-full text-left px-3 py-2 rounded-xl text-xs font-semibold transition flex items-center justify-between ${
                     active
                       ? 'bg-gradient-to-r from-[#1E1B8C] to-[#5A33FF] text-white border border-[#5A33FF] shadow-sm font-semibold'
-                      : 'text-[#c4b5fd] hover:bg-[#231a4a] hover:text-white'
+                      : 'text-[#c4b5fd] hover:bg-[#201844] hover:text-white'
                   }`}
                 >
                   <span className="truncate pr-1">{item.label}</span>
                   {item.badge && (
-                    <span className="text-[9px] font-bold px-1.5 py-0.2 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+                    <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 shrink-0">
                       {item.badge}
                     </span>
                   )}
-                  {active && !item.badge && <span className="w-1.5 h-1.5 rounded-full bg-[#a855f7] shrink-0" />}
                 </button>
               );
             })}
-          </div>
+          </nav>
         </div>
 
         {/* Dev Lab Launcher from Inside Andrea */}
-        <div className="pt-4 border-t border-[#7c3aed]/30 space-y-2">
-          <div className="text-[10px] font-extrabold text-[#a855f7] tracking-wider uppercase">
-            PORTAIL DÉVELOPPEUR
-          </div>
+        <div className="p-3 border-t border-[#5A33FF22] bg-[#0c091d] space-y-1.5">
           <button
             onClick={onOpenLab}
-            className="w-full py-2 px-2.5 rounded-xl bg-gradient-to-r from-purple-900/60 to-indigo-900/60 hover:from-purple-800 hover:to-indigo-800 border border-[#7c3aed] text-xs font-bold text-white transition flex items-center justify-center gap-1.5 shadow"
+            className="w-full py-2 px-2.5 rounded-xl bg-purple-950/40 hover:bg-purple-900/60 border border-[#5A33FF55] text-xs font-bold text-white transition flex items-center justify-center gap-1.5 shadow"
           >
             <Wand2 className="w-3.5 h-3.5 text-purple-300" />
             🧪 Ouvrir le Labo Dev IA
           </button>
-          <div className="text-[10px] text-[#8a7ab8] text-center">{userProfile.email}</div>
+          <div className="text-[10px] text-[#8a7ab8] text-center truncate">{userProfile.email}</div>
         </div>
-      </div>
+      </aside>
 
-      {/* MAIN CONTENT AREA */}
-      <div className="flex-1 flex flex-col bg-[#181135] overflow-hidden">
-        {/* TOP NAVIGATION BAR - MENUS ALIGNÉS À DROITE AVEC THÈME VIOLET FONCÉ */}
-        <div className="bg-[#150f2e] px-4 py-2 border-b border-[#5A33FF33] flex items-center justify-between gap-3 shrink-0">
-          <div className="flex items-center gap-3">
+      {/* 2. MAIN CONTENT AREA */}
+      <div className="flex-1 flex flex-col h-full overflow-hidden bg-[#181135]">
+        
+        {/* TOP NAVIGATION BAR : UN SEUL HEADER ÉPURÉ SANS BARRES EN DOUBLE */}
+        <header className="bg-[#130d2a] px-3 sm:px-6 py-2.5 border-b border-[#5A33FF33] flex items-center justify-between gap-3 shrink-0 z-10 shadow-md">
+          {/* Left identity */}
+          <div className="flex items-center gap-2.5 shrink-0">
+            <img 
+              src="/logo_bea.png" 
+              alt="Andrea Logo" 
+              className="w-7 h-7 object-contain rounded-lg border border-[#5A33FF44]"
+              onError={(e) => { e.currentTarget.src = "/logo_andrea.png"; }}
+            />
             <span className="font-extrabold text-sm text-white">Andrea</span>
-            <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-[#231a4a] text-[#c4b5fd] border border-[#5A33FF33]">
+            <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-[#201844] text-[#c4b5fd] border border-[#5A33FF33] hidden sm:inline">
               BehaviorLab AI
             </span>
-            <div className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-[#201844] border border-[#5A33FF44] text-xs">
-              <span className="text-amber-400">👋</span>
-              <span className="text-xs font-bold text-white">
-                {userProfile.preferredCallName || userProfile.displayName}
-              </span>
-            </div>
           </div>
 
-          {/* Menus horizontaux avec scroll propre et zéro troncature */}
-          <div className="flex items-center gap-1.5 overflow-x-auto min-w-0 flex-1 justify-end py-0.5">
+          {/* Menus horizontaux : Création de Site en place de Profil, Montage, etc. */}
+          <div className="flex items-center gap-1 overflow-x-auto min-w-0 flex-1 justify-center py-0.5 px-2">
             {[
               { id: 'chat', label: '💬 Discussion' },
+              { id: 'app', label: '🌐 Création de Site' }, // In place of Profil
+              { id: 'studio', label: '🎬 Montage' },
               { id: 'creative_hub', label: '✨ Labo d\'IA' },
-              { id: 'studio', label: '🎨 Studio Visuel' },
-              { id: 'app', label: '🌐 Création de Site' },
               { id: 'code', label: '💻 Code' },
-              { id: 'profil', label: '👤 Profil' },
               { id: 'compte', label: '💎 Offres' },
-              { id: 'securite', label: '🛡️ Sécurité' },
               { id: 'memoire', label: '🧠 Mémoire' },
               { id: 'parametres', label: '⚙️ Paramètres' },
-            ].map(tab => (
-              <button
-                key={tab.id}
-                onClick={() => setCurrentPage(tab.id as PageView)}
-                className={`px-2.5 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap shrink-0 transition ${
-                  currentPage === tab.id
-                    ? 'bg-gradient-to-r from-[#1E1B8C] to-[#5A33FF] text-white shadow-sm border border-[#5A33FF]'
-                    : 'text-[#c4b5fd] hover:text-white hover:bg-[#231a4a]'
-                }`}
-              >
-                {tab.label}
-              </button>
-            ))}
-            {onOpenStudio && (
-              <button
-                onClick={onOpenStudio}
-                className="ml-1 px-3 py-1.5 rounded-lg bg-gradient-to-r from-purple-900 to-indigo-900 hover:from-purple-800 hover:to-indigo-800 border border-purple-500 text-white text-xs font-bold whitespace-nowrap shrink-0 shadow flex items-center gap-1.5 transition"
-                title="Ouvrir le Studio Créateur en Plein Écran"
-              >
-                <Film className="w-3.5 h-3.5 text-purple-300" />
-                <span>🎨 Studio Plein Écran</span>
-              </button>
-            )}
-            <button
-              onClick={onOpenLab}
-              className="ml-1 px-3 py-1.5 rounded-lg bg-transparent hover:bg-[#1E1B8C]/40 border border-[#5A33FF] text-white text-xs font-medium whitespace-nowrap shrink-0 shadow-sm flex items-center gap-1.5 transition"
+            ].map(tab => {
+              const isActive = currentPage === tab.id;
+              return (
+                <button
+                  key={tab.id}
+                  onClick={() => {
+                    if (tab.id === 'studio') {
+                      handleOpenMontage();
+                    } else {
+                      setCurrentPage(tab.id as PageView);
+                    }
+                  }}
+                  className={`px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition shrink-0 ${
+                    isActive
+                      ? 'bg-gradient-to-r from-[#1E1B8C] to-[#5A33FF] text-white shadow-md border border-[#5A33FF]'
+                      : 'text-[#c4b5fd] hover:text-white hover:bg-[#201844]'
+                  }`}
+                >
+                  {tab.label}
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Right section: Sécurité en haut à droite + Profil utilisateur + Déconnexion */}
+          <div className="flex items-center gap-2 shrink-0">
+            {/* SÉCURITÉ EN HAUT À DROITE (Comme demandé par l'utilisateur) */}
+            <div 
+              className="flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-emerald-950/60 border border-emerald-500/50 text-[11px] font-bold text-emerald-300 shadow-sm"
+              title="Connexion cryptée et protection anti-piratage active"
             >
-              <Wand2 className="w-3.5 h-3.5 text-[#8B70FF]" />
-              <span>🧪 Labo Dev</span>
+              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+              <span>🔒 Sécurisé</span>
+            </div>
+
+            {/* Profil utilisateur direct */}
+            <button
+              onClick={() => setCurrentPage('profil')}
+              className="hidden lg:flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-[#201844] hover:bg-[#2b215c] border border-[#5A33FF44] text-xs font-bold text-white transition"
+              title="Accéder à mon profil"
+            >
+              <User className="w-3.5 h-3.5 text-purple-300" />
+              <span>{userProfile.preferredCallName || userProfile.displayName}</span>
             </button>
+
             {onSignOut && (
               <button
                 onClick={onSignOut}
-                className="ml-1 px-2.5 py-1.5 rounded-lg bg-[#201844] hover:bg-rose-950/60 border border-[#5A33FF33] text-[#c4b5fd] hover:text-rose-200 text-xs font-medium whitespace-nowrap shrink-0 transition"
+                className="px-2.5 py-1 rounded-xl bg-[#201844] hover:bg-rose-950/60 text-[#c4b5fd] hover:text-rose-200 text-xs font-semibold transition flex items-center gap-1"
                 title="Se déconnecter"
               >
-                Déconnexion
+                <LogOut className="w-3.5 h-3.5" />
+                <span className="hidden xl:inline">Déconnexion</span>
               </button>
             )}
           </div>
-        </div>
-
-        {/* TOP MOMENTUM & PSYCHOLOGY BAR */}
-        <div className="bg-[#141328] px-4 py-2.5 border-b border-[#5A33FF33] flex flex-wrap items-center justify-between gap-3 text-xs">
-          <div className="flex items-center gap-3">
-            <span className="flex items-center gap-1.5 text-amber-300 font-bold">
-              <Trophy className="w-3.5 h-3.5 text-amber-400" />
-              <span>
-                {useCase === 'scolaire' ? 'Mode : Accompagnement Scolaire' : 
-                 (useCase === 'contenu' ? 'Mode : Stratégie Contenu' : 
-                 (useCase === 'clients' ? 'Mode : Analyse Clients' : 'Mode : Projets & Habitudes'))}
-              </span>
-            </span>
-
-            {/* Compteur de série : seulement si hasStreak (contenu ou scolaire) */}
-            {hasStreak && (
-              <>
-                <span className="text-[#8a7ab8]">·</span>
-                <span className="text-amber-300 font-semibold flex items-center gap-1">
-                  <Flame className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
-                  Série : {userProfile.streakDays} jours consécutifs
-                </span>
-              </>
-            )}
-
-            <span className="text-[#8a7ab8]">·</span>
-            <span className="text-[#c4b5fd] hidden sm:inline">
-              Effet de progression : <strong>+18% de passage à l'action</strong>
-            </span>
-          </div>
-
-          {/* MICRO-DÉFI INTERACTIF DU JOUR : STRICTEMENT ET UNIQUEMENT DANS ACCOMPAGNEMENT SCOLAIRE */}
-          {hasDailyChallenge && (
-            <div className="flex items-center gap-2 animate-in fade-in">
-              <button
-                onClick={() => setShowChallengeInfo(!showChallengeInfo)}
-                className="px-2 py-1 rounded-full bg-[#1a1535] hover:bg-[#231a4a] border border-[#7c3aed]/60 text-[#c4b5fd] text-[11px] font-bold transition flex items-center gap-1"
-                title="Comprendre le fonctionnement du micro-défi scolaire"
-              >
-                <span>C'est quoi ce défi ?</span>
-              </button>
-
-              <button
-                onClick={completeDailyChallenge}
-                disabled={dailyChallengeDone}
-                className={`px-3 py-1 rounded-full text-xs font-bold transition flex items-center gap-1.5 shadow ${
-                  dailyChallengeDone
-                    ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 cursor-default'
-                    : 'bg-purple-600/30 hover:bg-purple-600/50 text-purple-200 border border-purple-400 animate-pulse'
-                }`}
-              >
-                <Zap className="w-3 h-3 text-amber-400" />
-                {dailyChallengeDone ? '✓ Défi Révision validé (+25 pts)' : '🎯 Micro-Défi 3 min : Relire 1 formule clé'}
-              </button>
-            </div>
-          )}
-        </div>
-
-        {/* CALLOUT EXPLICATION MICRO-DÉFI (STRICTEMENT SCOLAIRE SANS DUPLICATION) */}
-        {hasDailyChallenge && showChallengeInfo && (
-          <div className="bg-[#1f153d] border-b-2 border-purple-500 p-4 text-xs text-purple-100 space-y-2 animate-in fade-in">
-            <div className="flex items-center justify-between font-bold text-white text-sm">
-              <span className="flex items-center gap-2">
-                <Zap className="w-4 h-4 text-amber-300" />
-                C'est quoi le bouton Micro-Défi Scolaire ?
-              </span>
-              <button 
-                onClick={() => setShowChallengeInfo(false)}
-                className="text-xs text-[#c4b5fd] hover:text-white underline"
-              >
-                Fermer
-              </button>
-            </div>
-            <p className="leading-relaxed text-[#d8ccff]">
-              Le <strong>Micro-Défi Scolaire</strong> est une méthode issue des sciences cognitives pour <strong>vaincre la procrastination des devoirs et révisions</strong> (technique des micro-engagements de 2 à 3 minutes).
-            </p>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 pt-1 text-[11px]">
-              <div className="bg-[#15112a] p-2.5 rounded-xl border border-purple-500/30">
-                <strong className="text-amber-300 block mb-0.5">1. Pourquoi ?</strong>
-                Réviser tout un chapitre bloque le cerveau. Relire 1 formule ou 1 définition ne génère aucun stress.
-              </div>
-              <div className="bg-[#15112a] p-2.5 rounded-xl border border-purple-500/30">
-                <strong className="text-cyan-300 block mb-0.5">2. Comment ?</strong>
-                Prenez 2 minutes pour relire une notion clé de votre cours, puis cliquez sur le bouton.
-              </div>
-              <div className="bg-[#15112a] p-2.5 rounded-xl border border-purple-500/30">
-                <strong className="text-emerald-300 block mb-0.5">3. Résultat :</strong>
-                Une micro-victoire enregistrée (+25 pts) qui enclenche l'élan pour démarrer vos devoirs facilement !
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* MICRO-CELEBRATION TOAST */}
-        {showCelebration && (
-          <div className="bg-gradient-to-r from-emerald-600 to-teal-600 text-white p-3 text-center text-xs font-bold shadow-lg animate-in slide-in-from-top flex items-center justify-center gap-2">
-            <Award className="w-4 h-4 text-amber-300" />
-            <span>Félicitations ! Micro-défi validé (+25 pts). Votre élan de révision est lancé !</span>
-          </div>
-        )}
+        </header>
 
         {/* SECURITY ALERT BANNER */}
         {securityAlert && (
-          <div className="bg-rose-950/80 border-b border-rose-500 p-2.5 text-xs text-rose-200 flex items-center justify-between px-4">
+          <div className="bg-rose-950/80 border-b border-rose-500 p-2.5 text-xs text-rose-200 flex items-center justify-between px-4 shrink-0">
             <div className="flex items-center gap-2">
               <AlertTriangle className="w-4 h-4 text-rose-400 shrink-0" />
               <span>{securityAlert}</span>
@@ -677,57 +609,62 @@ if __name__ == "__main__":
           </div>
         )}
 
-        {/* 1. CHAT VIEW */}
+        {/* CELEBRATION TOAST */}
+        {showCelebration && (
+          <div className="bg-gradient-to-r from-emerald-600 to-teal-600 text-white p-2.5 text-center text-xs font-bold shadow-lg animate-in slide-in-from-top flex items-center justify-center gap-2 shrink-0">
+            <Award className="w-4 h-4 text-amber-300" />
+            <span>Félicitations ! Micro-défi validé (+25 pts). Votre élan est lancé !</span>
+          </div>
+        )}
+
+        {/* 1. CHAT VIEW (WHATSAPP LAYOUT : Case d'envoi toujours visible en bas, conversation qu'on remonte) */}
         {currentPage === 'chat' && (
-          <div className="flex-1 flex flex-col h-full overflow-hidden">
-            {/* Header */}
-            <div className="p-4 border-b border-[#7c3aed]/30 flex items-center justify-between bg-[#15112a]">
-              <div>
-                <h2 className="text-base font-bold text-white flex items-center gap-2">
-                  <span>💬 Discussion avec Andrea</span>
-                  <span className="text-[11px] px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 flex items-center gap-1">
-                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
-                    Voix 100% Gratuite Active
-                  </span>
-                  <span className="text-[10px] px-2 py-0.5 rounded-full bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 hidden sm:inline-flex items-center gap-1">
-                    <ShieldCheck className="w-3 h-3 text-cyan-400" />
-                    Bouclier Anti-Piratage
-                  </span>
-                </h2>
-                <p className="text-xs text-[#c4b5fd]">
-                  Profil actif : <strong>{PROFILE_METAS[userProfile.profileType]?.label}</strong> · {userProfile.displayName}
-                </p>
+          <div className="flex-1 flex flex-col h-full overflow-hidden relative">
+            
+            {/* Top Sub-Bar with Voice & Mode */}
+            <div className="px-4 py-2 border-b border-[#5A33FF22] bg-[#140e2d] flex items-center justify-between text-xs shrink-0">
+              <div className="flex items-center gap-2">
+                <span className="text-[11px] px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 flex items-center gap-1 font-semibold">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+                  Voix 100% Gratuite Active
+                </span>
+                <span className="text-[#c4b5fd] hidden sm:inline text-[11px]">
+                  Mode : <strong>{PROFILE_METAS[userProfile.profileType]?.label}</strong>
+                </span>
               </div>
 
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={() => setCurrentPage('profil')}
-                  className="px-2.5 py-1.5 rounded-lg bg-[#1b143a] border border-[#7c3aed]/60 text-[11px] font-bold text-purple-200 hover:bg-[#291b52] transition flex items-center gap-1"
-                >
-                  <User className="w-3 h-3 text-purple-400" />
-                  Changer de profil
-                </button>
-                <button
-                  onClick={onOpenLab}
-                  className="px-2.5 py-1.5 rounded-lg bg-[#231a4a] border border-[#7c3aed] text-[11px] font-bold text-purple-200 hover:bg-[#322369] transition flex items-center gap-1"
-                >
-                  <Wand2 className="w-3 h-3 text-purple-400" />
-                  Modifier cette page dans le Labo
-                </button>
-              </div>
+              {hasDailyChallenge && (
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={completeDailyChallenge}
+                    disabled={dailyChallengeDone}
+                    className={`px-2.5 py-0.5 rounded-full text-[11px] font-bold transition flex items-center gap-1 ${
+                      dailyChallengeDone
+                        ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40'
+                        : 'bg-purple-600/30 hover:bg-purple-600/50 text-purple-200 border border-purple-400 animate-pulse'
+                    }`}
+                  >
+                    <Zap className="w-3 h-3 text-amber-400" />
+                    {dailyChallengeDone ? '✓ Défi Révision validé' : '🎯 Micro-Défi 3 min'}
+                  </button>
+                </div>
+              )}
             </div>
 
-            {/* Chat Messages */}
+            {/* Conversation Messages Container : ON REMONTE POUR VOIR LES ANCIENS MESSAGES */}
             <div className="flex-1 overflow-y-auto p-4 md:p-6 space-y-4">
               <div className="max-w-4xl mx-auto w-full space-y-4">
-                {/* ÉCRAN D'ACCUEIL CHALEUREUX QUAND IL N'Y A PAS ENCORE DE MESSAGES */}
+                
+                {/* Starter greeting when no messages */}
                 {messages.length === 0 && (
-                  <div className="py-4 sm:py-6 flex flex-col items-center justify-center text-center max-w-2xl mx-auto space-y-4 animate-in fade-in duration-300">
-                    <div className="w-14 h-14 rounded-2xl bg-gradient-to-tr from-[#1E1B8C] via-[#5A33FF] to-[#db2777] flex items-center justify-center text-2xl shadow-xl shadow-purple-900/40 ring-4 ring-[#5A33FF22]">
-                      🧠
-                    </div>
-
-                    <div className="space-y-1.5">
+                  <div className="py-6 flex flex-col items-center justify-center text-center max-w-2xl mx-auto space-y-4 animate-in fade-in duration-300">
+                    <img 
+                      src="/logo_bea.png" 
+                      alt="Andrea Logo" 
+                      className="w-16 h-16 object-contain rounded-2xl p-1 bg-[#100b24] border border-[#5A33FF55] shadow-xl"
+                      onError={(e) => { e.currentTarget.src = "/logo_andrea.png"; }}
+                    />
+                    <div className="space-y-1">
                       <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#201844] border border-[#5A33FF44] text-[#c4b5fd] text-xs font-semibold">
                         <span>👋 Bonjour {userProfile.preferredCallName || userProfile.displayName}</span>
                         <span className="text-[10px] text-emerald-400 font-bold">({userProfile.plan ? userProfile.plan.toUpperCase() : 'BASIQUE'})</span>
@@ -736,12 +673,12 @@ if __name__ == "__main__":
                         Sur quoi souhaitez-vous avancer aujourd'hui ?
                       </h3>
                       <p className="text-xs text-[#c4b5fd] max-w-md mx-auto leading-relaxed">
-                        Posez une question, débloquez une idée ou cliquez sur une action rapide pour démarrer avec Andrea sans friction.
+                        Posez votre question, partagez votre blocage ou cliquez sur une action rapide pour démarrer sans friction.
                       </p>
                     </div>
 
                     {/* Quick Starter Action Cards */}
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 w-full pt-1 text-left">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 w-full pt-2 text-left">
                       {[
                         {
                           title: '⚡ Plan d\'action 15 minutes',
@@ -767,9 +704,7 @@ if __name__ == "__main__":
                         <button
                           key={idx}
                           type="button"
-                          onClick={() => {
-                            setInputMessage(item.prompt);
-                          }}
+                          onClick={() => setInputMessage(item.prompt)}
                           className="p-3 rounded-2xl bg-[#1b143c] hover:bg-[#231a4a] border border-[#5A33FF33] hover:border-[#8B70FF] transition text-left group shadow-sm hover:scale-[1.01]"
                         >
                           <div className="text-xs font-bold text-white group-hover:text-purple-300 transition">
@@ -784,6 +719,7 @@ if __name__ == "__main__":
                   </div>
                 )}
 
+                {/* Messages list */}
                 {messages.map(msg => (
                   <div
                     key={msg.id}
@@ -799,11 +735,11 @@ if __name__ == "__main__":
                       </span>
                       <span className="text-[10px] text-[#c4b5fd]/60">{msg.timestamp}</span>
                     </div>
+
                     <div className="text-sm leading-relaxed whitespace-pre-line">{msg.content}</div>
 
                     {msg.role === 'assistant' && (
                       <div className="flex flex-wrap items-center gap-2 mt-3 pt-2.5 border-t border-[#5A33FF33] text-xs">
-                        {/* FREE SPEECH SYNTHESIS BUTTON */}
                         <button
                           onClick={() => toggleSpeak(msg.id, msg.content)}
                           className={`px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 ${
@@ -824,9 +760,11 @@ if __name__ == "__main__":
                         >
                           <Copy className="w-3.5 h-3.5" />
                         </button>
+
                         <button className="p-1.5 rounded-lg bg-[#2a2057] hover:bg-[#372b6e] border border-[#5A33FF33] text-[#c4b5fd] hover:text-white" title="Utile">
                           <ThumbsUp className="w-3.5 h-3.5" />
                         </button>
+
                         <button className="p-1.5 rounded-lg bg-[#2a2057] hover:bg-[#372b6e] border border-[#5A33FF33] text-[#c4b5fd] hover:text-white" title="À améliorer">
                           <ThumbsDown className="w-3.5 h-3.5" />
                         </button>
@@ -834,18 +772,21 @@ if __name__ == "__main__":
                     )}
                   </div>
                 ))}
+
+                {/* Anchor for auto-scroll */}
+                <div ref={messagesEndRef} />
               </div>
             </div>
 
-            {/* STARTER PROMPTS ADAPTÉS AU PROFIL ACTUEL */}
-            <div className="px-4 py-2 bg-[#150f2e] border-t border-[#5A33FF33] overflow-x-auto">
+            {/* Suggestions de prompts rapides au-dessus de la saisie */}
+            <div className="px-4 py-1.5 bg-[#140e2c] border-t border-[#5A33FF22] overflow-x-auto shrink-0">
               <div className="max-w-4xl mx-auto w-full flex items-center gap-2">
                 <span className="text-[10px] font-bold text-[#8B70FF] shrink-0">Suggestions profil :</span>
                 {PROFILE_METAS[userProfile.profileType]?.starterPrompts.map((prompt, pIdx) => (
                   <button
                     key={pIdx}
                     onClick={() => setInputMessage(prompt)}
-                    className="px-2.5 py-1 rounded-full bg-[#231a4a] hover:bg-[#2a2057] text-[11px] text-[#c4b5fd] hover:text-white border border-[#5A33FF33] whitespace-nowrap transition"
+                    className="px-2.5 py-0.5 rounded-full bg-[#201844] hover:bg-[#2a2057] text-[11px] text-[#c4b5fd] hover:text-white border border-[#5A33FF33] whitespace-nowrap transition"
                   >
                     {prompt.length > 45 ? prompt.slice(0, 45) + '...' : prompt}
                   </button>
@@ -853,13 +794,14 @@ if __name__ == "__main__":
               </div>
             </div>
 
-            {/* Input Bar avec Honeypot anti-bot */}
-            <div className="p-3 md:p-4 bg-[#181135] border-t border-[#5A33FF33] relative">
+            {/* CASE ENVOYER UN MESSAGE STRICTEMENT ANCRÉE EN BAS (STYLE WHATSAPP) */}
+            <div className="p-3 md:p-4 bg-[#110d24] border-t border-[#5A33FF33] shrink-0 z-20 shadow-2xl">
               <div className="max-w-4xl mx-auto w-full">
+                
                 {/* Invisible Honeypot field for bot trapping */}
                 <input 
                   type="text" 
-                  name="bea_anti_bot_check" 
+                  name="andrea_anti_bot_check" 
                   value={honeypot} 
                   onChange={e => setHoneypot(e.target.value)} 
                   tabIndex={-1} 
@@ -867,9 +809,8 @@ if __name__ == "__main__":
                   style={{ position: 'absolute', opacity: 0, height: 0, width: 0, zIndex: -1 }} 
                 />
 
-                {/* Barre de saisie de prompt ergonomique Bea */}
-                <div className="bg-[#201844] border border-[#5A33FF55] hover:border-[#5A33FF88] focus-within:border-[#8B70FF] rounded-[26px] p-3 shadow-xl transition-all duration-200">
-                  {/* Textarea area */}
+                {/* Saisie principale ergonomique */}
+                <div className="bg-[#1b143c] border border-[#5A33FF55] hover:border-[#5A33FF88] focus-within:border-[#8B70FF] rounded-[24px] p-2.5 shadow-xl transition-all duration-200">
                   <div className="px-1.5 pt-0.5">
                     <textarea
                       rows={1}
@@ -877,7 +818,7 @@ if __name__ == "__main__":
                       onChange={e => {
                         setInputMessage(e.target.value);
                         e.target.style.height = 'auto';
-                        e.target.style.height = Math.min(e.target.scrollHeight, 160) + 'px';
+                        e.target.style.height = Math.min(e.target.scrollHeight, 140) + 'px';
                       }}
                       onKeyDown={e => {
                         if (e.key === 'Enter' && !e.shiftKey) {
@@ -886,148 +827,78 @@ if __name__ == "__main__":
                         }
                       }}
                       placeholder={`Envoyer un message à Andrea (${PROFILE_METAS[userProfile.profileType]?.label})...`}
-                      className="w-full bg-transparent text-white text-[15px] placeholder-[#c4b5fd]/60 resize-none focus:outline-none min-h-[42px] max-h-[160px] leading-relaxed selection:bg-[#5A33FF]/40"
+                      className="w-full bg-transparent text-white text-[14px] placeholder-[#c4b5fd]/60 resize-none focus:outline-none min-h-[38px] max-h-[140px] leading-relaxed selection:bg-[#5A33FF]/40"
                     />
                   </div>
 
-                  {/* Action row: + tout à gauche (avec modèle intégré dedans), micro et flèche à droite de taille strictement identique */}
-                  <div className="flex items-center justify-between pt-1.5 px-0.5 gap-2">
-                    {/* Left group: SEULEMENT le bouton '+' (aucun bouton de modèle superposé) */}
-                    <div className="flex items-center">
+                  {/* Actions Bar */}
+                  <div className="flex items-center justify-between pt-1 px-1">
+                    <div className="flex items-center gap-1.5">
+                      {/* Plus options popup */}
                       <div className="relative">
                         <button
                           type="button"
                           onClick={() => setShowPlusMenu(!showPlusMenu)}
-                          className={`w-9 h-9 rounded-full flex items-center justify-center transition-all duration-150 border ${
-                            showPlusMenu 
-                              ? 'bg-gradient-to-r from-[#1E1B8C] to-[#5A33FF] text-white border-[#5A33FF]' 
-                              : 'bg-[#2a2057] hover:bg-[#372b6e] border-[#5A33FF44] text-[#c4b5fd] hover:text-white'
+                          className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors ${
+                            showPlusMenu ? 'bg-[#5A33FF] text-white' : 'text-[#c4b5fd] hover:text-white hover:bg-white/10'
                           }`}
-                          title="Modèle IA, document ou action rapide"
+                          title="Options d'actions rapides"
                         >
-                          <Plus className={`w-4 h-4 transition-transform duration-200 ${showPlusMenu ? 'rotate-45' : ''}`} />
+                          <Plus className="w-4 h-4" />
                         </button>
 
                         {showPlusMenu && (
-                          <div className="absolute bottom-11 left-0 z-50 w-72 max-w-[calc(100vw-32px)] bg-[#231a4a] border border-[#5A33FF66] rounded-2xl p-2.5 shadow-2xl space-y-2 animate-in fade-in slide-in-from-bottom-2">
-                            {/* SÉLECTEUR DE MODÈLE INTÉGRÉ DIRECTEMENT DANS LE PLUS */}
-                            <div>
-                              <div className="text-[10px] font-bold text-[#8B70FF] px-2 py-1 uppercase tracking-wider flex items-center justify-between">
-                                <span>Modèle IA</span>
-                                <span className="text-[9px] text-[#c4b5fd] font-normal">Choisi pour le chat</span>
-                              </div>
-                              <div className="grid grid-cols-2 gap-1.5 p-1 bg-[#1b143c] rounded-xl border border-[#5A33FF33]">
-                                <button
-                                  type="button"
-                                  onClick={() => setModelChoice('rapide')}
-                                  className={`px-2 py-2 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition ${
-                                    modelChoice === 'rapide'
-                                      ? 'bg-gradient-to-r from-[#1E1B8C] to-[#5A33FF] text-white shadow'
-                                      : 'text-[#c4b5fd] hover:text-white hover:bg-[#1E1B8C]/20'
-                                  }`}
-                                >
-                                  <Zap className="w-3.5 h-3.5 text-amber-300" />
-                                  <div className="text-left">
-                                    <div className="leading-tight text-[11px]">Llama instant</div>
-                                    <div className="text-[9px] opacity-75 font-normal">Ultra rapide</div>
-                                  </div>
-                                </button>
-                                <button
-                                  type="button"
-                                  onClick={() => setModelChoice('puissant')}
-                                  className={`px-2 py-2 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition ${
-                                    modelChoice === 'puissant'
-                                      ? 'bg-gradient-to-r from-[#1E1B8C] to-[#5A33FF] text-white shadow'
-                                      : 'text-[#c4b5fd] hover:text-white hover:bg-[#1E1B8C]/20'
-                                  }`}
-                                >
-                                  <Brain className="w-3.5 h-3.5 text-purple-300" />
-                                  <div className="text-left">
-                                    <div className="leading-tight text-[11px]">Puissant (70B)</div>
-                                    <div className="text-[9px] opacity-75 font-normal">Raisonnement</div>
-                                  </div>
-                                </button>
-                              </div>
-                            </div>
-
-                            <div className="border-t border-[#5A33FF33] pt-1">
-                              <div className="text-[10px] font-semibold text-[#8B70FF] px-2 py-0.5 uppercase tracking-wider">
-                                Ajouter à la discussion
-                              </div>
-                              <button
-                                type="button"
-                                onClick={() => {
-                                  const fileInput = document.createElement('input');
-                                  fileInput.type = 'file';
-                                  fileInput.accept = '.txt,.md,.pdf,.csv,.py,.js,.json';
-                                  fileInput.onchange = (ev: any) => {
-                                    const file = ev.target?.files?.[0];
-                                    if (file) {
-                                      setInputMessage(prev => (prev ? prev + '\n' : '') + `[Fichier joint : ${file.name}] `);
-                                      setShowPlusMenu(false);
-                                    }
-                                  };
-                                  fileInput.click();
-                                }}
-                                className="w-full text-left px-2.5 py-1.5 rounded-xl text-xs text-[#E2D6FF] hover:bg-[#252245] hover:text-white transition flex items-center gap-2"
-                              >
-                                <span className="text-sm">📎</span>
-                                <div>
-                                  <div className="font-medium">Joindre un document</div>
-                                  <div className="text-[10px] text-[#A89CFF]">PDF, TXT, code ou notes</div>
-                                </div>
-                              </button>
-                              <button
-                                type="button"
-                                onClick={() => {
-                                  setInputMessage("Analyse ce blocage et donne-moi les 3 leviers comportementaux concrets :");
-                                  setShowPlusMenu(false);
-                                }}
-                                className="w-full text-left px-2.5 py-1.5 rounded-xl text-xs text-[#E2D6FF] hover:bg-[#252245] hover:text-white transition flex items-center gap-2"
-                              >
-                                <span className="text-sm">🧠</span>
-                                <div>
-                                  <div className="font-medium">Analyser un blocage</div>
-                                  <div className="text-[10px] text-[#A89CFF]">Méthode comportementale</div>
-                                </div>
-                              </button>
-                              <button
-                                type="button"
-                                onClick={() => {
-                                  setInputMessage("Donne-moi 3 actions rapides pour avancer aujourd'hui :");
-                                  setShowPlusMenu(false);
-                                }}
-                                className="w-full text-left px-2.5 py-1.5 rounded-xl text-xs text-[#E2D6FF] hover:bg-[#252245] hover:text-white transition flex items-center gap-2"
-                              >
-                                <span className="text-sm">🎯</span>
-                                <div>
-                                  <div className="font-medium">Plan d'action en 3 étapes</div>
-                                  <div className="text-[10px] text-[#A89CFF]">Passage immédiat à l'action</div>
-                                </div>
-                              </button>
-                            </div>
+                          <div className="absolute bottom-10 left-0 bg-[#161033] border border-[#5A33FF55] rounded-2xl shadow-2xl p-2 w-64 z-50 space-y-1 animate-in fade-in zoom-in-95">
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setInputMessage("Donne-moi un plan d'action en 3 étapes simples pour avancer aujourd'hui :");
+                                setShowPlusMenu(false);
+                              }}
+                              className="w-full text-left px-2.5 py-1.5 rounded-xl text-xs text-[#E2D6FF] hover:bg-[#252245] hover:text-white transition flex items-center gap-2"
+                            >
+                              <span>🎯 Plan d'action rapide</span>
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setInputMessage("Analyse ce blocage et donne-moi les leviers concrets pour passer à l'action :");
+                                setShowPlusMenu(false);
+                              }}
+                              className="w-full text-left px-2.5 py-1.5 rounded-xl text-xs text-[#E2D6FF] hover:bg-[#252245] hover:text-white transition flex items-center gap-2"
+                            >
+                              <span>🧠 Analyser un blocage</span>
+                            </button>
                           </div>
                         )}
                       </div>
+
+                      {/* Model speed selector */}
+                      <button
+                        type="button"
+                        onClick={() => setModelChoice(m => m === 'rapide' ? 'puissant' : 'rapide')}
+                        className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-[#201844] text-[#c4b5fd] hover:text-white border border-[#5A33FF33] transition"
+                        title="Basculer entre modèle instantané et approfondi"
+                      >
+                        {modelChoice === 'rapide' ? '⚡ Instant' : '🧠 Approfondi'}
+                      </button>
                     </div>
 
-                    {/* Right side buttons: Micro et Flèche d'envoi DE TAILLE STRICTEMENT IDENTIQUE (36px x 36px) */}
-                    <div className="flex items-center gap-2 ml-auto shrink-0">
-                      {/* Microphone button: STRICTEMENT LA MÊME TAILLE que la flèche (w-9 h-9 / 36px) */}
+                    {/* Micro et Envoi (dimensions identiques w-9 h-9) */}
+                    <div className="flex items-center gap-2 shrink-0">
                       <button
                         type="button"
                         onClick={handleToggleVoiceRecording}
                         className={`w-9 h-9 rounded-full flex items-center justify-center transition-all duration-150 shrink-0 border ${
                           isRecordingVoice
                             ? 'bg-rose-600 text-white border-rose-500 animate-pulse shadow-md'
-                            : 'bg-[#2a2057] hover:bg-[#372b6e] text-[#c4b5fd] hover:text-white border-[#5A33FF44] shadow-sm'
+                            : 'bg-[#201844] hover:bg-[#2d2260] text-[#c4b5fd] hover:text-white border-[#5A33FF44] shadow-sm'
                         }`}
                         title={isRecordingVoice ? 'Arrêter la dictée vocale' : 'Dictée vocale gratuite (Microphone)'}
                       >
                         <Mic className="w-4 h-4" />
                       </button>
 
-                      {/* Send Arrow button: tout à droite, STRICTEMENT LA MÊME TAILLE que le micro (w-9 h-9 / 36px) */}
                       <button
                         type="button"
                         onClick={handleSend}
@@ -1035,7 +906,7 @@ if __name__ == "__main__":
                         className={`w-9 h-9 rounded-full flex items-center justify-center transition-all duration-150 shrink-0 ${
                           inputMessage.trim()
                             ? 'bg-gradient-to-r from-[#1E1B8C] to-[#5A33FF] text-white hover:brightness-110 active:scale-95 shadow-md font-bold cursor-pointer'
-                            : 'bg-[#2a2057] text-[#c4b5fd]/40 border border-[#5A33FF22] cursor-not-allowed'
+                            : 'bg-[#201844] text-[#c4b5fd]/40 border border-[#5A33FF22] cursor-not-allowed'
                         }`}
                         title="Envoyer le message (Entrée)"
                       >
@@ -1045,17 +916,30 @@ if __name__ == "__main__":
                   </div>
                 </div>
 
-                {/* Discreet helper underneath */}
-                <div className="text-center text-[11px] text-[#c4b5fd]/70 pt-2">
-                  <span>Andrea peut faire des erreurs. BehaviorLab AI. Modèle actif : {modelChoice === 'rapide' ? '⚡ Llama instant' : '🧠 Puissant (70B)'}</span>
+                <div className="text-center text-[10px] text-[#c4b5fd]/60 pt-1.5">
+                  Andrea BehaviorLab AI · Réponses personnalisées pour {userProfile.displayName}
                 </div>
               </div>
             </div>
           </div>
         )}
 
-        {/* LABO D'IA & CRÉATION - DIRECTEMENT CONFORME À LA 2E IMAGE */}
-        {(currentPage === 'creative_hub' || currentPage === 'modeles') && (
+        {/* 2. CRÉATION DE SITE WEB (Bolt / Gemini level) */}
+        {currentPage === 'app' && (
+          <div className="flex-1 overflow-y-auto">
+            <SiteBuilder />
+          </div>
+        )}
+
+        {/* 3. MONTAGE VIDÉO & VISUEL */}
+        {currentPage === 'studio' && (
+          <div className="flex-1 overflow-y-auto">
+            <VisualDesignStudio />
+          </div>
+        )}
+
+        {/* 4. LABO D'IA (CRÉATION) */}
+        {currentPage === 'creative_hub' && (
           <CreativeHub
             onSelectAction={(action, promptText) => {
               if (promptText) {
@@ -1068,9 +952,9 @@ if __name__ == "__main__":
           />
         )}
 
-        {/* 2. PROFIL MANAGER VIEW (RÉPARATION DES PROFILS) */}
+        {/* 5. PROFIL MANAGER VIEW */}
         {currentPage === 'profil' && (
-          <div className="flex-1 p-6 overflow-y-auto">
+          <div className="flex-1 p-4 md:p-6 overflow-y-auto">
             <ProfileManager
               userProfile={userProfile}
               onUpdateProfile={handleUpdateProfile}
@@ -1079,9 +963,9 @@ if __name__ == "__main__":
           </div>
         )}
 
-        {/* 3. COMPTE VIEW : OFFRES & ABONNEMENTS À FORTE CONVERSION */}
+        {/* 6. COMPTE VIEW : OFFRES & ABONNEMENTS */}
         {currentPage === 'compte' && (
-          <div className="flex-1 p-6 overflow-y-auto">
+          <div className="flex-1 p-4 md:p-6 overflow-y-auto">
             <SalesOffers 
               currentPlan={userProfile.plan} 
               userProfile={userProfile}
@@ -1090,30 +974,9 @@ if __name__ == "__main__":
           </div>
         )}
 
-        {/* 4. SÉCURITÉ ACTIVE : BOUCLIER ANTI-PIRATAGE */}
-        {currentPage === 'securite' && (
-          <div className="flex-1 p-6 overflow-y-auto">
-            <SecurityShield />
-          </div>
-        )}
-
-        {/* 5. STUDIO DE DESIGN VISUEL */}
-        {currentPage === 'studio' && (
-          <div className="flex-1 p-6 overflow-y-auto">
-            <VisualDesignStudio />
-          </div>
-        )}
-
-        {/* 6. SITE WEB EN 1 PROMPT */}
-        {currentPage === 'app' && (
-          <div className="flex-1 p-6 overflow-y-auto">
-            <SiteBuilder />
-          </div>
-        )}
-
         {/* 7. CODE VIEW */}
         {currentPage === 'code' && (
-          <div className="flex-1 p-6 space-y-4 overflow-y-auto">
+          <div className="flex-1 p-4 md:p-6 space-y-4 overflow-y-auto">
             <div className="flex items-center justify-between">
               <div>
                 <h2 className="text-xl font-bold text-white flex items-center gap-2">
@@ -1122,14 +985,13 @@ if __name__ == "__main__":
                 </h2>
                 <p className="text-xs text-[#c4b5fd]">Écrivez, testez et demandez à Andrea d'améliorer votre script</p>
               </div>
-              <button className="px-3.5 py-1.5 rounded-xl bg-[#7c3aed] text-white font-bold text-xs flex items-center gap-1.5">
+              <button className="px-3.5 py-1.5 rounded-xl bg-[#5A33FF] text-white font-bold text-xs flex items-center gap-1.5 shadow">
                 <Download className="w-3.5 h-3.5" />
                 Télécharger .py
               </button>
             </div>
-
-            <div className="bg-[#0b081b] border-2 border-[#7c3aed] rounded-2xl overflow-hidden font-mono">
-              <div className="bg-[#181135] px-4 py-2 border-b border-[#7c3aed]/40 flex items-center justify-between text-xs text-[#c4b5fd]">
+            <div className="bg-[#0b081b] border-2 border-[#5A33FF55] rounded-2xl overflow-hidden font-mono">
+              <div className="bg-[#150f2e] px-4 py-2 border-b border-[#5A33FF33] flex items-center justify-between text-xs text-[#c4b5fd]">
                 <span>mon_script.py (Python)</span>
                 <span>UTF-8</span>
               </div>
@@ -1143,32 +1005,55 @@ if __name__ == "__main__":
           </div>
         )}
 
-        {/* 8. MODULES ADDITIONNELS */}
-        {['projets', 'memoire', 'perso'].includes(currentPage) && (
-          <div className="flex-1 p-6 space-y-4">
-            <h2 className="text-lg font-bold text-white capitalize">{currentPage}</h2>
-            <div className="p-8 rounded-2xl bg-[#15112a] border border-[#7c3aed] text-center space-y-3">
-              <Sparkles className="w-8 h-8 text-purple-400 mx-auto" />
-              <p className="text-xs text-[#c4b5fd]">
-                Module <code className="text-purple-300 font-mono">{currentPage}</code> connecté et actif dans Andrea.
-              </p>
-              <button
-                onClick={onOpenLab}
-                className="px-4 py-2 rounded-xl bg-[#231a4a] border border-[#7c3aed] text-xs font-bold text-white inline-flex items-center gap-1.5"
-              >
-                <Wand2 className="w-3.5 h-3.5 text-purple-400" />
-                Modifier ce module dans le Labo Dev
-              </button>
+        {/* 8. MÉMOIRE */}
+        {currentPage === 'memoire' && (
+          <div className="flex-1 p-6 space-y-4 overflow-y-auto">
+            <div className="max-w-2xl mx-auto space-y-4">
+              <h2 className="text-lg font-bold text-white flex items-center gap-2">
+                <Brain className="w-5 h-5 text-purple-400" />
+                Mémoire contextuelle d'Andrea
+              </h2>
+              <div className="p-5 rounded-2xl bg-[#1b143c] border border-[#5A33FF33] space-y-3">
+                <div className="text-xs text-[#c4b5fd]">
+                  Informations enregistrées pour adapter vos conseils et montages :
+                </div>
+                <div className="space-y-2 text-xs">
+                  <div className="p-2.5 rounded-xl bg-[#110d24] border border-white/5 flex justify-between">
+                    <span className="text-zinc-400">Prénom préféré :</span>
+                    <strong className="text-white">« {userProfile.preferredCallName || userProfile.displayName} »</strong>
+                  </div>
+                  <div className="p-2.5 rounded-xl bg-[#110d24] border border-white/5 flex justify-between">
+                    <span className="text-zinc-400">Rôle principal :</span>
+                    <strong className="text-white">{PROFILE_METAS[userProfile.profileType]?.label}</strong>
+                  </div>
+                  <div className="p-2.5 rounded-xl bg-[#110d24] border border-white/5 flex justify-between">
+                    <span className="text-zinc-400">Style préféré :</span>
+                    <strong className="text-white">{userProfile.preferredStyle}</strong>
+                  </div>
+                  <div className="p-2.5 rounded-xl bg-[#110d24] border border-white/5 flex justify-between">
+                    <span className="text-zinc-400">Formule active :</span>
+                    <strong className="text-emerald-400">{userProfile.plan ? userProfile.plan.toUpperCase() : 'BASIQUE'}</strong>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         )}
 
-        {/* 9. PARAMÈTRES AVANCÉS DU MOTEUR IA */}
+        {/* 9. PARAMÈTRES AVANCÉS */}
         {currentPage === 'parametres' && (
           <div className="flex-1 p-4 md:p-6 overflow-y-auto">
             <AiSettingsPanel />
           </div>
         )}
+
+        {/* 10. SÉCURITÉ DÉTAILLÉE (Accessible si besoin) */}
+        {currentPage === 'securite' && (
+          <div className="flex-1 p-4 md:p-6 overflow-y-auto">
+            <SecurityShield />
+          </div>
+        )}
+
       </div>
     </div>
   );

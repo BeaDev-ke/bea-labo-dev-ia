@@ -1,15 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { 
-  Sparkles, 
   ExternalLink, 
-  Wand2, 
   Code2, 
-  FileCode, 
   Film,
-  Lock,
-  User,
   LogOut,
-  ArrowRight
+  Sparkles
 } from 'lucide-react';
 import { DevPortal } from './components/DevPortal';
 import { DevLab } from './components/DevLab';
@@ -35,7 +30,6 @@ export default function App() {
   const getInitialView = (): MainView => {
     if (typeof window === 'undefined') return 'visiteur';
     const path = window.location.pathname;
-
     if (path === '/portail-dev' || path.startsWith('/portail-dev')) {
       return 'portal';
     }
@@ -65,14 +59,14 @@ export default function App() {
       } else {
         targetPath = '/';
       }
-      
+
       if (window.location.pathname !== targetPath) {
-        window.history.pushState(null, '', targetPath);
+        window.history.pushState({ view }, '', targetPath);
       }
     }
   };
 
-  // Listen to popstate (back / forward browser buttons)
+  // Handle browser back/forward buttons
   useEffect(() => {
     const handlePopState = () => {
       setCurrentView(getInitialView());
@@ -85,7 +79,9 @@ export default function App() {
   const handleEnterApp = (user?: UserProfile) => {
     if (user) {
       setCurrentUser(user);
-      localStorage.setItem('andrea_active_session', JSON.stringify(user));
+      try {
+        localStorage.setItem('andrea_active_session', JSON.stringify(user));
+      } catch {}
     }
     navigateTo('prod');
   };
@@ -97,20 +93,29 @@ export default function App() {
     navigateTo('visiteur');
   };
 
+  const isFullScreenApp = currentView === 'prod' || currentView === 'studio';
+
   return (
-    <div className="min-h-screen bg-[#181135] text-[#f5f3ff] flex flex-col font-sans selection:bg-purple-900 selection:text-white">
-      {/* Top Header / Navigation Bar (hidden in full-screen studio mode) */}
-      {currentView !== 'studio' && (
-        <header className="sticky top-0 z-50 bg-[#0d0d14]/90 backdrop-blur-md border-b border-zinc-800 px-4 md:px-8 py-3 shadow-xl">
+    <div className={`bg-[#181135] text-[#f5f3ff] flex flex-col font-sans selection:bg-purple-900 selection:text-white ${
+      isFullScreenApp ? 'h-screen overflow-hidden' : 'min-h-screen'
+    }`}>
+      {/* Top Header / Navigation Bar (hidden in full-screen studio mode and prod app to keep clean WhatsApp layout) */}
+      {!isFullScreenApp && (
+        <header className="sticky top-0 z-50 bg-[#0d0d14]/90 backdrop-blur-md border-b border-zinc-800 px-4 md:px-8 py-3 shadow-xl shrink-0">
           <div className="max-w-7xl mx-auto flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             {/* Logo & Identity */}
             <div className="flex items-center gap-3">
               <button 
                 onClick={() => navigateTo('visiteur')}
-                className="w-10 h-10 rounded-2xl bg-[#201844] border border-[#5A33FF44] flex items-center justify-center text-xl shadow-md hover:scale-105 transition-transform"
+                className="w-10 h-10 rounded-2xl bg-[#201844] border border-[#5A33FF44] flex items-center justify-center p-1 shadow-md hover:scale-105 transition-transform overflow-hidden"
                 title="Page d'accueil Andrea (/)"
               >
-                🧠
+                <img 
+                  src="/logo_bea.png" 
+                  alt="Andrea Logo" 
+                  className="w-full h-full object-contain"
+                  onError={(e) => { e.currentTarget.src = '/logo_andrea.png'; }}
+                />
               </button>
               <div>
                 <div className="flex items-center gap-2">
@@ -148,28 +153,14 @@ export default function App() {
               {/* 2. Application Andrea en direct */}
               <button
                 onClick={() => navigateTo('prod')}
-                className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition flex items-center gap-1.5 ${
-                  currentView === 'prod'
-                    ? 'bg-[#2a2057] text-white shadow-sm border border-[#5A33FF66]'
-                    : 'text-zinc-400 hover:text-white hover:bg-zinc-800/40'
-                }`}
+                className="px-3 py-1.5 rounded-xl text-xs font-semibold transition flex items-center gap-1.5 text-zinc-400 hover:text-white hover:bg-zinc-800/40"
                 title="Accéder à l'application Andrea (/app)"
               >
                 <ExternalLink className="w-3.5 h-3.5" />
                 <span>💬 App Andrea</span>
               </button>
 
-              {/* 3. Studio Créateur Plein Écran */}
-              <button
-                onClick={() => navigateTo('studio')}
-                className="px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 bg-purple-950/40 text-purple-200 border border-purple-500/40 hover:bg-purple-900/50 hover:text-white"
-                title="Ouvrir le Studio Créateur en Plein Écran"
-              >
-                <Film className="w-3.5 h-3.5 text-purple-300" />
-                <span>🎨 Studio Visuel</span>
-              </button>
-
-              {/* 4. Portail Développeur (/portail-dev) */}
+              {/* 3. Portail Développeur (/portail-dev) */}
               <button
                 onClick={() => navigateTo('portal')}
                 className={`px-3 py-1.5 rounded-xl text-xs font-medium transition flex items-center gap-1.5 ${
@@ -200,14 +191,13 @@ export default function App() {
       )}
 
       {/* Main Container */}
-      <main className="flex-1 w-full">
+      <main className={`flex-1 w-full ${currentView === 'prod' ? 'h-full overflow-hidden' : ''}`}>
         {/* VIEW 1: VITRINE / ACCUEIL (DEFAULT SUR /) AVEC DESCRIPTION ET CONNEXION DE SUITE */}
         {currentView === 'visiteur' && (
           <div className="max-w-7xl mx-auto p-3 sm:p-6 md:p-8 space-y-4">
             <VisitorLanding 
               onEnterApp={handleEnterApp} 
               onOpenLab={() => navigateTo('lab')}
-              onOpenStudio={() => navigateTo('studio')}
               onGoToDevPortal={() => navigateTo('portal')}
             />
           </div>
@@ -215,31 +205,7 @@ export default function App() {
 
         {/* VIEW 2: APPLICATION FONCTIONNELLE ANDREA (/app) */}
         {currentView === 'prod' && (
-          <div className="max-w-[1700px] mx-auto p-2 sm:p-4 md:p-6 space-y-3">
-            <div className="flex items-center justify-between bg-[#15112a] border border-[#5A33FF44] p-3 rounded-2xl text-xs text-[#c4b5fd]">
-              <div className="flex items-center gap-2">
-                <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse" />
-                <span>
-                  Connecté en tant que <strong>{currentUser?.preferredCallName || currentUser?.displayName || 'Membre Andrea'}</strong> ({currentUser?.email || 'client@andrea.ai'}). Formule : <strong>{currentUser?.plan ? currentUser.plan.toUpperCase() : 'BASIQUE'}</strong>.
-                </span>
-              </div>
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={() => navigateTo('studio')}
-                  className="px-3 py-1.5 rounded-xl bg-gradient-to-r from-purple-900 to-indigo-900 hover:from-purple-800 text-white font-bold text-xs transition flex items-center gap-1.5 border border-purple-500/50 shadow"
-                >
-                  <Film className="w-3.5 h-3.5 text-purple-300" />
-                  <span>Studio Plein Écran</span>
-                </button>
-                <button
-                  onClick={handleSignOut}
-                  className="px-3 py-1.5 rounded-xl bg-[#201844] hover:bg-rose-950/60 text-[#c4b5fd] hover:text-rose-200 text-xs font-semibold transition"
-                >
-                  Déconnexion
-                </button>
-              </div>
-            </div>
-
+          <div className="h-full w-full flex flex-col overflow-hidden">
             <AndreaAppPreview 
               onOpenLab={() => navigateTo('lab')} 
               onOpenStudio={() => navigateTo('studio')}
@@ -269,7 +235,6 @@ export default function App() {
                 <span>← Retour au Site Principal (/)</span>
               </button>
             </div>
-
             <DevPortal
               onGoToProd={() => navigateTo('prod')}
               onGoToLab={() => navigateTo('lab')}
@@ -293,7 +258,6 @@ export default function App() {
                 ← Retour au Portail Dev
               </button>
             </div>
-
             <DevLab 
               onGoToProd={() => navigateTo('prod')}
               onViewFullCode={() => navigateTo('code')}
@@ -318,17 +282,14 @@ export default function App() {
         )}
       </main>
 
-      {/* Minimal Footer (hidden in full-screen studio) */}
-      {currentView !== 'studio' && (
+      {/* Minimal Footer (only on visitor landing and dev portal) */}
+      {currentView === 'visiteur' && (
         <footer className="border-t border-[#5A33FF22] bg-[#100b24] py-4 px-6 text-center text-xs text-[#c4b5fd]/70 mt-auto">
           <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2">
             <span>BehaviorLab AI · Système Andrea · Prêt pour déploiement Vercel</span>
             <div className="flex items-center gap-3">
               <button onClick={() => navigateTo('visiteur')} className="hover:text-white underline">
                 Accueil (/)
-              </button>
-              <button onClick={() => navigateTo('studio')} className="hover:text-white underline">
-                Studio Visuel (/studio)
               </button>
               <button onClick={() => navigateTo('portal')} className="hover:text-white underline">
                 Portail Dev (/portail-dev)

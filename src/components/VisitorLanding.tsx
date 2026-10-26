@@ -258,16 +258,7 @@ export const VisitorLanding: React.FC<VisitorLandingProps> = ({
             Formules & Tarifs
           </button>
 
-          {onOpenStudio && (
-            <button
-              onClick={onOpenStudio}
-              className="px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-purple-900 to-indigo-900 hover:from-purple-800 hover:to-indigo-800 border border-purple-500/60 text-white text-xs font-bold transition flex items-center gap-1.5 shadow"
-              title="Ouvrir le studio créateur en plein écran"
-            >
-              <Film className="w-3.5 h-3.5 text-purple-300" />
-              <span>Studio Plein Écran</span>
-            </button>
-          )}
+
 
           {onGoToDevPortal && (
             <button
@@ -312,14 +303,7 @@ export const VisitorLanding: React.FC<VisitorLandingProps> = ({
                   <ArrowRight className="w-3.5 h-3.5" />
                 </button>
 
-                {onOpenStudio && (
-                  <button
-                    onClick={onOpenStudio}
-                    className="px-4 py-2.5 rounded-xl bg-transparent hover:bg-[#201844] text-[#c4b5fd] hover:text-white border border-[#5A33FF33] text-xs font-semibold transition flex items-center gap-2"
-                  >
-                    <span>Ouvrir le Studio Visuel</span>
-                  </button>
-                )}
+
               </div>
             </div>
 
@@ -682,7 +666,7 @@ export const VisitorLanding: React.FC<VisitorLandingProps> = ({
                   </p>
                   <ul className="space-y-2 text-xs text-[#e2d6ff] pt-3 border-t border-[#5A33FF44]">
                     <li className="flex items-center gap-2"><Check className="w-4 h-4 text-emerald-400" /> Tout ce qui est dans Andrea Basique</li>
-                    <li className="flex items-center gap-2"><Check className="w-4 h-4 text-purple-300" /> Studio Créateur Plein Écran (tous formats)</li>
+                    <li className="flex items-center gap-2"><Check className="w-4 h-4 text-purple-300" /> Outil de Montage Vidéo & Visuels (tous formats)</li>
                     <li className="flex items-center gap-2"><Check className="w-4 h-4 text-purple-300" /> Téléchargements d'images HD sans filigrane</li>
                     <li className="flex items-center gap-2"><Check className="w-4 h-4 text-purple-300" /> Compteur de série & dynamique positive</li>
                     <li className="flex items-center gap-2"><Check className="w-4 h-4 text-purple-300" /> Analyses psychologiques et objections clients</li>
