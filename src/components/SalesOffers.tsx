@@ -16,9 +16,9 @@ import { SALES_PLANS, SalesPlan } from '../data/profilesData';
 import { UserProfile } from '../types/bea';
 
 interface SalesOffersProps {
-  currentPlan?: 'free' | 'bea' | 'pro' | 'abo';
+  currentPlan?: 'basique' | 'pro' | 'ultra' | 'free' | 'bea' | 'abo';
   userProfile?: UserProfile;
-  onSelectPlan?: (planId: 'free' | 'bea' | 'pro' | 'abo') => void;
+  onSelectPlan?: (planId: 'basique' | 'pro' | 'ultra' | 'free' | 'bea' | 'abo') => void;
 }
 
 export const SalesOffers: React.FC<SalesOffersProps> = ({
@@ -146,7 +146,7 @@ export const SalesOffers: React.FC<SalesOffersProps> = ({
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-stretch">
         {SALES_PLANS.map((plan) => {
           const isPro = plan.id === 'pro';
-          const isAbo = plan.id === 'abo';
+          const isAbo = plan.id === 'ultra' || plan.id === 'abo';
 
           return (
             <div

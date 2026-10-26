@@ -46,22 +46,22 @@ const FORMATS = [
 
 const TEMPLATES = [
   {
-    title: "J'ai arrêté de procrastiner en 7 jours",
-    subtitle: "La méthode comportementale en 3 étapes validée par les neurosciences.",
-    badge: "⚡ PROTOCOLE 7 JOURS",
+    title: "5 clés pour doubler vos résultats",
+    subtitle: "La méthode stratégique étape par étape pour passer à l'action.",
+    badge: "⚡ NOUVEAU",
     cta: "Découvrir la méthode",
   },
   {
-    title: "95% des créateurs font cette erreur fatale",
-    subtitle: "Pourquoi tes 3 premières secondes sabotent 80% de ton audience.",
-    badge: "🚨 ERREUR CRITIQUE",
+    title: "95% des créateurs font cette erreur",
+    subtitle: "Comment structurer vos 3 premières secondes pour capter l'attention.",
+    badge: "🚨 STRATÉGIE",
     cta: "Voir la solution",
   },
   {
-    title: "Comment j'ai doublé mes prix sans perdre un client",
-    subtitle: "Le biais d'ancrage et la preuve sociale expliqués simplement.",
-    badge: "💼 BIAIS PSYCHOLOGIQUE",
-    cta: "Lire l'analyse",
+    title: "Comment développer une offre irrésistible",
+    subtitle: "Clarté, positionnement et passage à l'action immédiat.",
+    badge: "💼 BUSINESS",
+    cta: "Découvrir l'analyse",
   },
 ];
 
@@ -71,9 +71,9 @@ export const VisualDesignStudio: React.FC<VisualDesignStudioProps> = () => {
   const [selectedFont, setSelectedFont] = useState(FONTS[0]);
   
   // Content states
-  const [badgeText, setBadgeText] = useState('⚡ MÉTHODE COMPORTEMENTALE');
-  const [titleText, setTitleText] = useState("J'ai arrêté de procrastiner en 7 jours");
-  const [subtitleText, setSubtitleText] = useState("Le protocole en 3 étapes pour débloquer sa productivité sans forcer.");
+  const [badgeText, setBadgeText] = useState('⚡ NOUVEAU CONTENU');
+  const [titleText, setTitleText] = useState("5 clés pour doubler vos résultats");
+  const [subtitleText, setSubtitleText] = useState("Le guide étape par étape pour concrétiser vos projets.");
   const [ctaText, setCtaText] = useState('Découvrir le protocole');
   const [titleSize, setTitleSize] = useState(36);
   const [textAlign, setTextAlign] = useState<'left' | 'center' | 'right'>('center');

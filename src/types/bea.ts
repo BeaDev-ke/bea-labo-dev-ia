@@ -78,15 +78,17 @@ export type UseCaseType = 'scolaire' | 'contenu' | 'clients' | 'general' | 'site
 export interface UserProfile {
   id: string;
   displayName: string;
+  preferredCallName?: string; // Le nom d'usage par lequel Andrea/Bea appelle le client
   email: string;
   profileType: ProfileType;
   useCase: UseCaseType;
   goal: string;
+  biggestChallenge?: string; // Plus grand défi ou blocage actuel
   schoolCountry?: string;
   studyCountry?: string;
   studyLevel?: string;
   preferredStyle: 'expert' | 'bienveillant' | 'synthetique' | 'socratique';
-  plan: 'free' | 'bea' | 'pro' | 'abo';
+  plan: 'basique' | 'pro' | 'ultra' | 'free' | 'bea' | 'abo';
   lastActive: string;
   streakDays: number;
   momentumPoints: number;

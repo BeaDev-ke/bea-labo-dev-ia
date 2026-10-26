@@ -208,7 +208,7 @@ export const STUDY_LEVELS = [
  * Basés sur la valeur concrète, l'inversion du risque, la preuve sociale et l'urgence positive.
  */
 export interface SalesPlan {
-  id: 'free' | 'bea' | 'pro' | 'abo';
+  id: 'basique' | 'pro' | 'ultra' | 'free' | 'bea' | 'abo';
   name: string;
   tagline: string;
   badge?: string;
@@ -228,8 +228,8 @@ export interface SalesPlan {
 
 export const SALES_PLANS: SalesPlan[] = [
   {
-    id: 'bea',
-    name: 'Andrea Essentiel',
+    id: 'basique',
+    name: 'Andrea Basique',
     tagline: 'Le déclencheur d’action quotidien pour vaincre la procrastination.',
     priceMonthly: 9,
     priceFormatted: '9 €',
@@ -239,19 +239,19 @@ export const SALES_PLANS: SalesPlan[] = [
     highlightRoi: 'Rentabilisé dès la première heure de procrastination évitée.',
     features: [
       'IA Comportementale complète (Méthode BehaviorLab)',
-      'Détection automatique des 4 biais cognitifs de blocage',
+      'Humaniseur de dialogue naturel & personnalisé',
       'Plans d’action en 3 étapes concrètes (sans blabla)',
       'Synthèse vocale Andrea 100% Gratuite & Illimitée',
       'Accès mobile & desktop fluide',
       'Sans engagement · Annulation en 1 clic',
     ],
-    ctaLabel: 'Activer Andrea Essentiel (9 €)',
+    ctaLabel: 'Activer Andrea Basique (9 €)',
     ctaSubtext: 'Accès immédiat · 0 engagement · 0 frais caché',
     stripeUrl: 'https://buy.stripe.com/test_8x27sMei58IC6Rg3OM3wQ01',
   },
   {
     id: 'pro',
-    name: 'Andrea Pro Accélérateur',
+    name: 'Andrea Pro',
     tagline: 'L’arsenal complet des créateurs, étudiants ambitieux et indépendants.',
     badge: '🔥 Le plus choisi par 87% des utilisateurs',
     badgeColor: 'bg-gradient-to-r from-amber-500 to-rose-500',
@@ -263,12 +263,12 @@ export const SALES_PLANS: SalesPlan[] = [
     transformation: 'Divisez par 3 votre temps de travail et multipliez vos résultats visibles.',
     highlightRoi: 'Économisez plus de 15h de travail pénible chaque semaine.',
     features: [
-      'Tout ce qui est dans Andrea Essentiel',
-      '🎨 Studio de Design Visuel Intégré (Formats 9:16, 1:1, 16:9)',
-      '🎓 Mode Accompagnement Scolaire avec Micro-Défis cognitifs',
-      '🔥 Compteur de série & Momentum Dopamine (+18% d’action)',
+      'Tout ce qui est dans Andrea Basique',
+      '🎨 Studio de Design Visuel Plein Écran (Tous formats)',
+      '🎓 Mode Accompagnement Scolaire avec Micro-Défis',
+      '🔥 Compteur de série & Momentum Dopamine',
       '💼 Analyse psychologique des clients & réponses anti-objection',
-      '⚡ 50+ templates viraux & exports haute définition',
+      '⚡ Multi-cadres & exports haute définition sans filigrane',
       'Support prioritaire 7j/7 par l’équipe fondatrice',
     ],
     ctaLabel: 'Obtenir Andrea Pro (14,90 €) — Débloquer Tout',
@@ -276,26 +276,26 @@ export const SALES_PLANS: SalesPlan[] = [
     stripeUrl: 'https://buy.stripe.com/test_cNieVea1P0c62B08523wQ00',
   },
   {
-    id: 'abo',
-    name: 'Andrea Ultra Performance',
+    id: 'ultra',
+    name: 'Andrea Ultra',
     tagline: 'Puissance maximale : Bâtisseur de site en 1 prompt et Coach Code illimité.',
     badge: '👑 Puissance Illimitée',
     badgeColor: 'bg-gradient-to-r from-purple-500 to-indigo-600',
-    priceMonthly: 16,
-    priceFormatted: '16 €',
+    priceMonthly: 18,
+    priceFormatted: '18 €',
     period: '/ mois',
     recommendedFor: 'Pour ceux qui veulent créer des sites web complets et coder sans limite.',
     transformation: 'Lancez votre site web prêt à convertir en 30 secondes chrono à partir d’un simple prompt.',
     highlightRoi: 'Remplace une agence web à 1 500 € et un développeur freelance.',
     features: [
       'Tout ce qui est dans Andrea Pro sans aucune restriction',
-      '🌐 Bâtisseur de Site Web en 1 Prompt (Code HTML/CSS/JS complet téléchargeable)',
+      '🌐 Bâtisseur de Site Web en 1 Prompt (Code complet téléchargeable)',
       '💻 Éditeur de Code IA & Débogueur chirurgical',
       '🚀 Accès au Moteur Andrea Ultra Haute Vitesse',
       '💾 Sauvegarde illimitée de projets et mémoire permanente',
       '🧪 Accès en avant-première à toutes les nouveautés du Labo Dev',
     ],
-    ctaLabel: 'Passer à Andrea Ultra (16 €) — Accès Illimité',
+    ctaLabel: 'Passer à Andrea Ultra (18 €) — Accès Illimité',
     ctaSubtext: 'Offre complète sans compromis · Annulable à tout moment',
     stripeUrl: 'https://buy.stripe.com/test_8x27sMei58IC6Rg3OM3wQ01',
   },

@@ -1,668 +1,837 @@
 import React, { useState } from 'react';
 import { 
-  Globe, 
   Sparkles, 
-  ShieldCheck, 
   ArrowRight, 
-  Check, 
-  User, 
-  CreditCard, 
-  Layers, 
-  Brain, 
-  Zap, 
   Lock, 
   CheckCircle2, 
-  ExternalLink,
-  ChevronRight,
-  Flame,
-  Award
+  User, 
+  CreditCard, 
+  Eye, 
+  EyeOff, 
+  Check, 
+  Film, 
+  Code2, 
+  ShieldCheck, 
+  Shield, 
+  Zap,
+  HelpCircle,
+  Clock,
+  Compass,
+  Smile
 } from 'lucide-react';
-import { SUPPORTED_LANGUAGES, SupportedLanguageCode } from '../types/bea';
+import { UserProfile, ProfileType, UseCaseType } from '../types/bea';
+import { SALES_PLANS } from '../data/profilesData';
 
 interface VisitorLandingProps {
-  onEnterApp: () => void;
+  onEnterApp: (user?: UserProfile) => void;
   onOpenLab: () => void;
+  onOpenStudio?: () => void;
+  onGoToDevPortal?: () => void;
 }
 
-const TRANSLATIONS: Record<SupportedLanguageCode, {
-  tagline: string;
-  subtagline: string;
-  ctaConnect: string;
-  ctaDiscover: string;
-  ctaOffers: string;
-  aboutTitle: string;
-  aboutText: string;
-  offersTitle: string;
-  offersSubtitle: string;
-  guaranteeText: string;
-}> = {
-  fr: {
-    tagline: 'L\'IA d\'analyse comportementale qui transforme l\'intention en action régulière.',
-    subtagline: 'Clarifiez vos blocages, comprenez vos mécanismes décisionnels et avancez chaque jour sans procrastination.',
-    ctaConnect: 'Se connecter à Andrea',
-    ctaDiscover: 'Tester la discussion',
-    ctaOffers: 'Voir les offres & tarifs',
-    aboutTitle: 'Une intelligence pensée pour votre progression réelle',
-    aboutText: 'BehaviorLab AI conçoit des technologies comportementales appliquées. Nous analysons les frictions psychologiques, le modèle de Fogg et les habitudes pour vous amener au résultat mesurable.',
-    offersTitle: 'Choisissez votre accompagnement',
-    offersSubtitle: 'Formules simples, sans engagement, conçues pour accélérer vos résultats.',
-    guaranteeText: 'Sécurité maximale · Données privées chiffrées · Annulable à tout moment',
-  },
-  en: {
-    tagline: 'The behavioral AI that turns intention into daily, compounding momentum.',
-    subtagline: 'Identify mental friction, understand your decision patterns, and execute without procrastination.',
-    ctaConnect: 'Sign in to Andrea',
-    ctaDiscover: 'Try the conversation',
-    ctaOffers: 'View Plans & Pricing',
-    aboutTitle: 'Artificial Intelligence designed for tangible progress',
-    aboutText: 'BehaviorLab AI builds applied behavioral science engines. We diagnose cognitive friction, apply Fogg behavior design, and deliver practical daily breakthroughs.',
-    offersTitle: 'Select your progress tier',
-    offersSubtitle: 'Transparent plans, zero lock-in, engineered for real execution.',
-    guaranteeText: 'AST Protected · Privacy-first encryption · Cancel anytime',
-  },
-  es: {
-    tagline: 'La IA de análisis conductual que convierte la intención en acción constante.',
-    subtagline: 'Clarifica tus bloqueos, supera la procrastinación y avanza paso a paso con rigor científico.',
-    ctaConnect: 'Iniciar sesión en Andrea',
-    ctaDiscover: 'Probar la conversación',
-    ctaOffers: 'Ver planes y precios',
-    aboutTitle: 'Inteligencia diseñada para tu progreso medible',
-    aboutText: 'BehaviorLab AI combina la psicología conductual y modelos de IA avanzados para eliminar la fricción mental.',
-    offersTitle: 'Elige tu nivel de acompañamiento',
-    offersSubtitle: 'Sin permanencia, diseñado para multiplicar tus resultados.',
-    guaranteeText: 'Máxima seguridad · Datos cifrados · Cancelación flexible',
-  },
-  de: {
-    tagline: 'Die verhaltensbasierte KI, die Absicht in tägliche Umsetzung verwandelt.',
-    subtagline: 'Blockaden erkennen, kognitive Reibung abbauen und nachhaltige Gewohnheiten etablieren.',
-    ctaConnect: 'Bei Andrea anmelden',
-    ctaDiscover: 'Gespräch testen',
-    ctaOffers: 'Angebote & Preise ansehen',
-    aboutTitle: 'Künstliche Intelligenz für messbare Fortschritte',
-    aboutText: 'BehaviorLab AI verbindet Verhaltensökonomie mit Spitzen-KI zur sofortigen Beseitigung von Prokrastination.',
-    offersTitle: 'Wählen Sie Ihre Betreuung',
-    offersSubtitle: 'Transparente Tarife, jederzeit kündbar, auf Ergebnisse fokussiert.',
-    guaranteeText: 'Höchste Datensicherheit · Verschlüsselt · Keine Bindung',
-  },
-  pt: {
-    tagline: 'A IA comportamental que transforma intenção em ação consistente diária.',
-    subtagline: 'Esclareça bloqueios mentais, supere a procrastinação e avance com métodos validados.',
-    ctaConnect: 'Entrar na Andrea',
-    ctaDiscover: 'Experimentar o chat',
-    ctaOffers: 'Ver planos e preços',
-    aboutTitle: 'Inteligência focada em resultados reais',
-    aboutText: 'A BehaviorLab AI aplica modelos de hábitos e gatilhos de ação para desbloquear seu potencial diário.',
-    offersTitle: 'Escolha seu plano',
-    offersSubtitle: 'Planos flexíveis para criadores, estudantes e profissionais.',
-    guaranteeText: 'Segurança total · Dados privados · Cancele quando quiser',
-  },
-  it: {
-    tagline: 'L\'IA comportamentale che trasforma l\'intenzione in azione quotidiana.',
-    subtagline: 'Supera la procrastinazione, comprendi le tue decisioni e costruisci abitudini solide.',
-    ctaConnect: 'Accedi a Bea',
-    ctaDiscover: 'Prova la conversazione',
-    ctaOffers: 'Piani e tariffe',
-    aboutTitle: 'Intelligenza artificiale per il progresso tangibile',
-    aboutText: 'BehaviorLab AI integra neuroscienze decisionali e LLM moderni per sbloccare ogni progetto.',
-    offersTitle: 'Scegli la tua formula',
-    offersSubtitle: 'Zero vincoli, massima efficacia per i tuoi traguardi.',
-    guaranteeText: 'Dati protetti · Privacy totale · Disdetta facile',
-  },
-  nl: {
-    tagline: 'De gedrags-AI die intentie omzet in dagelijkse concrete vooruitgang.',
-    subtagline: 'Doorbreek uitstelgedrag en bereik consistente resultaten met bewezen methodes.',
-    ctaConnect: 'Inloggen bij Andrea',
-    ctaDiscover: 'Probeer het gesprek',
-    ctaOffers: 'Bekijk abonnementen',
-    aboutTitle: 'AI ontwikkeld voor meetbare groei',
-    aboutText: 'BehaviorLab AI bouwt gedragstechnologieën die mentale weerstand direct omzetten in actie.',
-    offersTitle: 'Kies uw ondersteuning',
-    offersSubtitle: 'Transparant, maandelijks opzegbaar, gericht op resultaat.',
-    guaranteeText: 'Veiligheid gegarandeerd · Versleuteld · Eenvoudig opzegbaar',
-  },
-  ar: {
-    tagline: 'الذكاء الاصطناعي السلوكي الذي يحول النية إلى إنجاز يومي ملموس.',
-    subtagline: 'تغلب على التسويف، وافهم معوقاتك النفسية، وحقق أهدافك خطوة بخطوة.',
-    ctaConnect: 'تسجيل الدخول إلى Andrea',
-    ctaDiscover: 'تجربة المحادثة',
-    ctaOffers: 'عرض الخطط والأسعار',
-    aboutTitle: 'ذكاء اصطناعي مكرس لتقدمك الحقيقي',
-    aboutText: 'تطور BehaviorLab AI محركات سلوكية متقدمة قائمة على علم النفس العملي لمساعدتك في اتخاذ القرارات وتنفيذها.',
-    offersTitle: 'اختر باقة المرافقة المناسبة',
-    offersSubtitle: 'خطط واضحة بدون قيود مصممة لتسريع نجاحك.',
-    guaranteeText: 'أمان كامل للبيانات · تشفير متقدم · إلغاء في أي وقت',
-  },
-  zh: {
-    tagline: '将意图转化为每日持续行动的行为分析人工智能。',
-    subtagline: '清晰识别行动阻力，破解拖延症，以科学方法稳步达成目标。',
-    ctaConnect: '登录 Andrea',
-    ctaDiscover: '体验对话',
-    ctaOffers: '查看方案与价格',
-    aboutTitle: '专为实际进步打造的人工智能',
-    aboutText: 'BehaviorLab AI 融合行为心理学与尖端大语言模型，帮助个人与企业实现高效决策与落地。',
-    offersTitle: '选择适合您的方案',
-    offersSubtitle: '无约束透明计费，专注于助您取得实质突破。',
-    guaranteeText: '银行级安全保护 · 数据隐私加密 · 随时可退订',
-  },
-  ja: {
-    tagline: '意思を行動へと変え、毎日の前進を支える行動科学AI。',
-    subtagline: '先延ばしを克服し、意思決定の摩擦を解消して着実に成果を積み上げます。',
-    ctaConnect: 'Andrea にログイン',
-    ctaDiscover: '会話を試す',
-    ctaOffers: '料金プランを見る',
-    aboutTitle: '真の成果のために設計されたインテリジェンス',
-    aboutText: 'BehaviorLab AI は行動科学と最先端AIを融合し、日常の習慣形成と目標達成を支援します。',
-    offersTitle: 'プランをお選びください',
-    offersSubtitle: '縛りなし、いつでも解約可能、結果に直結するサポート。',
-    guaranteeText: '堅牢なセキュリティ · 完全なプライバシー · いつでも解約可能',
-  },
-  ko: {
-    tagline: '의도를 매일의 실천으로 전환하는 행동 분석 인공지능.',
-    subtagline: '미루는 습관을 극복하고, 인지적 마찰을 줄여 한 단계씩 확실하게 성장하세요.',
-    ctaConnect: 'Andrea 로그인',
-    ctaDiscover: '대화 체험하기',
-    ctaOffers: '요금제 및 혜택 확인',
-    aboutTitle: '실질적인 성장을 위해 설계된 AI',
-    aboutText: 'BehaviorLab AI는 행동 심리학 프레임워크를 기반으로 목표를 실행 가능한 습관으로 바꿉니다.',
-    offersTitle: '원하는 플랜을 선택하세요',
-    offersSubtitle: '위약금 없는 투명한 가격, 결과를 위한 최고의 파트너.',
-    guaranteeText: '데이터 암호화 보호 · 강력한 보안 · 언제든 해지 가능',
-  },
-  ru: {
-    tagline: 'Поведенческий ИИ, превращающий намерения в ежедневные измеримые действия.',
-    subtagline: 'Преодолейте прокрастинацию, выявите скрытые барьеры и двигайтесь вперед каждый день.',
-    ctaConnect: 'Войти в Andrea',
-    ctaDiscover: 'Попробовать диалог',
-    ctaOffers: 'Тарифы и возможности',
-    aboutTitle: 'Искусственный интеллект для реального прогресса',
-    aboutText: 'BehaviorLab AI объединяет поведенческую психологию и передовые модели для устранения трения при принятии решений.',
-    offersTitle: 'Выберите подходящий тариф',
-    offersSubtitle: 'Без скрытых условий, нацелено на максимальный результат.',
-    guaranteeText: 'Полная конфиденциальность · Надежная защита · Отмена в любой момент',
-  },
-  hi: {
-    tagline: 'व्यवहार विश्लेषण एआई जो विचारों को दैनिक क्रियान्वयन में बदलता है।',
-    subtagline: 'टालमटोल पर काबू पाएं, मानसिक बाधाओं को पहचानें और हर दिन आगे बढ़ें।',
-    ctaConnect: 'Andrea में लॉग इन करें',
-    ctaDiscover: 'बातचीत आज़माएं',
-    ctaOffers: 'ऑफ़र और मूल्य देखें',
-    aboutTitle: 'वास्तविक प्रगति के लिए निर्मित बुद्धिमत्ता',
-    aboutText: 'BehaviorLab AI निर्णय लेने और आदतों को सुदृढ़ करने के लिए व्यावहारिक व्यवहार विज्ञान का उपयोग करता है।',
-    offersTitle: 'अपनी योजना चुनें',
-    offersSubtitle: 'पारदर्शी और सरल, आपकी सफलता को गति देने के लिए डिज़ाइन किया गया।',
-    guaranteeText: 'सुरक्षित डेटा · एन्क्रिप्टेड गोपनीयता · कभी भी रद्द करें',
-  },
-  tr: {
-    tagline: 'Niyeti günlük istikrarlı eyleme dönüştüren davranışsal yapay zekâ.',
-    subtagline: 'Ertelemeyi bırakın, karar engellerinizi aşın ve hedeflerinize emin adımlarla ilerleyin.',
-    ctaConnect: 'Bea\'ya Giriş Yap',
-    ctaDiscover: 'Sohbeti Dene',
-    ctaOffers: 'Planları ve Fiyatları Gör',
-    aboutTitle: 'Gerçek ilerlemeniz için tasarlanmış teknoloji',
-    aboutText: 'BehaviorLab AI, karar süreçlerini ve eyleme geçişi kolaylaştıran davranışsal bilim modelleri geliştirir.',
-    offersTitle: 'Destek seviyenizi seçin',
-    offersSubtitle: 'Taahhütsüz, sonuç odaklı ve esnek paketler.',
-    guaranteeText: 'Tam güvenlik · Şifrelenmiş gizlilik · İstediğiniz an iptal',
-  },
-  wo: {
-    tagline: 'Xam-xam bu xel miy soppi sa yéene def ko jëf ju teey bu bés bu nekk.',
-    subtagline: 'Dindi ay jafe-jafe, fexee baña teel a tàbbi ci liggéey bi te yokk sa doole.',
-    ctaConnect: 'Dugg ci Andrea',
-    ctaDiscover: 'Jéem waxtaan wi',
-    ctaOffers: 'Xool paj yi ak njëg yi',
-    aboutTitle: 'Xel mu xereñ ngir sa kanam gu wér',
-    aboutText: 'BehaviorLab AI dafay lëkkale xam-xamu jiko yi ak xarala yu yees yi ngir dimbali la nga gaaw a jëfe li nga bëgg.',
-    offersTitle: 'Tànnal paju li nga soxla',
-    offersSubtitle: 'Ay njëg yu yomb, te amul benn tënk, ngir yombal sa liggéey.',
-    guaranteeText: 'Kaarange bu mat sëkk · Sa mbóot lañuy aar · Mën nga ko dakkal saa yoo bëggee',
-  },
-};
+export const VisitorLanding: React.FC<VisitorLandingProps> = ({ 
+  onEnterApp, 
+  onOpenLab,
+  onOpenStudio,
+  onGoToDevPortal
+}) => {
+  // Auth Form State (Active on arrival on "/" as requested)
+  const [authMode, setAuthMode] = useState<'login' | 'register'>('login');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [fullName, setFullName] = useState('');
+  const [preferredCallName, setPreferredCallName] = useState('');
+  const [selectedRole, setSelectedRole] = useState<ProfileType>('createur');
+  const [selectedGoal, setSelectedGoal] = useState('Passer à l\'action et concrétiser mes projets.');
+  const [biggestChallenge, setBiggestChallenge] = useState('Vaincre la procrastination et démarrer sans hésiter.');
+  const [preferredStyle, setPreferredStyle] = useState<'expert' | 'bienveillant' | 'synthetique'>('expert');
+  const [selectedPlan, setSelectedPlan] = useState<'basique' | 'pro' | 'ultra'>('basique');
+  const [showPassword, setShowPassword] = useState(false);
+  const [authError, setAuthError] = useState<string | null>(null);
+  const [authSuccess, setAuthSuccess] = useState<string | null>(null);
 
-export const VisitorLanding: React.FC<VisitorLandingProps> = ({ onEnterApp, onOpenLab }) => {
-  const [selectedLang, setSelectedLang] = useState<SupportedLanguageCode>('fr');
-  const [activeSidebarTab, setActiveSidebarTab] = useState<'home' | 'offers' | 'about' | 'login'>('home');
-  const [loginEmail, setLoginEmail] = useState('');
-  const [loginPassword, setLoginPassword] = useState('');
-  const [authSuccessNotice, setAuthSuccessNotice] = useState('');
+  // Payment Simulation State (Basique 9€, Pro 14.90€, Ultra 18€)
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [cardNumber, setCardNumber] = useState('4242 •••• •••• 4242');
+  const [cardExpiry, setCardExpiry] = useState('12/28');
+  const [cardCvc, setCardCvc] = useState('123');
+  const [isProcessingPayment, setIsProcessingPayment] = useState(false);
 
-  const t = TRANSLATIONS[selectedLang] || TRANSLATIONS.fr;
+  // Active view tab in landing (defaults to 'home')
+  const [landingSection, setLandingSection] = useState<'home' | 'offers' | 'about'>('home');
 
-  const handleSimulateLogin = (e: React.FormEvent) => {
+  const getPlanPriceLabel = (plan: 'basique' | 'pro' | 'ultra'): string => {
+    switch (plan) {
+      case 'basique': return '9 €/mois';
+      case 'pro': return '14,90 €/mois';
+      case 'ultra': return '18 €/mois';
+      default: return '9 €/mois';
+    }
+  };
+
+  // Handle Login
+  const handleLoginSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!loginEmail) return;
-    setAuthSuccessNotice(`Authentification réussie pour ${loginEmail}. Redirection vers Andrea...`);
-    setTimeout(() => {
+    setAuthError(null);
+
+    if (!email.trim() || !password.trim()) {
+      setAuthError('Veuillez renseigner votre email et mot de passe.');
+      return;
+    }
+
+    try {
+      const storedUsersRaw = localStorage.getItem('andrea_users_db');
+      const users: Record<string, UserProfile & { passwordHash?: string }> = storedUsersRaw ? JSON.parse(storedUsersRaw) : {};
+      
+      const foundUser = users[email.trim().toLowerCase()];
+      if (foundUser) {
+        setAuthSuccess(`Bienvenue de retour, ${foundUser.preferredCallName || foundUser.displayName} !`);
+        localStorage.setItem('andrea_active_session', JSON.stringify(foundUser));
+        localStorage.setItem('andrea_user_profile_secure', JSON.stringify(foundUser));
+        setTimeout(() => {
+          onEnterApp(foundUser);
+        }, 500);
+        return;
+      }
+
+      // If user doesn't exist yet, automatically create an instant profile
+      const derivedName = email.split('@')[0].replace(/[._-]/g, ' ');
+      const capitalized = derivedName.charAt(0).toUpperCase() + derivedName.slice(1);
+      
+      const newUser: UserProfile = {
+        id: `usr-${Date.now()}`,
+        displayName: capitalized || 'Membre Andrea',
+        preferredCallName: capitalized || 'Membre Andrea',
+        email: email.trim().toLowerCase(),
+        profileType: 'createur',
+        useCase: 'contenu',
+        goal: 'Créer du contenu percutant et structurer mes projets.',
+        biggestChallenge: 'Vaincre la procrastination et passer à l\'action.',
+        preferredStyle: 'expert',
+        plan: 'basique',
+        lastActive: 'À l\'instant',
+        streakDays: 1,
+        momentumPoints: 50,
+      };
+
+      users[newUser.email] = newUser;
+      localStorage.setItem('andrea_users_db', JSON.stringify(users));
+      localStorage.setItem('andrea_active_session', JSON.stringify(newUser));
+      localStorage.setItem('andrea_user_profile_secure', JSON.stringify(newUser));
+
+      setAuthSuccess(`Compte créé avec succès ! Bienvenue, ${newUser.preferredCallName}.`);
+      setTimeout(() => {
+        onEnterApp(newUser);
+      }, 500);
+    } catch {
       onEnterApp();
-    }, 700);
+    }
+  };
+
+  // Handle Register Initiation
+  const handleRegisterSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    setAuthError(null);
+
+    if (!email.trim() || !password.trim() || !fullName.trim()) {
+      setAuthError('Veuillez renseigner tous les champs obligatoires.');
+      return;
+    }
+
+    // Propose payment modal for selected plan, while allowing free immediate access inside modal
+    setShowPaymentModal(true);
+  };
+
+  // Finalize Registration (With or without card payment)
+  const finalizeAccountCreation = (plan: 'basique' | 'pro' | 'ultra', paid: boolean) => {
+    const cleanName = fullName.trim();
+    const cleanCallName = preferredCallName.trim() || cleanName.split(' ')[0] || cleanName;
+    const cleanEmail = email.trim().toLowerCase();
+
+    const roleToUseCase: Record<ProfileType, UseCaseType> = {
+      createur: 'contenu',
+      etudiant: 'scolaire',
+      independant: 'clients',
+      entreprise: 'general',
+      developpeur: 'code',
+      salarie: 'general',
+      recherche_emploi: 'general',
+      parent: 'scolaire',
+      enseignant: 'scolaire',
+      autre: 'general'
+    };
+
+    const newUser: UserProfile = {
+      id: `usr-${Date.now()}`,
+      displayName: cleanName,
+      preferredCallName: cleanCallName,
+      email: cleanEmail,
+      profileType: selectedRole,
+      useCase: roleToUseCase[selectedRole] || 'general',
+      goal: selectedGoal || 'Concrétiser mes projets et avancer sans blocage.',
+      biggestChallenge: biggestChallenge || 'Démarrer et maintenir un bon rythme.',
+      preferredStyle: preferredStyle || 'expert',
+      plan: plan,
+      lastActive: 'À l\'instant',
+      streakDays: 1,
+      momentumPoints: paid ? 150 : 60,
+    };
+
+    try {
+      const storedUsersRaw = localStorage.getItem('andrea_users_db');
+      const users: Record<string, UserProfile> = storedUsersRaw ? JSON.parse(storedUsersRaw) : {};
+      users[cleanEmail] = newUser;
+      localStorage.setItem('andrea_users_db', JSON.stringify(users));
+      localStorage.setItem('andrea_active_session', JSON.stringify(newUser));
+      localStorage.setItem('andrea_user_profile_secure', JSON.stringify(newUser));
+    } catch {}
+
+    setShowPaymentModal(false);
+    setAuthSuccess(`Bienvenue ${cleanCallName} ! Votre espace Andrea est prêt.`);
+    setTimeout(() => {
+      onEnterApp(newUser);
+    }, 500);
+  };
+
+  // Guest instant access for testing
+  const handleGuestAccess = () => {
+    const guestUser: UserProfile = {
+      id: `usr-invite-${Date.now()}`,
+      displayName: 'Invité',
+      preferredCallName: 'Invité',
+      email: 'invite@andrea.ai',
+      profileType: 'createur',
+      useCase: 'contenu',
+      goal: 'Découvrir la méthode comportementale Andrea et créer des visuels.',
+      biggestChallenge: 'Passer à l\'action immédiatement.',
+      preferredStyle: 'expert',
+      plan: 'pro',
+      lastActive: 'À l\'instant',
+      streakDays: 1,
+      momentumPoints: 50,
+    };
+    onEnterApp(guestUser);
   };
 
   return (
-    <div className="flex flex-col md:flex-row min-h-[750px] bg-[#121214] border border-zinc-800 rounded-3xl overflow-hidden shadow-2xl text-white">
-      {/* 1. LEFT SIDEBAR (OFFRES & BEHAVIORLAB AI À GAUCHE) */}
-      <aside className="w-full md:w-72 bg-[#18181b] border-b md:border-b-0 md:border-r border-zinc-800 p-5 flex flex-col justify-between shrink-0">
-        <div className="space-y-6">
-          {/* Brand Identity */}
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-zinc-700 to-zinc-900 border border-zinc-700 flex items-center justify-center font-black text-xl shadow-md">
-              B
-            </div>
-            <div>
-              <div className="font-extrabold text-base tracking-tight text-white flex items-center gap-1.5">
-                <span>Andrea</span>
-                <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-zinc-800 text-zinc-300 border border-zinc-700">
-                  IA
-                </span>
-              </div>
-              <div className="text-[11px] text-zinc-400 font-medium">
+    <div className="min-h-[85vh] flex flex-col bg-[#140e2d] text-[#f5f3ff] rounded-3xl overflow-hidden border border-[#5A33FF33] shadow-2xl">
+      {/* Top Banner Navigation */}
+      <div className="bg-[#100b24] px-4 sm:px-8 py-3.5 border-b border-[#5A33FF33] flex flex-wrap items-center justify-between gap-3">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-2xl bg-[#201844] border border-[#5A33FF55] flex items-center justify-center text-xl shadow-md">
+            🧠
+          </div>
+          <div>
+            <div className="flex items-center gap-2">
+              <span className="font-extrabold text-base text-white tracking-tight">Andrea</span>
+              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#201844] text-[#c4b5fd] border border-[#5A33FF44]">
                 BehaviorLab AI
-              </div>
+              </span>
             </div>
-          </div>
-
-          {/* Sidebar Navigation */}
-          <nav className="space-y-1.5">
-            <div className="text-[10px] uppercase font-bold text-zinc-500 tracking-wider px-2 py-1">
-              Navigation Visiteur
-            </div>
-
-            <button
-              onClick={() => setActiveSidebarTab('home')}
-              className={`w-full text-left px-3.5 py-2.5 rounded-xl text-xs font-semibold flex items-center gap-2.5 transition ${
-                activeSidebarTab === 'home'
-                  ? 'bg-zinc-800 text-white shadow-sm border border-zinc-700'
-                  : 'text-zinc-400 hover:text-white hover:bg-zinc-800/40'
-              }`}
-            >
-              <Sparkles className="w-4 h-4 text-zinc-300" />
-              <span>Accueil & Découverte</span>
-            </button>
-
-            {/* BOUTON OFFRES À GAUCHE */}
-            <button
-              onClick={() => setActiveSidebarTab('offers')}
-              className={`w-full text-left px-3.5 py-2.5 rounded-xl text-xs font-semibold flex items-center gap-2.5 transition ${
-                activeSidebarTab === 'offers'
-                  ? 'bg-zinc-800 text-white shadow-sm border border-zinc-700'
-                  : 'text-zinc-400 hover:text-white hover:bg-zinc-800/40'
-              }`}
-            >
-              <CreditCard className="w-4 h-4 text-emerald-400" />
-              <span>💎 Offres & Tarifs</span>
-            </button>
-
-            {/* BOUTON BEHAVIORLAB AI À GAUCHE */}
-            <button
-              onClick={() => setActiveSidebarTab('about')}
-              className={`w-full text-left px-3.5 py-2.5 rounded-xl text-xs font-semibold flex items-center gap-2.5 transition ${
-                activeSidebarTab === 'about'
-                  ? 'bg-zinc-800 text-white shadow-sm border border-zinc-700'
-                  : 'text-zinc-400 hover:text-white hover:bg-zinc-800/40'
-              }`}
-            >
-              <Brain className="w-4 h-4 text-purple-400" />
-              <span>🧠 BehaviorLab AI (Vision)</span>
-            </button>
-
-            <button
-              onClick={() => setActiveSidebarTab('login')}
-              className={`w-full text-left px-3.5 py-2.5 rounded-xl text-xs font-semibold flex items-center gap-2.5 transition ${
-                activeSidebarTab === 'login'
-                  ? 'bg-zinc-800 text-white shadow-sm border border-zinc-700'
-                  : 'text-zinc-400 hover:text-white hover:bg-zinc-800/40'
-              }`}
-            >
-              <Lock className="w-4 h-4 text-blue-400" />
-              <span>🔑 Connexion / Inscription</span>
-            </button>
-          </nav>
-
-          {/* Sélecteur de toutes les langues des modèles IA */}
-          <div className="pt-2 border-t border-zinc-800 space-y-2">
-            <label className="text-[11px] font-bold text-zinc-400 flex items-center gap-1.5 px-1">
-              <Globe className="w-3.5 h-3.5 text-zinc-400" />
-              <span>Langue ({SUPPORTED_LANGUAGES.length} langues IA) :</span>
-            </label>
-            <select
-              value={selectedLang}
-              onChange={e => setSelectedLang(e.target.value as SupportedLanguageCode)}
-              className="w-full bg-[#212121] border border-zinc-700 rounded-xl px-2.5 py-2 text-xs text-white focus:outline-none focus:border-zinc-500 font-medium"
-            >
-              {SUPPORTED_LANGUAGES.map(lang => (
-                <option key={lang.code} value={lang.code}>
-                  {lang.flag} {lang.name} ({lang.nativeName})
-                </option>
-              ))}
-            </select>
-            <div className="text-[10px] text-zinc-500 px-1">
-              Traduction temps réel par les modèles haute vitesse Andrea.
-            </div>
+            <p className="text-[11px] text-[#c4b5fd]">
+              Intelligence Stratégique & Créative
+            </p>
           </div>
         </div>
 
-        {/* Bottom Actions & Shield Badge */}
-        <div className="pt-6 border-t border-zinc-800 space-y-3">
+        {/* Quick actions on header */}
+        <div className="flex items-center gap-2 flex-wrap">
           <button
-            onClick={onEnterApp}
-            className="w-full py-2.5 px-3 rounded-xl bg-white text-black font-bold text-xs hover:bg-zinc-200 transition flex items-center justify-center gap-2 shadow-sm"
+            onClick={() => setLandingSection('home')}
+            className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition ${
+              landingSection === 'home'
+                ? 'bg-[#231a4a] text-white border border-[#5A33FF]'
+                : 'text-[#c4b5fd] hover:text-white hover:bg-[#201844]'
+            }`}
           >
-            <span>Entrer dans Andrea (Prod)</span>
-            <ArrowRight className="w-3.5 h-3.5" />
+            Accueil & Connexion
           </button>
 
           <button
-            onClick={onOpenLab}
-            className="w-full py-2 px-3 rounded-xl bg-zinc-800/80 hover:bg-zinc-700 border border-zinc-700 text-zinc-300 hover:text-white text-xs font-medium transition flex items-center justify-center gap-2"
+            onClick={() => setLandingSection('offers')}
+            className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition ${
+              landingSection === 'offers'
+                ? 'bg-[#231a4a] text-white border border-[#5A33FF]'
+                : 'text-[#c4b5fd] hover:text-white hover:bg-[#201844]'
+            }`}
           >
-            <span>🧪 Ouvrir le Labo Dev</span>
+            Formules & Tarifs
           </button>
 
-          <div className="flex items-center justify-between text-[10px] text-zinc-500 px-1 pt-1">
-            <span className="flex items-center gap-1">
-              <ShieldCheck className="w-3 h-3 text-emerald-400" />
-              <span>AST Shield Vérifié</span>
-            </span>
-            <span>v2.8 Stable</span>
-          </div>
+          {onOpenStudio && (
+            <button
+              onClick={onOpenStudio}
+              className="px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-purple-900 to-indigo-900 hover:from-purple-800 hover:to-indigo-800 border border-purple-500/60 text-white text-xs font-bold transition flex items-center gap-1.5 shadow"
+              title="Ouvrir le studio créateur en plein écran"
+            >
+              <Film className="w-3.5 h-3.5 text-purple-300" />
+              <span>Studio Plein Écran</span>
+            </button>
+          )}
+
+          {onGoToDevPortal && (
+            <button
+              onClick={onGoToDevPortal}
+              className="px-3 py-1.5 rounded-xl bg-[#1b143c] hover:bg-[#251b54] text-[#c4b5fd] hover:text-white border border-[#5A33FF33] text-xs font-medium transition flex items-center gap-1"
+              title="Accéder au Portail Développeur (/portail-dev)"
+            >
+              <Code2 className="w-3.5 h-3.5" />
+              <span>Portail Dev (/portail-dev)</span>
+            </button>
+          )}
         </div>
-      </aside>
+      </div>
 
-      {/* 2. MAIN CONTENT AREA (CONTENU DYNAMIQUE DU SITE VISITEUR) */}
-      <main className="flex-1 p-6 md:p-10 overflow-y-auto">
-        {/* TAB: ACCUEIL & DÉCOUVERTE */}
-        {activeSidebarTab === 'home' && (
-          <div className="max-w-3xl mx-auto space-y-8 animate-in fade-in">
-            <div className="space-y-4 text-center md:text-left">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-zinc-800/80 border border-zinc-700 text-zinc-300 text-xs font-semibold">
-                <Flame className="w-3.5 h-3.5 text-amber-400" />
-                <span>BehaviorLab AI · Système d'Analyse Comportementale</span>
+      {/* Main Content Area */}
+      <div className="flex-1 p-4 sm:p-8 max-w-6xl mx-auto w-full space-y-10">
+        {/* HERO SECTION WITH DIRECT AUTHENTICATION / REGISTRATION */}
+        {landingSection === 'home' && (
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center pt-2">
+            {/* Left Column: Clear Presentation & Description */}
+            <div className="lg:col-span-7 space-y-5">
+              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#201844] border border-[#5A33FF55] text-[#c4b5fd] text-xs font-semibold">
+                <Sparkles className="w-3.5 h-3.5 text-purple-400" />
+                <span>Plateforme officielle Andrea · Version 2026</span>
               </div>
 
-              <h1 className="text-3xl md:text-5xl font-black text-white tracking-tight leading-tight">
-                {t.tagline}
+              <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black text-white tracking-tight leading-[1.15]">
+                L'intelligence qui transforme vos idées en <span className="bg-gradient-to-r from-[#8B70FF] to-[#c4b5fd] bg-clip-text text-transparent">actions concrètes</span>.
               </h1>
 
-              <p className="text-base text-zinc-400 leading-relaxed max-w-2xl">
-                {t.subtagline}
+              <p className="text-sm sm:text-base text-[#c4b5fd] leading-relaxed max-w-xl">
+                Conçue par <strong>BehaviorLab AI</strong>, Andrea s'adapte à votre profil et vous appelle directement par votre prénom. Que vous soyez <strong>créateur de contenu</strong>, <strong>lycéen ou étudiant</strong>, <strong>freelance</strong> ou <strong>entrepreneur</strong>, découvrez des conseils clairs, un studio de création visuelle et un accompagnement sans stress.
               </p>
-            </div>
 
-            {/* Quick Action Buttons */}
-            <div className="flex flex-wrap items-center gap-3">
-              <button
-                onClick={onEnterApp}
-                className="px-6 py-3 rounded-2xl bg-white text-black font-bold text-sm hover:bg-zinc-200 transition flex items-center gap-2 shadow-lg hover:scale-105 active:scale-95"
-              >
-                <span>{t.ctaDiscover}</span>
-                <ArrowRight className="w-4 h-4" />
-              </button>
-              <button
-                onClick={() => setActiveSidebarTab('offers')}
-                className="px-6 py-3 rounded-2xl bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 text-zinc-200 font-semibold text-sm transition"
-              >
-                {t.ctaOffers}
-              </button>
-            </div>
+              {/* Direct guest preview button */}
+              <div className="pt-2 flex items-center gap-3 flex-wrap">
+                <button
+                  onClick={handleGuestAccess}
+                  className="px-4 py-2.5 rounded-xl bg-[#231a4a] hover:bg-[#2d2160] text-white border border-[#5A33FF55] text-xs font-bold transition flex items-center gap-2 shadow"
+                >
+                  <span>Tester sans inscription (Mode Invité)</span>
+                  <ArrowRight className="w-3.5 h-3.5" />
+                </button>
 
-            {/* Feature Matrix Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-4">
-              <div className="bg-[#18181b] border border-zinc-800 rounded-2xl p-5 space-y-2 hover:border-zinc-700 transition">
-                <div className="w-10 h-10 rounded-xl bg-zinc-800 flex items-center justify-center text-lg">
-                  🎯
-                </div>
-                <h3 className="font-bold text-sm text-white">Zéro Flou & 5 Étapes</h3>
-                <p className="text-xs text-zinc-400 leading-relaxed">
-                  Pas de bavardage générique : reformulation, blocages probables, leviers et 3 actions immédiates pour aujourd'hui.
-                </p>
-              </div>
-
-              <div className="bg-[#18181b] border border-zinc-800 rounded-2xl p-5 space-y-2 hover:border-zinc-700 transition">
-                <div className="w-10 h-10 rounded-xl bg-zinc-800 flex items-center justify-center text-lg">
-                  🧠
-                </div>
-                <h3 className="font-bold text-sm text-white">Psychologie des Biais</h3>
-                <p className="text-xs text-zinc-400 leading-relaxed">
-                  Diagnostic des blocages selon BJ Fogg (Motivation × Capacité × Déclencheur) et contre-poisons cognitifs.
-                </p>
-              </div>
-
-              <div className="bg-[#18181b] border border-zinc-800 rounded-2xl p-5 space-y-2 hover:border-zinc-700 transition">
-                <div className="w-10 h-10 rounded-xl bg-zinc-800 flex items-center justify-center text-lg">
-                  🌐
-                </div>
-                <h3 className="font-bold text-sm text-white">Bâtisseur Web & Studio</h3>
-                <p className="text-xs text-zinc-400 leading-relaxed">
-                  Génération instantanée de pages web persuasives et studio de design visuel adaptés à vos conversions.
-                </p>
+                {onOpenStudio && (
+                  <button
+                    onClick={onOpenStudio}
+                    className="px-4 py-2.5 rounded-xl bg-transparent hover:bg-[#201844] text-[#c4b5fd] hover:text-white border border-[#5A33FF33] text-xs font-semibold transition flex items-center gap-2"
+                  >
+                    <span>Ouvrir le Studio Visuel</span>
+                  </button>
+                )}
               </div>
             </div>
 
-            {/* Trust Footer */}
-            <div className="p-4 bg-zinc-900/60 border border-zinc-800 rounded-2xl flex items-center justify-between text-xs text-zinc-400">
-              <div className="flex items-center gap-2">
-                <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-                <span>{t.guaranteeText}</span>
+            {/* Right Column: Direct Login / Register Box (PAS CACHÉ, PRÉSENT DE SUITE !) */}
+            <div className="lg:col-span-5">
+              <div className="bg-[#1b143c] border border-[#5A33FF55] rounded-3xl p-6 sm:p-7 shadow-2xl space-y-4">
+                {/* Tabs switcher: Se connecter / Créer un compte */}
+                <div className="grid grid-cols-2 gap-1.5 p-1 bg-[#100b24] rounded-2xl border border-[#5A33FF33]">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setAuthMode('login');
+                      setAuthError(null);
+                    }}
+                    className={`py-2 rounded-xl text-xs font-bold transition ${
+                      authMode === 'login'
+                        ? 'bg-gradient-to-r from-[#1E1B8C] to-[#5A33FF] text-white shadow'
+                        : 'text-[#c4b5fd] hover:text-white'
+                    }`}
+                  >
+                    Se connecter
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setAuthMode('register');
+                      setAuthError(null);
+                    }}
+                    className={`py-2 rounded-xl text-xs font-bold transition ${
+                      authMode === 'register'
+                        ? 'bg-gradient-to-r from-[#1E1B8C] to-[#5A33FF] text-white shadow'
+                        : 'text-[#c4b5fd] hover:text-white'
+                    }`}
+                  >
+                    Créer un compte
+                  </button>
+                </div>
+
+                {/* Notifications */}
+                {authError && (
+                  <div className="p-3 rounded-xl bg-rose-950/70 border border-rose-500/60 text-rose-200 text-xs">
+                    {authError}
+                  </div>
+                )}
+                {authSuccess && (
+                  <div className="p-3 rounded-xl bg-emerald-950/70 border border-emerald-500/60 text-emerald-200 text-xs flex items-center gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+                    <span>{authSuccess}</span>
+                  </div>
+                )}
+
+                {/* 1. SE CONNECTER FORM */}
+                {authMode === 'login' && (
+                  <form onSubmit={handleLoginSubmit} className="space-y-4">
+                    <div className="space-y-1.5">
+                      <label className="text-xs font-semibold text-white">Adresse e-mail</label>
+                      <input
+                        type="email"
+                        required
+                        value={email}
+                        onChange={e => setEmail(e.target.value)}
+                        placeholder="votre.email@exemple.com"
+                        className="w-full bg-[#120d28] border border-[#5A33FF44] rounded-xl px-3.5 py-2.5 text-xs text-white placeholder-[#c4b5fd]/40 focus:outline-none focus:border-[#8B70FF]"
+                      />
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <div className="flex items-center justify-between">
+                        <label className="text-xs font-semibold text-white">Mot de passe</label>
+                        <span className="text-[10px] text-[#c4b5fd]/70">Sécurisé</span>
+                      </div>
+                      <div className="relative">
+                        <input
+                          type={showPassword ? 'text' : 'password'}
+                          required
+                          value={password}
+                          onChange={e => setPassword(e.target.value)}
+                          placeholder="••••••••••••"
+                          className="w-full bg-[#120d28] border border-[#5A33FF44] rounded-xl px-3.5 py-2.5 text-xs text-white placeholder-[#c4b5fd]/40 focus:outline-none focus:border-[#8B70FF] pr-10"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setShowPassword(!showPassword)}
+                          className="absolute right-3 top-1/2 -translate-y-1/2 text-[#c4b5fd] hover:text-white"
+                        >
+                          {showPassword ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
+                        </button>
+                      </div>
+                    </div>
+
+                    <button
+                      type="submit"
+                      className="w-full py-3 rounded-2xl bg-gradient-to-r from-[#1E1B8C] to-[#5A33FF] hover:from-[#2a24bf] hover:to-[#7048ff] text-white font-bold text-xs transition shadow-lg flex items-center justify-center gap-2 hover:scale-[1.01]"
+                    >
+                      <Lock className="w-4 h-4" />
+                      <span>Accéder à mon espace Andrea</span>
+                    </button>
+
+                    <div className="text-center pt-1">
+                      <button
+                        type="button"
+                        onClick={() => setAuthMode('register')}
+                        className="text-xs text-[#c4b5fd] hover:text-white underline"
+                      >
+                        Pas encore de compte ? S'inscrire
+                      </button>
+                    </div>
+                  </form>
+                )}
+
+                {/* 2. CRÉER UN COMPTE FORM AVEC LES QUESTIONS DE PROFIL COMPLÈTES */}
+                {authMode === 'register' && (
+                  <form onSubmit={handleRegisterSubmit} className="space-y-3">
+                    {/* Question clé : Nom par lequel Andrea appelle le client */}
+                    <div className="space-y-1">
+                      <label className="text-xs font-bold text-white flex items-center gap-1.5">
+                        <Smile className="w-3.5 h-3.5 text-purple-400" />
+                        <span>Comment Andrea doit-elle vous appeler ?</span>
+                      </label>
+                      <input
+                        type="text"
+                        required
+                        value={preferredCallName}
+                        onChange={e => {
+                          setPreferredCallName(e.target.value);
+                          if (!fullName) setFullName(e.target.value);
+                        }}
+                        placeholder="Ex : Marie, Thomas, Alex..."
+                        className="w-full bg-[#120d28] border border-[#5A33FF66] rounded-xl px-3.5 py-2 text-xs text-white placeholder-[#c4b5fd]/40 focus:outline-none focus:border-[#8B70FF]"
+                      />
+                    </div>
+
+                    <div className="space-y-1">
+                      <label className="text-xs font-semibold text-white">Nom complet</label>
+                      <input
+                        type="text"
+                        required
+                        value={fullName}
+                        onChange={e => setFullName(e.target.value)}
+                        placeholder="Ex : Marie Dupont"
+                        className="w-full bg-[#120d28] border border-[#5A33FF44] rounded-xl px-3.5 py-2 text-xs text-white placeholder-[#c4b5fd]/40 focus:outline-none focus:border-[#8B70FF]"
+                      />
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                      <div className="space-y-1">
+                        <label className="text-xs font-semibold text-white">Adresse e-mail</label>
+                        <input
+                          type="email"
+                          required
+                          value={email}
+                          onChange={e => setEmail(e.target.value)}
+                          placeholder="votre.email@exemple.com"
+                          className="w-full bg-[#120d28] border border-[#5A33FF44] rounded-xl px-3 py-2 text-xs text-white placeholder-[#c4b5fd]/40 focus:outline-none focus:border-[#8B70FF]"
+                        />
+                      </div>
+
+                      <div className="space-y-1">
+                        <label className="text-xs font-semibold text-white">Mot de passe</label>
+                        <input
+                          type="password"
+                          required
+                          value={password}
+                          onChange={e => setPassword(e.target.value)}
+                          placeholder="6 caractères min."
+                          className="w-full bg-[#120d28] border border-[#5A33FF44] rounded-xl px-3 py-2 text-xs text-white placeholder-[#c4b5fd]/40 focus:outline-none focus:border-[#8B70FF]"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Questions de profil : Profil principal */}
+                    <div className="space-y-1">
+                      <label className="text-xs font-semibold text-white flex items-center gap-1.5">
+                        <User className="w-3.5 h-3.5 text-purple-400" />
+                        <span>Votre profil principal</span>
+                      </label>
+                      <select
+                        value={selectedRole}
+                        onChange={e => setSelectedRole(e.target.value as ProfileType)}
+                        className="w-full bg-[#120d28] border border-[#5A33FF44] rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-[#8B70FF]"
+                      >
+                        <option value="createur">🎬 Créateur de Contenu & Vidéaste</option>
+                        <option value="etudiant">🎓 Lycéen ou Étudiant (Devoirs & Révisions)</option>
+                        <option value="independant">💼 Indépendant, Freelance ou Coach</option>
+                        <option value="entreprise">🏢 Entrepreneur ou Dirigeant</option>
+                        <option value="developpeur">💻 Développeur & Tech Builder</option>
+                        <option value="salarie">🧑‍💼 Salarié & Évolution de carrière</option>
+                      </select>
+                    </div>
+
+                    {/* Question de profil : Objectif prioritaire */}
+                    <div className="space-y-1">
+                      <label className="text-xs font-semibold text-white flex items-center gap-1.5">
+                        <Compass className="w-3.5 h-3.5 text-purple-400" />
+                        <span>Votre objectif prioritaire</span>
+                      </label>
+                      <select
+                        value={selectedGoal}
+                        onChange={e => setSelectedGoal(e.target.value)}
+                        className="w-full bg-[#120d28] border border-[#5A33FF44] rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-[#8B70FF]"
+                      >
+                        <option value="Passer à l'action et vaincre la procrastination.">Vaincre la procrastination & passer à l'action immédiate</option>
+                        <option value="Créer du contenu régulier et booster mon audience.">Publier du contenu régulier & développer mon audience</option>
+                        <option value="Réussir mes cours et mes examens sereinement.">Réussir mes cours & examens sans surcharge mentale</option>
+                        <option value="Trouver des clients et signer des devis.">Trouver des clients et développer mes ventes</option>
+                        <option value="Concevoir et coder mes applications rapidement.">Développer et coder mes applications plus vite</option>
+                      </select>
+                    </div>
+
+                    {/* Question de profil : Plus grand défi */}
+                    <div className="space-y-1">
+                      <label className="text-xs font-semibold text-white flex items-center gap-1.5">
+                        <Clock className="w-3.5 h-3.5 text-purple-400" />
+                        <span>Votre plus grand défi actuel</span>
+                      </label>
+                      <select
+                        value={biggestChallenge}
+                        onChange={e => setBiggestChallenge(e.target.value)}
+                        className="w-full bg-[#120d28] border border-[#5A33FF44] rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-[#8B70FF]"
+                      >
+                        <option value="Démarrer la tâche sans remettre au lendemain.">Démarrer la tâche sans remettre au lendemain</option>
+                        <option value="Trop d'idées en tête et dispersion mentale.">Trop d'idées en tête et dispersion mentale</option>
+                        <option value="Manque de temps et surcharge d'urgences.">Manque de temps et surcharge au quotidien</option>
+                        <option value="Peur de mal faire et perfectionnisme bloquant.">Peur de mal faire et perfectionnisme bloquant</option>
+                      </select>
+                    </div>
+
+                    {/* Choix de la formule avec les tarifs demandés : Basique 9€, Pro 14.90€, Ultra 18€ */}
+                    <div className="space-y-1.5 pt-1">
+                      <label className="text-xs font-semibold text-white flex items-center justify-between">
+                        <span>Formule choisie</span>
+                        <span className="text-[10px] text-emerald-400">Sans engagement</span>
+                      </label>
+                      <div className="grid grid-cols-3 gap-2">
+                        <button
+                          type="button"
+                          onClick={() => setSelectedPlan('basique')}
+                          className={`p-2 rounded-xl text-left border transition ${
+                            selectedPlan === 'basique'
+                              ? 'bg-[#231a4a] border-[#5A33FF] ring-1 ring-purple-400'
+                              : 'bg-[#120d28] border-[#5A33FF22] text-[#c4b5fd]'
+                          }`}
+                        >
+                          <div className="text-[10px] font-bold text-white">Basique</div>
+                          <div className="text-xs font-extrabold text-purple-300">9 €/m</div>
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => setSelectedPlan('pro')}
+                          className={`p-2 rounded-xl text-left border transition ${
+                            selectedPlan === 'pro'
+                              ? 'bg-[#231a4a] border-[#5A33FF] ring-1 ring-purple-400'
+                              : 'bg-[#120d28] border-[#5A33FF22] text-[#c4b5fd]'
+                          }`}
+                        >
+                          <div className="text-[10px] font-bold text-white">Pro</div>
+                          <div className="text-xs font-extrabold text-emerald-400">14,90 €/m</div>
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => setSelectedPlan('ultra')}
+                          className={`p-2 rounded-xl text-left border transition ${
+                            selectedPlan === 'ultra'
+                              ? 'bg-[#231a4a] border-[#5A33FF] ring-1 ring-purple-400'
+                              : 'bg-[#120d28] border-[#5A33FF22] text-[#c4b5fd]'
+                          }`}
+                        >
+                          <div className="text-[10px] font-bold text-white">Ultra</div>
+                          <div className="text-xs font-extrabold text-amber-300">18 €/m</div>
+                        </button>
+                      </div>
+                    </div>
+
+                    <div className="pt-1 space-y-2">
+                      <button
+                        type="submit"
+                        className="w-full py-2.5 rounded-2xl bg-gradient-to-r from-[#1E1B8C] to-[#5A33FF] hover:from-[#2a24bf] hover:to-[#7048ff] text-white font-bold text-xs transition shadow-lg flex items-center justify-center gap-2 hover:scale-[1.01]"
+                      >
+                        <CreditCard className="w-4 h-4" />
+                        <span>Créer mon compte & Choisir {selectedPlan.toUpperCase()} ({getPlanPriceLabel(selectedPlan)})</span>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => finalizeAccountCreation('basique', false)}
+                        className="w-full py-2 rounded-xl bg-transparent hover:bg-[#201844] text-[#c4b5fd] hover:text-white border border-[#5A33FF33] text-xs font-medium transition"
+                      >
+                        Tester immédiatement sans payer (Accès libre)
+                      </button>
+                    </div>
+                  </form>
+                )}
               </div>
-              <span className="font-mono text-[11px] text-zinc-500">saydoukebe31@gmail.com</span>
             </div>
           </div>
         )}
 
-        {/* TAB: OFFRES & TARIFS (DÉCLENCHÉ PAR LE BOUTON À GAUCHE) */}
-        {activeSidebarTab === 'offers' && (
-          <div className="max-w-4xl mx-auto space-y-6 animate-in fade-in">
-            <div className="text-center md:text-left space-y-1.5">
-              <div className="inline-block px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-bold">
-                💎 Tarification BehaviorLab AI
-              </div>
-              <h2 className="text-2xl md:text-3xl font-black text-white">{t.offersTitle}</h2>
-              <p className="text-xs text-zinc-400">{t.offersSubtitle}</p>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-              {/* Plan 1: Gratuit */}
-              <div className="bg-[#18181b] border border-zinc-800 rounded-2xl p-5 flex flex-col justify-between space-y-4">
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between">
-                    <h3 className="font-bold text-base text-white">Gratuit</h3>
-                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-zinc-800 text-zinc-400 border border-zinc-700">Démarrage</span>
-                  </div>
-                  <div className="text-3xl font-black text-white">0 €</div>
-                  <p className="text-xs text-zinc-400 leading-relaxed">Accès essentiel pour poser vos premières questions et débloquer une situation.</p>
-                  <ul className="space-y-1.5 text-xs text-zinc-300 pt-2 border-t border-zinc-800">
-                    <li className="flex items-center gap-2"><Check className="w-3.5 h-3.5 text-emerald-400" /> Discussion comportementale</li>
-                    <li className="flex items-center gap-2"><Check className="w-3.5 h-3.5 text-emerald-400" /> Plan d'action en 5 étapes</li>
-                    <li className="flex items-center gap-2"><Check className="w-3.5 h-3.5 text-emerald-400" /> Dictée vocale gratuite</li>
-                  </ul>
-                </div>
-                <button onClick={onEnterApp} className="w-full py-2.5 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-white font-semibold text-xs transition">
-                  Continuer en Gratuit
-                </button>
-              </div>
-
-              {/* Plan 2: Bea 9€ */}
-              <div className="bg-[#18181b] border border-zinc-700 rounded-2xl p-5 flex flex-col justify-between space-y-4 relative">
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between">
-                    <h3 className="font-bold text-base text-white">Andrea</h3>
-                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-purple-500/20 text-purple-300 border border-purple-500/30">Populaire</span>
-                  </div>
-                  <div className="text-3xl font-black text-white">9 € <span className="text-xs font-normal text-zinc-400">/mois</span></div>
-                  <p className="text-xs text-zinc-400 leading-relaxed">Accompagnement comportemental régulier avec mémoire durable des habitudes.</p>
-                  <ul className="space-y-1.5 text-xs text-zinc-300 pt-2 border-t border-zinc-800">
-                    <li className="flex items-center gap-2"><Check className="w-3.5 h-3.5 text-purple-400" /> Tout le plan Gratuit</li>
-                    <li className="flex items-center gap-2"><Check className="w-3.5 h-3.5 text-purple-400" /> Mémoire sémantique continue</li>
-                    <li className="flex items-center gap-2"><Check className="w-3.5 h-3.5 text-purple-400" /> Suivi de la série (Streak)</li>
-                    <li className="flex items-center gap-2"><Check className="w-3.5 h-3.5 text-purple-400" /> Analyse de biais avancée</li>
-                  </ul>
-                </div>
-                <button onClick={onEnterApp} className="w-full py-2.5 rounded-xl bg-white text-black font-bold text-xs hover:bg-zinc-200 transition shadow">
-                  Choisir Andrea · 9 €
-                </button>
-              </div>
-
-              {/* Plan 3: Andrea Pro 14.90€ */}
-              <div className="bg-[#18181b] border border-zinc-800 rounded-2xl p-5 flex flex-col justify-between space-y-4">
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between">
-                    <h3 className="font-bold text-base text-white">Andrea Pro</h3>
-                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-500/20 text-blue-300 border border-blue-500/30">Créateurs & Études</span>
-                  </div>
-                  <div className="text-3xl font-black text-white">14,90 € <span className="text-xs font-normal text-zinc-400">/mois</span></div>
-                  <p className="text-xs text-zinc-400 leading-relaxed">Pour créateurs de contenu, étudiants et indépendants en phase d'accélération.</p>
-                  <ul className="space-y-1.5 text-xs text-zinc-300 pt-2 border-t border-zinc-800">
-                    <li className="flex items-center gap-2"><Check className="w-3.5 h-3.5 text-blue-400" /> Tout le plan Andrea</li>
-                    <li className="flex items-center gap-2"><Check className="w-3.5 h-3.5 text-blue-400" /> Studio de design visuel</li>
-                    <li className="flex items-center gap-2"><Check className="w-3.5 h-3.5 text-blue-400" /> Sous-titres Whisper SRT/VTT</li>
-                    <li className="flex items-center gap-2"><Check className="w-3.5 h-3.5 text-blue-400" /> Accompagnement scolaire</li>
-                  </ul>
-                </div>
-                <button onClick={onEnterApp} className="w-full py-2.5 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-white font-semibold text-xs transition">
-                  Choisir Andrea Pro · 14,90 €
-                </button>
-              </div>
-
-              {/* Plan 4: Andrea Ultra 16€ */}
-              <div className="bg-[#18181b] border border-amber-500/40 rounded-2xl p-5 flex flex-col justify-between space-y-4 relative shadow-lg">
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between">
-                    <h3 className="font-bold text-base text-white">Andrea Ultra</h3>
-                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30">Full-Stack</span>
-                  </div>
-                  <div className="text-3xl font-black text-white">16 € <span className="text-xs font-normal text-zinc-400">/mois</span></div>
-                  <p className="text-xs text-zinc-400 leading-relaxed">Accès complet illimité avec bâtisseur de site web et coach code Python/JS.</p>
-                  <ul className="space-y-1.5 text-xs text-zinc-300 pt-2 border-t border-zinc-800">
-                    <li className="flex items-center gap-2"><Check className="w-3.5 h-3.5 text-amber-400" /> Tout Andrea Pro</li>
-                    <li className="flex items-center gap-2"><Check className="w-3.5 h-3.5 text-amber-400" /> Bâtisseur de site web complet</li>
-                    <li className="flex items-center gap-2"><Check className="w-3.5 h-3.5 text-amber-400" /> Éditeur de code assisté</li>
-                    <li className="flex items-center gap-2"><Check className="w-3.5 h-3.5 text-amber-400" /> Zéro limite de messages</li>
-                  </ul>
-                </div>
-                <button onClick={onEnterApp} className="w-full py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-black font-bold text-xs transition shadow">
-                  Choisir Andrea Ultra · 16 €
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* TAB: BEHAVIORLAB AI (VISION & HISTOIRE DÉCLENCHÉ PAR LE BOUTON À GAUCHE) */}
-        {activeSidebarTab === 'about' && (
-          <div className="max-w-3xl mx-auto space-y-6 animate-in fade-in">
-            <div className="space-y-3">
-              <span className="px-3 py-1 rounded-full bg-zinc-800 border border-zinc-700 text-zinc-300 text-xs font-bold">
-                🧠 Manifeste BehaviorLab AI
-              </span>
-              <h2 className="text-2xl md:text-4xl font-black text-white">
-                {t.aboutTitle}
-              </h2>
-              <p className="text-sm text-zinc-300 leading-relaxed">
-                {t.aboutText}
-              </p>
-            </div>
-
-            <div className="space-y-4 pt-4 border-t border-zinc-800">
-              <div className="bg-[#18181b] border border-zinc-800 rounded-2xl p-5 space-y-2">
-                <h3 className="font-bold text-sm text-white flex items-center gap-2">
-                  <span>1. Pourquoi la majorité des outils IA échouent à vous faire avancer</span>
-                </h3>
-                <p className="text-xs text-zinc-400 leading-relaxed">
-                  Poser 10 questions avant d'aider crée de la surcharge cognitive. Andrea adopte une approche opposée : elle formule immédiatement des hypothèses explicites, propose une lecture claire des blocages et donne 3 actions concrètes pour aujourd'hui.
-                </p>
-              </div>
-
-              <div className="bg-[#18181b] border border-zinc-800 rounded-2xl p-5 space-y-2">
-                <h3 className="font-bold text-sm text-white flex items-center gap-2">
-                  <span>2. Le modèle BJ Fogg intégré</span>
-                </h3>
-                <p className="text-xs text-zinc-400 leading-relaxed">
-                  Le comportement est le résultat de la Motivation, de la Capacité (facilité d'action) et d'un Déclencheur au même instant. Lorsque la motivation chute, Andrea réduit drastiquement la friction pour que vous continuiez à avancer.
-                </p>
-              </div>
-
-              <div className="bg-[#18181b] border border-zinc-800 rounded-2xl p-5 space-y-2">
-                <h3 className="font-bold text-sm text-white flex items-center gap-2">
-                  <span>3. Confidentialité & Indépendance</span>
-                </h3>
-                <p className="text-xs text-zinc-400 leading-relaxed">
-                  Vos projets, vos données et vos analyses restent strictement confidentiels. Aucune revente de données, conformité RGPD intégrale et suppression en 1 clic.
-                </p>
-              </div>
-            </div>
-
-            <div className="pt-4 flex items-center gap-3">
-              <button
-                onClick={onEnterApp}
-                className="px-6 py-3 rounded-2xl bg-white text-black font-bold text-xs hover:bg-zinc-200 transition flex items-center gap-2 shadow"
-              >
-                <span>Démarrer avec Andrea</span>
-                <ArrowRight className="w-4 h-4" />
-              </button>
-            </div>
-          </div>
-        )}
-
-        {/* TAB: CONNEXION / INSCRIPTION */}
-        {activeSidebarTab === 'login' && (
-          <div className="max-w-md mx-auto py-6 space-y-6 animate-in fade-in">
+        {/* SECTION: FORMULES & TARIFS OFFICIELLES (BASIQUE 9€, PRO 14.90€, ULTRA 18€) */}
+        {landingSection === 'offers' && (
+          <div className="space-y-6 animate-in fade-in">
             <div className="text-center space-y-2">
-              <div className="w-12 h-12 rounded-2xl bg-zinc-800 border border-zinc-700 flex items-center justify-center mx-auto text-2xl">
-                🔑
-              </div>
-              <h2 className="text-2xl font-black text-white">Espace Utilisateur Andrea</h2>
-              <p className="text-xs text-zinc-400">Connectez-vous pour retrouver votre mémoire et vos projets.</p>
+              <span className="text-xs font-bold px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+                Tarification Officielle
+              </span>
+              <h2 className="text-3xl font-extrabold text-white">Choisissez la formule adaptée à votre rythme</h2>
+              <p className="text-xs text-[#c4b5fd] max-w-lg mx-auto">
+                Des tarifs clairs et sans surprise. Testez librement ou débloquez l'arsenal créatif complet.
+              </p>
             </div>
 
-            {authSuccessNotice && (
-              <div className="p-3.5 rounded-xl bg-emerald-950/80 border border-emerald-500/60 text-emerald-300 text-xs flex items-center gap-2 animate-in fade-in">
-                <CheckCircle2 className="w-4 h-4 shrink-0 text-emerald-400" />
-                <span>{authSuccessNotice}</span>
-              </div>
-            )}
-
-            <form onSubmit={handleSimulateLogin} className="bg-[#18181b] border border-zinc-800 rounded-2xl p-6 space-y-4 shadow-xl">
-              <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-zinc-300">Adresse e-mail</label>
-                <input
-                  type="email"
-                  required
-                  value={loginEmail}
-                  onChange={e => setLoginEmail(e.target.value)}
-                  placeholder="nom@exemple.com"
-                  className="w-full bg-[#212121] border border-zinc-700 rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-zinc-500"
-                />
-              </div>
-
-              <div className="space-y-1.5">
-                <div className="flex items-center justify-between">
-                  <label className="text-xs font-semibold text-zinc-300">Mot de passe</label>
-                  <a href="#reset" onClick={e => { e.preventDefault(); alert('Lien de réinitialisation envoyé à votre adresse.'); }} className="text-[11px] text-zinc-400 hover:text-white underline">
-                    Oublié ?
-                  </a>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-2">
+              {/* Plan 1: Andrea Basique - 9 € */}
+              <div className="bg-[#1b143c] border border-[#5A33FF33] rounded-3xl p-6 flex flex-col justify-between space-y-5">
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <h3 className="font-bold text-lg text-white">Andrea Basique</h3>
+                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#201844] text-[#c4b5fd]">Essentiel</span>
+                  </div>
+                  <div className="text-3xl font-black text-white">9 € <span className="text-xs font-normal text-[#c4b5fd]">/mois</span></div>
+                  <p className="text-xs text-[#c4b5fd] leading-relaxed">
+                    Le déclencheur d’action quotidien pour vaincre la procrastination et échanger avec Andrea.
+                  </p>
+                  <ul className="space-y-2 text-xs text-[#e2d6ff] pt-3 border-t border-[#5A33FF22]">
+                    <li className="flex items-center gap-2"><Check className="w-4 h-4 text-emerald-400" /> Humaniseur de texte chaleureux & personnel</li>
+                    <li className="flex items-center gap-2"><Check className="w-4 h-4 text-emerald-400" /> Synthèse vocale 100% gratuite</li>
+                    <li className="flex items-center gap-2"><Check className="w-4 h-4 text-emerald-400" /> Plans d'action en 3 étapes directes</li>
+                    <li className="flex items-center gap-2"><Check className="w-4 h-4 text-emerald-400" /> Accès sans engagement, résiliation en 1 clic</li>
+                  </ul>
                 </div>
-                <input
-                  type="password"
-                  required
-                  value={loginPassword}
-                  onChange={e => setLoginPassword(e.target.value)}
-                  placeholder="••••••••••••"
-                  className="w-full bg-[#212121] border border-zinc-700 rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-zinc-500"
-                />
+
+                <button
+                  onClick={() => {
+                    setSelectedPlan('basique');
+                    setAuthMode('register');
+                    setLandingSection('home');
+                  }}
+                  className="w-full py-2.5 rounded-xl bg-[#231a4a] hover:bg-[#2d2160] text-white font-bold text-xs transition border border-[#5A33FF55]"
+                >
+                  Choisir Andrea Basique (9 €)
+                </button>
               </div>
 
-              <button
-                type="submit"
-                className="w-full py-3 rounded-xl bg-white text-black font-bold text-xs hover:bg-zinc-200 transition shadow"
-              >
-                Continuer vers Andrea
-              </button>
+              {/* Plan 2: Andrea Pro - 14,90 € (Mise en avant) */}
+              <div className="bg-[#1f1647] border-2 border-[#8B70FF] rounded-3xl p-6 flex flex-col justify-between space-y-5 relative shadow-2xl scale-[1.02]">
+                <div className="absolute -top-3 right-6 bg-gradient-to-r from-purple-500 to-indigo-500 text-white text-[10px] font-extrabold px-3 py-0.5 rounded-full shadow">
+                  LE PLUS POPULAIRE
+                </div>
 
-              <div className="text-center pt-2 text-xs text-zinc-500">
-                Pas encore de compte ? Saisissez votre adresse ci-dessus pour le créer automatiquement.
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <h3 className="font-bold text-lg text-white">Andrea Pro</h3>
+                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-purple-500/20 text-purple-300">Populaire</span>
+                  </div>
+                  <div className="text-3xl font-black text-white">14,90 € <span className="text-xs font-normal text-[#c4b5fd]">/mois</span></div>
+                  <p className="text-xs text-[#c4b5fd] leading-relaxed">
+                    L'arsenal complet pour créateurs, étudiants et indépendants voulant produire sans interruption.
+                  </p>
+                  <ul className="space-y-2 text-xs text-[#e2d6ff] pt-3 border-t border-[#5A33FF44]">
+                    <li className="flex items-center gap-2"><Check className="w-4 h-4 text-emerald-400" /> Tout ce qui est dans Andrea Basique</li>
+                    <li className="flex items-center gap-2"><Check className="w-4 h-4 text-purple-300" /> Studio Créateur Plein Écran (tous formats)</li>
+                    <li className="flex items-center gap-2"><Check className="w-4 h-4 text-purple-300" /> Téléchargements d'images HD sans filigrane</li>
+                    <li className="flex items-center gap-2"><Check className="w-4 h-4 text-purple-300" /> Compteur de série & dynamique positive</li>
+                    <li className="flex items-center gap-2"><Check className="w-4 h-4 text-purple-300" /> Analyses psychologiques et objections clients</li>
+                  </ul>
+                </div>
+
+                <button
+                  onClick={() => {
+                    setSelectedPlan('pro');
+                    setAuthMode('register');
+                    setLandingSection('home');
+                  }}
+                  className="w-full py-3 rounded-xl bg-gradient-to-r from-[#1E1B8C] to-[#5A33FF] hover:from-[#2a24bf] hover:to-[#7048ff] text-white font-bold text-xs transition shadow-lg"
+                >
+                  Choisir Andrea Pro (14,90 €)
+                </button>
               </div>
-            </form>
+
+              {/* Plan 3: Andrea Ultra - 18 € */}
+              <div className="bg-[#1b143c] border border-[#5A33FF33] rounded-3xl p-6 flex flex-col justify-between space-y-5">
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <h3 className="font-bold text-lg text-white">Andrea Ultra</h3>
+                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300">Illimité</span>
+                  </div>
+                  <div className="text-3xl font-black text-white">18 € <span className="text-xs font-normal text-[#c4b5fd]">/mois</span></div>
+                  <p className="text-xs text-[#c4b5fd] leading-relaxed">
+                    Puissance maximale pour générer des sites web en 1 prompt et coder sans aucune limite.
+                  </p>
+                  <ul className="space-y-2 text-xs text-[#e2d6ff] pt-3 border-t border-[#5A33FF22]">
+                    <li className="flex items-center gap-2"><Check className="w-4 h-4 text-emerald-400" /> Tout ce qui est dans Andrea Pro</li>
+                    <li className="flex items-center gap-2"><Check className="w-4 h-4 text-amber-300" /> Bâtisseur de Sites Web en 1 clic</li>
+                    <li className="flex items-center gap-2"><Check className="w-4 h-4 text-amber-300" /> Éditeur de Code IA & Débogueur</li>
+                    <li className="flex items-center gap-2"><Check className="w-4 h-4 text-amber-300" /> Support prioritaire VIP</li>
+                  </ul>
+                </div>
+
+                <button
+                  onClick={() => {
+                    setSelectedPlan('ultra');
+                    setAuthMode('register');
+                    setLandingSection('home');
+                  }}
+                  className="w-full py-2.5 rounded-xl bg-[#231a4a] hover:bg-[#2d2160] text-white font-bold text-xs transition border border-[#5A33FF55]"
+                >
+                  Choisir Andrea Ultra (18 €)
+                </button>
+              </div>
+            </div>
           </div>
         )}
-      </main>
+      </div>
+
+      {/* MODAL DE PAIEMENT SÉCURISÉ (BASIQUE 9€, PRO 14.90€, ULTRA 18€) */}
+      {showPaymentModal && (
+        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-[#1b143c] border border-[#5A33FF66] rounded-3xl max-w-md w-full p-6 shadow-2xl space-y-5 animate-in zoom-in-95">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <CreditCard className="w-5 h-5 text-purple-400" />
+                <h3 className="font-bold text-base text-white">Validation de votre formule</h3>
+              </div>
+              <button
+                onClick={() => setShowPaymentModal(false)}
+                className="text-xs text-[#c4b5fd] hover:text-white"
+              >
+                Fermer
+              </button>
+            </div>
+
+            <div className="p-3.5 rounded-2xl bg-[#140e2d] border border-[#5A33FF33] space-y-1">
+              <div className="flex items-center justify-between text-xs">
+                <span className="text-[#c4b5fd]">Formule sélectionnée :</span>
+                <span className="font-bold text-white uppercase">
+                  Andrea {selectedPlan} ({getPlanPriceLabel(selectedPlan)})
+                </span>
+              </div>
+              <div className="flex items-center justify-between text-xs">
+                <span className="text-[#c4b5fd]">Appelé au quotidien :</span>
+                <span className="font-semibold text-white">« {preferredCallName || fullName} »</span>
+              </div>
+            </div>
+
+            <div className="space-y-3">
+              <div className="space-y-1">
+                <label className="text-xs font-semibold text-white">Numéro de carte</label>
+                <input
+                  type="text"
+                  value={cardNumber}
+                  onChange={e => setCardNumber(e.target.value)}
+                  className="w-full bg-[#120d28] border border-[#5A33FF44] rounded-xl px-3.5 py-2.5 text-xs text-white font-mono focus:outline-none focus:border-[#8B70FF]"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-1">
+                  <label className="text-xs font-semibold text-white">Expiration</label>
+                  <input
+                    type="text"
+                    value={cardExpiry}
+                    onChange={e => setCardExpiry(e.target.value)}
+                    className="w-full bg-[#120d28] border border-[#5A33FF44] rounded-xl px-3.5 py-2.5 text-xs text-white font-mono focus:outline-none focus:border-[#8B70FF]"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <label className="text-xs font-semibold text-white">CVC</label>
+                  <input
+                    type="text"
+                    value={cardCvc}
+                    onChange={e => setCardCvc(e.target.value)}
+                    className="w-full bg-[#120d28] border border-[#5A33FF44] rounded-xl px-3.5 py-2.5 text-xs text-white font-mono focus:outline-none focus:border-[#8B70FF]"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div className="space-y-2 pt-2">
+              <button
+                disabled={isProcessingPayment}
+                onClick={() => {
+                  setIsProcessingPayment(true);
+                  setTimeout(() => {
+                    finalizeAccountCreation(selectedPlan, true);
+                    setIsProcessingPayment(false);
+                  }, 800);
+                }}
+                className="w-full py-3 rounded-2xl bg-gradient-to-r from-[#1E1B8C] to-[#5A33FF] hover:from-[#2a24bf] hover:to-[#7048ff] text-white font-bold text-xs transition shadow-lg flex items-center justify-center gap-2"
+              >
+                {isProcessingPayment ? (
+                  <span>Validation sécurisée en cours...</span>
+                ) : (
+                  <>
+                    <Shield className="w-4 h-4 text-emerald-400" />
+                    <span>Confirmer et Activer ({getPlanPriceLabel(selectedPlan)})</span>
+                  </>
+                )}
+              </button>
+
+              <button
+                type="button"
+                onClick={() => finalizeAccountCreation(selectedPlan, false)}
+                className="w-full py-2 rounded-xl bg-transparent hover:bg-[#201844] text-[#c4b5fd] hover:text-white text-xs font-medium transition"
+              >
+                Ou activer en mode découverte sans payer maintenant
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

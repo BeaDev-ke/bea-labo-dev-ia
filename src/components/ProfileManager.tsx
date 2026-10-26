@@ -58,7 +58,9 @@ export const ProfileManager: React.FC<ProfileManagerProps> = ({
     try {
       // 1. Désinfection de sécurité anti-XSS
       const cleanName = sanitizeXSS(formData.displayName.trim());
+      const cleanCallName = sanitizeXSS((formData.preferredCallName || formData.displayName).trim());
       const cleanGoal = sanitizeXSS(formData.goal.trim());
+      const cleanChallenge = sanitizeXSS((formData.biggestChallenge || '').trim());
 
       if (!cleanName) {
         setErrorMessage('Le prénom ou pseudonyme est requis.');
@@ -69,7 +71,9 @@ export const ProfileManager: React.FC<ProfileManagerProps> = ({
       const updated: UserProfile = {
         ...formData,
         displayName: cleanName.slice(0, 40),
+        preferredCallName: (cleanCallName || cleanName).slice(0, 40),
         goal: cleanGoal.slice(0, 300),
+        biggestChallenge: cleanChallenge.slice(0, 300),
         lastActive: new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }),
       };
 
@@ -201,10 +205,10 @@ export const ProfileManager: React.FC<ProfileManagerProps> = ({
           2. Personnalisation & Paramètres
         </h3>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <div>
             <label className="block text-xs font-bold text-[#c4b5fd] mb-1.5">
-              Prénom ou Identifiant affiché
+              Prénom ou Nom affiché
             </label>
             <input
               type="text"
@@ -212,6 +216,20 @@ export const ProfileManager: React.FC<ProfileManagerProps> = ({
               onChange={e => setFormData({ ...formData, displayName: e.target.value })}
               placeholder="Ex: Sarah, Alex, Professeur Thomas..."
               className="w-full bg-[#100b24] border border-[#7c3aed]/50 rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-purple-400"
+            />
+          </div>
+
+          <div>
+            <label className="block text-xs font-bold text-white mb-1.5 flex items-center gap-1">
+              <span>Comment Andrea vous appelle</span>
+              <span className="text-amber-400">★</span>
+            </label>
+            <input
+              type="text"
+              value={formData.preferredCallName || ''}
+              onChange={e => setFormData({ ...formData, preferredCallName: e.target.value })}
+              placeholder="Ex: Marie, Sam, Thomas..."
+              className="w-full bg-[#100b24] border border-[#5A33FF88] rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-purple-400"
             />
           </div>
 
@@ -226,8 +244,8 @@ export const ProfileManager: React.FC<ProfileManagerProps> = ({
             >
               <option value="expert">Expert direct (orienté résultats sans détours)</option>
               <option value="bienveillant">Pédagogue bienveillant (encourageant et doux)</option>
-              <option value="synthetique">Synthétique percutant (bullet points et actions)</option>
-              <option value="socratique">Méthode socratique (questions pour vous faire réfléchir)</option>
+              <option value="synthetique">Synthétique percutant (actions concrètes)</option>
+              <option value="socratique">Méthode socratique (questions stimulantes)</option>
             </select>
           </div>
         </div>

@@ -51,29 +51,38 @@ import {
   verifyData, 
   isHoneypotTriggered 
 } from '../utils/security';
+import { generateHumanAndreaResponse, humanizeAndreaResponse } from '../utils/textHumanizer';
 
 export interface AndreaAppPreviewProps {
   onOpenLab: () => void;
+  onOpenStudio?: () => void;
+  onSignOut?: () => void;
+  currentUser?: UserProfile;
 }
 export type BeaAppPreviewProps = AndreaAppPreviewProps;
 
 const DEFAULT_PROFILE: UserProfile = {
-  id: 'usr-1',
-  displayName: 'Alexandre',
-  email: 'saydoukebe31@gmail.com',
+  id: 'usr-client',
+  displayName: 'Mon Espace',
+  email: 'client@andrea.ai',
   profileType: 'createur',
   useCase: 'contenu',
-  goal: 'Publier 1 vidéo par jour et doubler l’engagement sans bloquer sur le montage.',
+  goal: 'Créer du contenu percutant et concrétiser mes projets.',
   schoolCountry: 'France',
-  studyLevel: 'Lycée - Première (Bac)',
+  studyLevel: 'Supérieur',
   preferredStyle: 'expert',
   plan: 'pro',
   lastActive: 'À l\'instant',
-  streakDays: 5,
-  momentumPoints: 140,
+  streakDays: 1,
+  momentumPoints: 60,
 };
 
-export const AndreaAppPreview: React.FC<AndreaAppPreviewProps> = ({ onOpenLab }) => {
+export const AndreaAppPreview: React.FC<AndreaAppPreviewProps> = ({ 
+  onOpenLab, 
+  onOpenStudio, 
+  onSignOut,
+  currentUser 
+}) => {
   const [currentPage, setCurrentPage] = useState<PageView>('chat');
   const [inputMessage, setInputMessage] = useState('');
   const [speakingMsgId, setSpeakingMsgId] = useState<string | null>(null);
@@ -125,19 +134,26 @@ export const AndreaAppPreview: React.FC<AndreaAppPreviewProps> = ({ onOpenLab })
     }
   };
 
-  // Profile State (chargé et vérifié cryptographiquement)
+  // Profile State
   const [userProfile, setUserProfile] = useState<UserProfile>(() => {
+    if (currentUser) return currentUser;
     try {
-      const stored = localStorage.getItem('andrea_user_profile_secure') || localStorage.getItem('bea_user_profile_secure');
+      const stored = localStorage.getItem('andrea_active_session') || localStorage.getItem('andrea_user_profile_secure') || localStorage.getItem('bea_user_profile_secure');
       if (stored) {
         const parsed = JSON.parse(stored);
         return verifyData<UserProfile>(parsed, DEFAULT_PROFILE);
       }
     } catch {
-      // Fallback sécurisé en cas de données corrompues
+      // Fallback
     }
     return DEFAULT_PROFILE;
   });
+
+  useEffect(() => {
+    if (currentUser) {
+      setUserProfile(currentUser);
+    }
+  }, [currentUser]);
 
   // Active use case mode synchronisé avec le profil utilisateur
   const useCase: UseCaseType = userProfile.useCase;
@@ -275,97 +291,9 @@ if __name__ == "__main__":
       momentumPoints: prev.momentumPoints + 5,
     }));
 
-    // Réponse intelligente, adaptative et profonde d'Andrea (sans blocage automatique inventé)
+    // Génération humanisée, naturelle et chaleureuse de la réponse d'Andrea
     setTimeout(() => {
-      const lower = cleanInput.toLowerCase();
-      let responseContent = '';
-
-      const isHelpOrGreeting = /^(bonjour|salut|hello|coucou|qui es-tu|présente-toi)/i.test(cleanInput.trim());
-      const isCodeRequest = /code|script|fonction|python|react|javascript|bug|erreur|api|composant|dev/i.test(lower);
-      const isExplicitStruggle = /peur|bloqu|procrastin|doute|difficile|n'arrive pas|décourag|épuis|angoisse|panique|retard|friction/i.test(lower);
-      const isCreativeOrVideo = /vidéo|montage|tiktok|reels|youtube|accroche|hook|script|contenu|post|cam/i.test(lower);
-      const isBusinessOrSales = /client|prix|vente|offre|prospect|devis|négocier|chiffre|marketing|déléguer/i.test(lower);
-      const isStudyRequest = useCase === 'scolaire' || /cours|révis|examen|devoir|formule|leçon/i.test(lower);
-
-      if (isHelpOrGreeting) {
-        responseContent = `Bonjour ! Je suis Andrea, ton partenaire d'analyse et de stratégie propulsé par BehaviorLab AI.
-
-Je t'accompagne sur tes projets, tes créations de contenu, ton code et tes décisions stratégiques. Dis-moi ce sur quoi tu veux travailler aujourd'hui, et nous passons directement à l'action.`;
-      } else if (isCodeRequest) {
-        responseContent = `Voici une architecture propre, optimisée et prête à l'emploi pour répondre à ton besoin technique.
-
-\`\`\`python
-# Implémentation modulaire et typée
-from typing import Dict, Any
-
-def process_pipeline(data: Dict[str, Any]) -> Dict[str, Any]:
-    """Exécute le pipeline de traitement de manière déterministe."""
-    result = {
-        "status": "success",
-        "processed_keys": list(data.keys()),
-        "count": len(data)
-    }
-    return result
-\`\`\`
-
-**Points clés d'optimisation :**
-- **Découplage strict** : Architecture modulaire, facilement testable et sans effets de bord.
-- **Gestion des cas limites** : Aucune mutation d'état involontaire.
-- Tu peux injecter ce module directement dans l'onglet **Éditeur de Code** pour le tester en direct.`;
-      } else if (isExplicitStruggle) {
-        // Uniquement si l'utilisateur exprime EXPLICITEMENT une difficulté ou un blocage
-        responseContent = `Je comprends parfaitement ce qui se passe ici. Ce que tu ressens n'est pas un manque de volonté, mais une réponse cognitive normale face à un seuil d'incertitude ou de surcharge.
-
-**Analyse de la dynamique :**
-- Le cerveau interprète la tâche comme une charge diffuse ou un risque d'échec, ce qui enclenche un réflexe d'évitement protecteur.
-- La solution n'est pas de forcer avec de la volonté brute, mais de baisser drastiquement le seuil d'activation immédiat.
-
-**Le levier immédiat :**
-1. **Règle des 5 minutes sans enjeu** : Lance un chronomètre de 5 minutes. Engage-toi uniquement à poser les yeux sur le support ou écrire 3 phrases brutes, sans aucun jugement de qualité.
-2. **Scission du livrable** : Définis uniquement la première action physique observable (ouvrir le document, créer un fichier).
-
-On démarre sur ces 5 premières minutes ensemble ?`;
-      } else if (isCreativeOrVideo) {
-        responseContent = `Excellente orientation. Pour capter et maintenir l'attention dans un environnement saturé, la clé réside dans la vitesse de transmission du signal utile.
-
-**Les axes stratégiques pour ton contenu :**
-1. **L'accroche disruptive (0-3s)** : Formule une antithèse ou brise une croyance reçue. Évite les introductions conventionnelles.
-2. **La progression rythmique** : Alterne une affirmation forte et une démonstration visuelle concrète toutes les 4 à 6 secondes.
-3. **La clarté cognitive** : Une seule idée majeure par format. Dès qu'une seconde idée apparaît, conserve-la pour la publication suivante.
-
-Souhaites-tu qu'on rédige ensemble 3 propositions de hooks percutants sur ce sujet ?`;
-      } else if (isBusinessOrSales) {
-        responseContent = `Sur ce volet stratégique, la valeur perçue découle directement de la précision de ton positionnement et de la clarté du bénéfice pour ton interlocuteur.
-
-**Grille d'analyse stratégique :**
-- **Inversion du risque** : Plus ton offre supprime l'incertitude pour ton client (garantie claire, étapes lisibles), plus la décision devient évidente.
-- **Cadrage sur le coût de l'inaction** : Montre concrètement ce que coûte de ne pas résoudre le problème maintenant plutôt que de te justifier sur ton prix.
-- **Posture de conseil affirmée** : Présente ton approche comme un diagnostic d'expert plutôt que comme une argumentation commerciale défensive.
-
-Quel est l'enjeu précis ou l'objection principale à laquelle tu fais face ?`;
-      } else if (isStudyRequest) {
-        responseContent = `Voici la démarche optimale pour ancrer cette notion en profondeur tout en préservant ta clarté mentale :
-
-**1. Déconstruction de la notion (Principe de Feynman) :**
-- Isole la règle ou le théorème fondamental.
-- Reformule-le avec des mots du quotidien comme si tu l'expliquais à un collègue.
-
-**2. Pratique active immédiate :**
-- Résous 1 seul cas d'application représentatif immédiatement après la lecture.
-- Identifie l'étape exacte où un doute apparaît pour cibler la question.
-
-Veux-tu qu'on applique cette déconstruction pas-à-pas sur ton sujet ?`;
-      } else {
-        responseContent = `Analyse stratégique de ta demande :
-
-Pour avancer avec pertinence et efficacité sur cette question, voici les points d'appui essentiels :
-
-1. **Clarification de l'axe prioritaire** : Identifier le facteur qui aura l'effet de levier le plus puissant (80/20) sans dispersion d'énergie.
-2. **Méthode d'exécution directe** : Structurer la progression par étapes séquentielles, mesurables et vérifiables.
-3. **Validation rapide** : Tester la première itération concrète afin de confronter l'idée au réel le plus tôt possible.
-
-Sur quel aspect spécifique souhaites-tu que nous approfondissions en premier ?`;
-      }
+      const responseContent = generateHumanAndreaResponse(cleanInput, userProfile);
 
       const assistantMsg: ChatMessage = {
         id: `a-${Date.now()}`,
@@ -375,7 +303,7 @@ Sur quel aspect spécifique souhaites-tu que nous approfondissions en premier ?`
         securityShield: true,
       };
       setMessages([...newMsgs, assistantMsg]);
-    }, 700);
+    }, 600);
   };
 
   const completeDailyChallenge = () => {
@@ -487,6 +415,27 @@ Sur quel aspect spécifique souhaites-tu que nous approfondissions en premier ?`
             Nouvelle discussion
           </button>
 
+          {/* NOM PAR LEQUEL ANDREA/BEA APPELLE LE CLIENT AU DESSUS DES MENUS */}
+          <div className="bg-[#201844] border border-[#5A33FF55] rounded-2xl p-3 shadow-md space-y-1">
+            <div className="flex items-center justify-between">
+              <span className="text-[10px] font-bold text-[#c4b5fd] uppercase tracking-wider">
+                Espace Personnel
+              </span>
+              <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+                {userProfile.plan ? userProfile.plan.toUpperCase() : 'BASIQUE'}
+              </span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-base">👋</span>
+              <div className="truncate">
+                <span className="text-[10px] text-[#c4b5fd] block">Andrea vous appelle :</span>
+                <span className="text-xs font-extrabold text-white truncate block">
+                  « {userProfile.preferredCallName || userProfile.displayName} »
+                </span>
+              </div>
+            </div>
+          </div>
+
           {/* Navigation Menu */}
           <div className="space-y-1">
             {[
@@ -545,11 +494,17 @@ Sur quel aspect spécifique souhaites-tu que nous approfondissions en premier ?`
       <div className="flex-1 flex flex-col bg-[#181135] overflow-hidden">
         {/* TOP NAVIGATION BAR - MENUS ALIGNÉS À DROITE AVEC THÈME VIOLET FONCÉ */}
         <div className="bg-[#150f2e] px-4 py-2 border-b border-[#5A33FF33] flex items-center justify-between gap-3 shrink-0">
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-3">
             <span className="font-extrabold text-sm text-white">Andrea</span>
             <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-[#231a4a] text-[#c4b5fd] border border-[#5A33FF33]">
               BehaviorLab AI
             </span>
+            <div className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-[#201844] border border-[#5A33FF44] text-xs">
+              <span className="text-amber-400">👋</span>
+              <span className="text-xs font-bold text-white">
+                {userProfile.preferredCallName || userProfile.displayName}
+              </span>
+            </div>
           </div>
 
           {/* Menus alignés à droite */}
@@ -578,6 +533,16 @@ Sur quel aspect spécifique souhaites-tu que nous approfondissions en premier ?`
                 {tab.label}
               </button>
             ))}
+            {onOpenStudio && (
+              <button
+                onClick={onOpenStudio}
+                className="ml-1.5 px-3 py-1.5 rounded-lg bg-gradient-to-r from-purple-900 to-indigo-900 hover:from-purple-800 hover:to-indigo-800 border border-purple-500 text-white text-xs font-bold whitespace-nowrap shadow flex items-center gap-1.5 transition"
+                title="Ouvrir le Studio Créateur en Plein Écran"
+              >
+                <Film className="w-3.5 h-3.5 text-purple-300" />
+                <span>🎨 Studio Plein Écran</span>
+              </button>
+            )}
             <button
               onClick={onOpenLab}
               className="ml-1.5 px-3 py-1.5 rounded-lg bg-transparent hover:bg-[#1E1B8C]/40 border border-[#5A33FF] text-white text-xs font-medium whitespace-nowrap shadow-sm flex items-center gap-1.5 transition"
@@ -585,6 +550,15 @@ Sur quel aspect spécifique souhaites-tu que nous approfondissions en premier ?`
               <Wand2 className="w-3.5 h-3.5 text-[#8B70FF]" />
               <span>🧪 Labo Dev</span>
             </button>
+            {onSignOut && (
+              <button
+                onClick={onSignOut}
+                className="ml-1 px-2.5 py-1.5 rounded-lg bg-[#201844] hover:bg-rose-950/60 border border-[#5A33FF33] text-[#c4b5fd] hover:text-rose-200 text-xs font-medium whitespace-nowrap transition"
+                title="Se déconnecter et revenir à la page de connexion"
+              >
+                Déconnexion
+              </button>
+            )}
           </div>
         </div>
 
