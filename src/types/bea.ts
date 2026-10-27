@@ -52,6 +52,11 @@ export interface DiffLine {
   newLineNumber?: number;
 }
 
+export interface WebSource {
+  title: string;
+  uri: string;
+}
+
 export interface ChatMessage {
   id: string;
   role: 'user' | 'assistant';
@@ -59,6 +64,8 @@ export interface ChatMessage {
   timestamp: string;
   attachmentName?: string;
   securityShield?: boolean;
+  webSources?: WebSource[];
+  usedWebSearch?: boolean;
 }
 
 export type ProfileType = 

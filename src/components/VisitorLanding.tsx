@@ -258,16 +258,25 @@ export const VisitorLanding: React.FC<VisitorLandingProps> = ({
               </div>
 
               <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black text-white tracking-tight leading-[1.15]">
-                L'intelligence qui transforme vos idées en <span className="bg-gradient-to-r from-[#8B70FF] to-[#c4b5fd] bg-clip-text text-transparent">actions concrètes</span>.
+                Clarifier une idée floue et la transformer en <span className="bg-gradient-to-r from-[#8B70FF] to-[#c4b5fd] bg-clip-text text-transparent">projet concret</span>.
               </h1>
 
               <p className="text-sm sm:text-base text-[#c4b5fd] leading-relaxed max-w-xl">
-                Conçue par <strong>BehaviorLab AI</strong>, Andrea s'adapte à votre profil et vous appelle directement par votre prénom. Que vous soyez <strong>créateur de contenu</strong>, <strong>lycéen ou étudiant</strong>, <strong>freelance</strong> ou <strong>entrepreneur</strong>, découvrez des conseils clairs, un studio de création visuelle et un accompagnement sans stress.
+                Débloquez vos situations grâce aux <strong>biais cognitifs</strong> avec un <strong>plan clair en 3 étapes</strong> pour avancer sans se perdre. Générez en un seul prompt un <strong>site web complet</strong> (présentation, tarifs, code prêt à déployer), profitez d'un <strong>accompagnement scolaire</strong> et d'un <strong>accompagnement à la création de vidéo et visuel</strong> (9:16), avec <strong>recherche Web en direct</strong>.
               </p>
 
-              <div className="pt-2 flex items-center gap-3 flex-wrap">
-                <span className="text-xs text-[#a78bfa] font-semibold flex items-center gap-2">
-                  <span>🔒 Accès sécurisé : connectez-vous ou créez votre compte ci-contre</span>
+              <div className="pt-2 flex items-center gap-2 flex-wrap">
+                <span className="text-[11px] px-2.5 py-1 rounded-full bg-[#1b143c] text-purple-300 border border-purple-500/40 font-semibold">
+                  🎯 Idée floue → Projet concret
+                </span>
+                <span className="text-[11px] px-2.5 py-1 rounded-full bg-[#1b143c] text-purple-300 border border-purple-500/40 font-semibold">
+                  🧠 Plan en 3 étapes
+                </span>
+                <span className="text-[11px] px-2.5 py-1 rounded-full bg-[#1b143c] text-purple-300 border border-purple-500/40 font-semibold">
+                  🌐 Site Web en 1 prompt
+                </span>
+                <span className="text-[11px] px-2.5 py-1 rounded-full bg-[#1b143c] text-cyan-300 border border-cyan-500/40 font-semibold">
+                  🔍 Recherche Web en direct
                 </span>
               </div>
             </div>

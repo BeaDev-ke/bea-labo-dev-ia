@@ -92,6 +92,8 @@ export const AndreaAppPreview: React.FC<AndreaAppPreviewProps> = ({
   const [isRecordingVoice, setIsRecordingVoice] = useState(false);
   const [showPlusMenu, setShowPlusMenu] = useState(false);
   const [modelChoice, setModelChoice] = useState<'rapide' | 'puissant'>('rapide');
+  const [enableWebSearch, setEnableWebSearch] = useState<boolean>(true);
+  const [isLoadingResponse, setIsLoadingResponse] = useState<boolean>(false);
   
   // WhatsApp-style automatic scroll to latest message
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
@@ -309,18 +311,61 @@ if __name__ == "__main__":
       handleUpdateProfile(updatedProfile);
     }
 
-    // Réponse humanisée d'Andrea
-    setTimeout(() => {
-      const replyText = generateHumanAndreaResponse(sanitizedText, userProfile);
+    setIsLoadingResponse(true);
+
+    // Requête vers le moteur Andrea (serveur @google/genai avec recherche web ou moteur local de secours)
+    (async () => {
+      let replyText = '';
+      let webSources: { title: string; uri: string }[] = [];
+      let usedWebSearch = false;
+
+      try {
+        const response = await fetch('/api/andrea/chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            message: sanitizedText,
+            profileType: userProfile.profileType,
+            callName: userProfile.preferredCallName || userProfile.displayName,
+            enableWebSearch: enableWebSearch,
+          }),
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          if (data && data.reply && !data.useLocalFallback) {
+            replyText = data.reply;
+            webSources = data.webSources || [];
+            usedWebSearch = data.usedWebSearch || false;
+          }
+        }
+      } catch (err) {
+        console.warn('Erreur API backend, utilisation du moteur local', err);
+      }
+
+      if (!replyText) {
+        replyText = generateHumanAndreaResponse(sanitizedText, userProfile);
+        if (enableWebSearch && (sanitizedText.toLowerCase().includes('recherche') || sanitizedText.toLowerCase().includes('web') || sanitizedText.toLowerCase().includes('internet'))) {
+          usedWebSearch = true;
+          webSources = [
+            { title: "BehaviorLab AI Knowledge Index", uri: "https://behaviorlab.ai" }
+          ];
+        }
+      }
+
       const assistantMsg: ChatMessage = {
         id: (Date.now() + 1).toString(),
         role: 'assistant',
         content: replyText,
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
         securityShield: true,
+        webSources,
+        usedWebSearch,
       };
+
       setMessages(prev => [...prev, assistantMsg]);
-    }, 450);
+      setIsLoadingResponse(false);
+    })();
   };
 
   // Validation du micro-défi quotidien
@@ -709,6 +754,29 @@ if __name__ == "__main__":
 
                     <div className="text-sm leading-relaxed whitespace-pre-line">{msg.content}</div>
 
+                    {msg.webSources && msg.webSources.length > 0 && (
+                      <div className="mt-3 pt-2 border-t border-[#5A33FF22] space-y-1">
+                        <div className="flex items-center gap-1.5 text-[10px] font-bold text-cyan-300">
+                          <Globe className="w-3 h-3 text-cyan-400" />
+                          <span>Sources Web consultées en direct :</span>
+                        </div>
+                        <div className="flex flex-wrap gap-1.5">
+                          {msg.webSources.map((source, idx) => (
+                            <a
+                              key={idx}
+                              href={source.uri}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="inline-flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-lg bg-[#241c4a] hover:bg-[#34276d] text-cyan-200 border border-cyan-500/30 transition truncate max-w-xs"
+                            >
+                              <ExternalLink className="w-2.5 h-2.5 shrink-0" />
+                              <span className="truncate">{source.title || source.uri}</span>
+                            </a>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
                     {msg.role === 'assistant' && (
                       <div className="flex flex-wrap items-center gap-2 mt-3 pt-2.5 border-t border-[#5A33FF33] text-xs">
                         <button
@@ -744,6 +812,16 @@ if __name__ == "__main__":
                   </div>
                 ))}
 
+                {/* Loading indicator */}
+                {isLoadingResponse && (
+                  <div className="p-3.5 rounded-2xl bg-[#1b143c] border border-[#5A33FF44] text-[#c4b5fd] max-w-md shadow-lg flex items-center gap-2.5 animate-pulse">
+                    <Sparkles className="w-4 h-4 text-purple-400 animate-spin" />
+                    <span className="text-xs font-semibold">
+                      Andrea analyse {enableWebSearch ? 'et consulte le Web en direct' : 'votre demande'}...
+                    </span>
+                  </div>
+                )}
+
                 {/* Anchor for auto-scroll */}
                 <div ref={messagesEndRef} />
               </div>
@@ -751,9 +829,60 @@ if __name__ == "__main__":
 
 
             {/* CASE ENVOYER UN MESSAGE STRICTEMENT ANCRÉE EN BAS (STYLE WHATSAPP) */}
-            <div className="p-3 md:p-4 bg-[#110d24] border-t border-[#5A33FF33] shrink-0 z-20 shadow-2xl">
-              <div className="max-w-4xl mx-auto w-full">
+            <div className="p-3 md:p-4 bg-[#110d24] border-t border-[#5A33FF33] shrink-0 z-20 shadow-2xl space-y-2">
+              <div className="max-w-4xl mx-auto w-full space-y-2">
                 
+                {/* PILIERS DE PROMPTS CLÉS DEMANDÉS */}
+                <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none text-[11px]">
+                  <span className="text-[#a78bfa] font-bold text-[10px] uppercase tracking-wider shrink-0 flex items-center gap-1">
+                    <Sparkles className="w-3 h-3 text-amber-400" />
+                    Prompts :
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => setInputMessage("Comment clarifier mon idée floue et la transformer en projet concret ?")}
+                    className="px-2.5 py-1 rounded-full bg-[#1b143c] hover:bg-[#2b2055] text-[#c4b5fd] hover:text-white border border-[#5A33FF44] transition shrink-0 flex items-center gap-1.5 shadow-sm"
+                  >
+                    <span>🎯 Idée floue → Projet concret</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setInputMessage("J'ai un blocage, aide-moi à débloquer ma situation grâce aux biais cognitifs avec un plan clair en 3 étapes :")}
+                    className="px-2.5 py-1 rounded-full bg-[#1b143c] hover:bg-[#2b2055] text-[#c4b5fd] hover:text-white border border-[#5A33FF44] transition shrink-0 flex items-center gap-1.5 shadow-sm"
+                  >
+                    <span>🧠 Biais cognitifs (Plan en 3 étapes)</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setInputMessage("Génère en un seul prompt un site web complet avec page de présentation, tarifs et code prêt à être déployé :")}
+                    className="px-2.5 py-1 rounded-full bg-[#1b143c] hover:bg-[#2b2055] text-[#c4b5fd] hover:text-white border border-[#5A33FF44] transition shrink-0 flex items-center gap-1.5 shadow-sm"
+                  >
+                    <span>🌐 1 Prompt : Site Web complet</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setInputMessage("Accompagnement scolaire : comment réviser efficacement et préparer mes examens sans stress ?")}
+                    className="px-2.5 py-1 rounded-full bg-[#1b143c] hover:bg-[#2b2055] text-[#c4b5fd] hover:text-white border border-[#5A33FF44] transition shrink-0 flex items-center gap-1.5 shadow-sm"
+                  >
+                    <span>🎓 Accompagnement scolaire</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setInputMessage("Accompagnement vidéo et visuel : donne-moi 3 hooks percutants et la structure 9:16 pour capter l'attention dès les 3 premières secondes :")}
+                    className="px-2.5 py-1 rounded-full bg-[#1b143c] hover:bg-[#2b2055] text-[#c4b5fd] hover:text-white border border-[#5A33FF44] transition shrink-0 flex items-center gap-1.5 shadow-sm"
+                  >
+                    <span>🎬 Vidéo & Visuel (9:16)</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setInputMessage("Fais une recherche sur le Web pour me donner les informations les plus récentes sur : ")}
+                    className="px-2.5 py-1 rounded-full bg-[#1b143c] hover:bg-[#2b2055] text-cyan-300 hover:text-white border border-cyan-500/40 transition shrink-0 flex items-center gap-1.5 shadow-sm"
+                  >
+                    <Globe className="w-3 h-3 text-cyan-400" />
+                    <span>🔍 Recherche Web en direct</span>
+                  </button>
+                </div>
+
                 {/* Invisible Honeypot field for bot trapping */}
                 <input 
                   type="text" 
@@ -789,7 +918,7 @@ if __name__ == "__main__":
 
                   {/* Actions Bar */}
                   <div className="flex items-center justify-between pt-1 px-1">
-                    <div className="flex items-center gap-1.5">
+                    <div className="flex items-center gap-1.5 flex-wrap">
                       {/* Plus options popup */}
                       <div className="relative">
                         <button
@@ -804,26 +933,66 @@ if __name__ == "__main__":
                         </button>
 
                         {showPlusMenu && (
-                          <div className="absolute bottom-10 left-0 bg-[#161033] border border-[#5A33FF55] rounded-2xl shadow-2xl p-2 w-64 z-50 space-y-1 animate-in fade-in zoom-in-95">
+                          <div className="absolute bottom-10 left-0 bg-[#161033] border border-[#5A33FF55] rounded-2xl shadow-2xl p-2 w-72 z-50 space-y-1 animate-in fade-in zoom-in-95">
                             <button
                               type="button"
                               onClick={() => {
-                                setInputMessage("Donne-moi un plan d'action en 3 étapes simples pour avancer aujourd'hui :");
+                                setInputMessage("Comment clarifier mon idée floue et la transformer en projet concret ?");
                                 setShowPlusMenu(false);
                               }}
                               className="w-full text-left px-2.5 py-1.5 rounded-xl text-xs text-[#E2D6FF] hover:bg-[#252245] hover:text-white transition flex items-center gap-2"
                             >
-                              <span>🎯 Plan d'action rapide</span>
+                              <span>🎯 Clarifier une idée floue</span>
                             </button>
                             <button
                               type="button"
                               onClick={() => {
-                                setInputMessage("Analyse ce blocage et donne-moi les leviers concrets pour passer à l'action :");
+                                setInputMessage("Donne-moi un plan clair en 3 étapes grâce aux biais cognitifs pour débloquer ma situation :");
                                 setShowPlusMenu(false);
                               }}
                               className="w-full text-left px-2.5 py-1.5 rounded-xl text-xs text-[#E2D6FF] hover:bg-[#252245] hover:text-white transition flex items-center gap-2"
                             >
-                              <span>🧠 Analyser un blocage</span>
+                              <span>🧠 Débloquer avec les biais cognitifs</span>
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setInputMessage("Génère en un seul prompt un site web complet (page de présentation, tarifs, code prêt à déployer) pour :");
+                                setShowPlusMenu(false);
+                              }}
+                              className="w-full text-left px-2.5 py-1.5 rounded-xl text-xs text-[#E2D6FF] hover:bg-[#252245] hover:text-white transition flex items-center gap-2"
+                            >
+                              <span>🌐 Générer un site web en 1 prompt</span>
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setInputMessage("Accompagnement scolaire : aide-moi à réviser et préparer mon examen sur le sujet :");
+                                setShowPlusMenu(false);
+                              }}
+                              className="w-full text-left px-2.5 py-1.5 rounded-xl text-xs text-[#E2D6FF] hover:bg-[#252245] hover:text-white transition flex items-center gap-2"
+                            >
+                              <span>🎓 Accompagnement scolaire</span>
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setInputMessage("Accompagnement vidéo & visuel : hooks percutants et cadre 9:16 pour mon sujet :");
+                                setShowPlusMenu(false);
+                              }}
+                              className="w-full text-left px-2.5 py-1.5 rounded-xl text-xs text-[#E2D6FF] hover:bg-[#252245] hover:text-white transition flex items-center gap-2"
+                            >
+                              <span>🎬 Vidéo & Visuel 9:16</span>
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setInputMessage("Fais une recherche sur Internet et donne-moi les dernières informations sur :");
+                                setShowPlusMenu(false);
+                              }}
+                              className="w-full text-left px-2.5 py-1.5 rounded-xl text-xs text-cyan-300 hover:bg-[#252245] hover:text-white transition flex items-center gap-2"
+                            >
+                              <span>🔍 Recherche Web en direct</span>
                             </button>
                           </div>
                         )}
@@ -837,6 +1006,21 @@ if __name__ == "__main__":
                         title="Basculer entre modèle instantané et approfondi"
                       >
                         {modelChoice === 'rapide' ? '⚡ Instant' : '🧠 Approfondi'}
+                      </button>
+
+                      {/* Web Search Skill Toggle */}
+                      <button
+                        type="button"
+                        onClick={() => setEnableWebSearch(!enableWebSearch)}
+                        className={`text-[10px] font-bold px-2 py-0.5 rounded-full border transition flex items-center gap-1 ${
+                          enableWebSearch
+                            ? 'bg-cyan-950/60 text-cyan-300 border-cyan-500/50 shadow-sm'
+                            : 'bg-[#201844] text-zinc-400 border-zinc-700'
+                        }`}
+                        title="Activer ou désactiver la recherche Web en direct (Accès Internet d'Andrea)"
+                      >
+                        <Globe className={`w-3 h-3 ${enableWebSearch ? 'text-cyan-400 animate-pulse' : 'text-zinc-500'}`} />
+                        <span>{enableWebSearch ? 'Web : Actif' : 'Web : Inactif'}</span>
                       </button>
                     </div>
 

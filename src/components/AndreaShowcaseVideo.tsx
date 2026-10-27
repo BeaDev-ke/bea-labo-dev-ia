@@ -12,7 +12,9 @@ import {
   Globe, 
   Film, 
   CheckCircle2, 
-  Zap
+  Zap,
+  GraduationCap,
+  Compass
 } from 'lucide-react';
 import { andreaVoice } from '../utils/speech';
 
@@ -26,27 +28,27 @@ interface Chapter {
 const CHAPTERS: Chapter[] = [
   { 
     id: 0, 
-    title: 'Questions / Réponses avec Andrea', 
-    badge: '1. Coaching & Plan d\'Action',
-    script: "Bonjour, je suis Andrea. Dites-moi ce qui vous bloque aujourd'hui, et nous construisons ensemble un plan clair en trois étapes pour avancer sans stress."
+    title: 'Clarifier une idée floue & Débloquer la situation', 
+    badge: '1. Biais Cognitifs & Plan en 3 Étapes',
+    script: "Bonjour, je suis Andrea. Ma mission : clarifier une idée floue et la transformer en projet concret. Débloquer des situations grâce à des biais cognitifs, avec un plan clair en trois étapes pour avancer sans se perdre."
   },
   { 
     id: 1, 
-    title: 'Création de Site Web en 1 prompt', 
+    title: 'Générer en 1 prompt un site web complet', 
     badge: '2. Générateur de Site Web',
-    script: "Pour vos sites web, décrivez simplement votre projet en une phrase. Andrea génère un code complet, moderne et prêt pour Vercel."
+    script: "Pour vos sites web : générer en un seul prompt un site web complet, avec page de présentation, tarifs, et une génération ultra rapide de code prêt à être déployé."
   },
   { 
     id: 2, 
-    title: 'Montage Vidéo & Formats Courts', 
-    badge: '3. Studio de Montage & Rétention',
-    script: "Pour vos vidéos, le studio prépare vos accroches percutantes et vos sous-titres au format vertical en quelques clics."
+    title: 'Accompagnement Scolaire, Vidéo & Visuel', 
+    badge: '3. Scolaire & Formats Verticaux',
+    script: "Accompagnement scolaire pour vos cours et examens, et accompagnement à la création de vidéo et de visuel au format vertical : je vous guide pas à pas."
   },
   { 
     id: 3, 
-    title: 'Signature Andrea & BehaviorLab AI', 
-    badge: '4. Signature Officielle',
-    script: "Andrea, propulsée par BehaviorLab I.A. L'intelligence stratégique qui concrétise vos projets sans friction."
+    title: 'Recherche Web en Direct & Signature', 
+    badge: '4. Recherche Web & BehaviorLab AI',
+    script: "Grâce au skill de recherche web en direct, j'accède à Internet pendant nos conversations. Andrea, propulsée par BehaviorLab I.A., concrétise vos projets sans friction."
   }
 ];
 
@@ -60,7 +62,6 @@ export const AndreaShowcaseVideo: React.FC = () => {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const progressTimerRef = useRef<NodeJS.Timeout | null>(null);
   const postSpeechTimerRef = useRef<NodeJS.Timeout | null>(null);
-  const isTransitioningRef = useRef(false);
 
   const clearTimers = () => {
     if (progressTimerRef.current) {
@@ -91,11 +92,10 @@ export const AndreaShowcaseVideo: React.FC = () => {
   // Déroulement d'un chapitre sans coupure de voix
   const playChapter = useCallback((index: number) => {
     clearTimers();
-    isTransitioningRef.current = false;
     setChapterProgress(0);
 
     const currentChapter = CHAPTERS[index];
-    const estimatedDurationMs = isMuted ? 8000 : 9000;
+    const estimatedDurationMs = isMuted ? 8500 : 10000;
     const intervalMs = 100;
     const step = intervalMs / estimatedDurationMs;
 
@@ -123,11 +123,11 @@ export const AndreaShowcaseVideo: React.FC = () => {
         }, 2200);
       });
     } else {
-      // En mode muet, attendre 8 secondes puis passer au chapitre suivant
+      // En mode muet, attendre 8.5 secondes puis passer au chapitre suivant
       postSpeechTimerRef.current = setTimeout(() => {
         setChapterProgress(1);
         advanceToNextChapter(index);
-      }, 8000);
+      }, 8500);
     }
   }, [isMuted, advanceToNextChapter]);
 
@@ -235,23 +235,23 @@ export const AndreaShowcaseVideo: React.FC = () => {
         <div className="absolute -top-20 -left-20 w-80 h-80 bg-purple-600/10 rounded-full blur-3xl pointer-events-none" />
         <div className="absolute -bottom-20 -right-20 w-80 h-80 bg-indigo-600/10 rounded-full blur-3xl pointer-events-none" />
 
-        {/* SCENE 0: QUESTIONS / RÉPONSES AVEC ANDREA */}
+        {/* SCENE 0: CLARIFIER UNE IDÉE FLOUE & DÉBLOQUER GRÂCE AUX BIAIS COGNITIFS */}
         {activeChapterIndex === 0 && (
           <div className="w-full h-full p-4 sm:p-8 flex flex-col justify-between transition-opacity duration-700 ease-in-out">
             <div className="flex items-center justify-between">
               <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-purple-950/80 border border-purple-500/40 text-purple-300 text-xs font-bold shadow">
-                <MessageSquare className="w-3.5 h-3.5 text-amber-400" />
-                <span>1. Coaching & Questions-Réponses en Direct</span>
+                <Compass className="w-3.5 h-3.5 text-amber-400" />
+                <span>1. Clarifier une idée floue & Débloquer la situation</span>
               </span>
               <span className="text-[11px] font-mono text-emerald-400 font-bold">
-                ● Andrea active
+                ● Biais Cognitifs Activés
               </span>
             </div>
 
             <div className="space-y-3 max-w-xl mx-auto w-full my-auto">
               <div className="p-3.5 rounded-2xl bg-[#231a4a] border border-[#5A33FF44] text-white text-xs sm:text-sm font-medium shadow-lg ml-auto max-w-md">
                 <div className="text-[10px] text-purple-300 font-bold mb-1">👤 Vous</div>
-                « Je n'arrive pas à avancer sur mon projet, je passe des heures à douter et je me décourage. »
+                « J'ai plein d'idées floues en tête, je bloque et je ne sais pas par quoi commencer. »
               </div>
 
               {chapterProgress > 0.15 && (
@@ -261,49 +261,49 @@ export const AndreaShowcaseVideo: React.FC = () => {
                       <span>🧠 Andrea (BehaviorLab AI)</span>
                     </span>
                     <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 font-bold">
-                      Méthode 3 Étapes
+                      Plan Clair en 3 Étapes
                     </span>
                   </div>
-                  <p className="text-zinc-200 leading-relaxed">
-                    Ce blocage est une <strong>surcharge cognitive</strong>, pas un manque de compétence. Voici votre plan d'action immédiat :
+                  <p className="text-zinc-200 leading-relaxed text-xs">
+                    Ce blocage est une <strong>surcharge cognitive</strong> : nous transformons l'idée en projet concret sans se perdre :
                   </p>
                   <div className="text-xs bg-[#0f0a24] p-2.5 rounded-xl border border-purple-500/30 space-y-1 font-mono text-[#c4b5fd]">
-                    <div>✓ Étape 1 : 1 idée directrice unique (Zéro dispersion)</div>
-                    <div>✓ Étape 2 : 15 minutes chrono sans retoucher</div>
-                    <div>✓ Étape 3 : Validation immédiate avec Andrea</div>
+                    <div>✓ <strong>Étape 1</strong> : 1 problème unique résolu en 1 phrase claire</div>
+                    <div>✓ <strong>Étape 2</strong> : 15 minutes chrono sur la V0 (Zéro dispersion)</div>
+                    <div>✓ <strong>Étape 3</strong> : Validation immédiate avec Andrea</div>
                   </div>
                 </div>
               )}
             </div>
 
             <div className="text-center text-[11px] text-purple-300/80 font-medium">
-              Andrea adapte ses réponses selon votre profil : créateur, étudiant ou indépendant.
+              Transformez chaque idée en livrable palpable en 3 étapes chronométrées.
             </div>
           </div>
         )}
 
-        {/* SCENE 1: CRÉATION DE SITE WEB */}
+        {/* SCENE 1: GÉNÉRATION EN 1 PROMPT D'UN SITE WEB COMPLET */}
         {activeChapterIndex === 1 && (
           <div className="w-full h-full p-4 sm:p-8 flex flex-col justify-between transition-opacity duration-700 ease-in-out">
             <div className="flex items-center justify-between">
               <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-950/80 border border-blue-500/40 text-blue-300 text-xs font-bold shadow">
                 <Globe className="w-3.5 h-3.5 text-cyan-400" />
-                <span>2. Création de Site Web en 1 Prompt</span>
+                <span>2. Génération en 1 Prompt d'un Site Web Complet</span>
               </span>
               <span className="text-[10px] font-mono text-purple-300 font-bold bg-[#1b143c] px-2.5 py-1 rounded-lg border border-purple-500/30">
-                ⚡ Moteur Rapide : 10M tokens
+                ⚡ Prêt à être déployé
               </span>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-2xl mx-auto w-full my-auto items-center">
               <div className="bg-[#150f2e] border border-[#5A33FF55] p-3.5 rounded-2xl space-y-2 shadow-xl">
-                <div className="text-[10px] font-bold text-[#8B70FF] uppercase tracking-wider">Votre Prompt</div>
+                <div className="text-[10px] font-bold text-[#8B70FF] uppercase tracking-wider">Un seul prompt complet</div>
                 <div className="text-xs text-white font-mono bg-[#0c081f] p-2.5 rounded-xl border border-white/10">
-                  « Crée une landing page sombre avec présentation, tarifs et code HTML5 prêt pour Vercel »
+                  « Crée un site web complet : page de présentation, grille de tarifs transparente et code HTML5 prêt pour Vercel »
                 </div>
                 <div className="flex items-center gap-2 text-[10px] text-emerald-400">
                   <CheckCircle2 className="w-3.5 h-3.5" />
-                  <span>Code complet généré en 0.8s</span>
+                  <span>Présentation + Tarifs + Code générés en 0.8s</span>
                 </div>
               </div>
 
@@ -312,82 +312,72 @@ export const AndreaShowcaseVideo: React.FC = () => {
                   <div className="w-2 h-2 rounded-full bg-rose-500" />
                   <div className="w-2 h-2 rounded-full bg-amber-500" />
                   <div className="w-2 h-2 rounded-full bg-emerald-500" />
-                  <span className="text-[9px] text-zinc-400 font-mono ml-2">andrea-projet.vercel.app</span>
+                  <span className="text-[9px] text-zinc-400 font-mono ml-2">votre-projet.vercel.app</span>
                 </div>
                 <div className="p-3 bg-gradient-to-br from-[#1E1B8C]/40 to-purple-900/40 rounded-xl border border-purple-500/30 text-center space-y-1.5">
-                  <div className="text-xs font-black text-white">Votre Site Web · Moderne</div>
-                  <div className="text-[10px] text-purple-200">Généré et prêt au déploiement</div>
+                  <div className="text-xs font-black text-white">Page de Présentation & Tarifs</div>
+                  <div className="text-[10px] text-purple-200">Responsive, sémantique et immédiat</div>
                   <div className="inline-block px-3 py-1 bg-[#5A33FF] text-white text-[9px] font-bold rounded-lg shadow mt-1">
-                    Export HTML & CSS
+                    Export Code Prêt à Déployer
                   </div>
                 </div>
               </div>
             </div>
 
             <div className="text-center text-[11px] text-cyan-300/80 font-medium">
-              Code sémantique propre, 100% responsive et immédiatement téléchargeable.
+              Générez en 1 seul prompt : page d'accueil, tarifs et code source complet.
             </div>
           </div>
         )}
 
-        {/* SCENE 2: MONTAGE VIDÉO & FORMATS COURTS */}
+        {/* SCENE 2: ACCOMPAGNEMENT SCOLAIRE & CRÉATION DE VIDÉO ET VISUEL */}
         {activeChapterIndex === 2 && (
           <div className="w-full h-full p-4 sm:p-8 flex flex-col justify-between transition-opacity duration-700 ease-in-out">
             <div className="flex items-center justify-between">
               <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-pink-950/80 border border-pink-500/40 text-pink-300 text-xs font-bold shadow">
                 <Film className="w-3.5 h-3.5 text-pink-400" />
-                <span>3. Studio de Montage & Formats Courts (9:16)</span>
+                <span>3. Accompagnement Scolaire & Création Vidéo / Visuel</span>
               </span>
               <span className="text-[10px] font-bold text-amber-300 bg-amber-950/40 px-2.5 py-1 rounded-lg border border-amber-500/30">
-                Hooks & Rétention Max
+                Double Expertise
               </span>
             </div>
 
-            <div className="flex items-center justify-center gap-6 my-auto">
-              <div className="w-36 h-56 rounded-2xl bg-gradient-to-br from-indigo-950 via-purple-950 to-pink-950 border-2 border-pink-500 p-2.5 flex flex-col justify-between shadow-2xl relative overflow-hidden">
-                <div className="text-center">
-                  <span className="text-[8px] font-black px-2 py-0.5 rounded-full bg-amber-500 text-black">
-                    HOOK VIRAL (0-3s)
-                  </span>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-2xl mx-auto w-full my-auto items-center">
+              {/* Carte Scolaire */}
+              <div className="bg-[#150f2e] border border-purple-500/40 p-3.5 rounded-2xl space-y-2 shadow-xl">
+                <div className="flex items-center gap-2 text-xs font-bold text-purple-300">
+                  <GraduationCap className="w-4 h-4 text-purple-400" />
+                  <span>Accompagnement Scolaire</span>
                 </div>
-                <div className="text-center space-y-1">
-                  <div className="text-[11px] font-black text-white leading-tight uppercase drop-shadow-md">
-                    Arrêtez cette erreur en 2026 !
-                  </div>
-                  <div className="text-[8px] text-amber-300 bg-black/60 px-1 py-0.5 rounded font-mono">
-                    Sous-titres dynamiques
-                  </div>
-                </div>
-                <div className="text-center">
-                  <span className="text-[8px] font-bold text-white bg-purple-600 px-2 py-0.5 rounded-lg shadow">
-                    Appel à l'Action
-                  </span>
+                <div className="space-y-1 text-[11px] text-[#c4b5fd]">
+                  <div>✓ Rappel actif & fiches condensées</div>
+                  <div>✓ Décomposition sans procrastination</div>
+                  <div>✓ Préparation sereine des examens</div>
                 </div>
               </div>
 
-              <div className="space-y-2 text-left hidden sm:block">
-                <div className="flex items-center gap-2 text-xs font-bold text-white">
-                  <Zap className="w-4 h-4 text-amber-400" />
-                  <span>Cadres pré-calibrés 9:16</span>
+              {/* Carte Vidéo & Visuel */}
+              <div className="bg-[#150f2e] border border-pink-500/40 p-3.5 rounded-2xl space-y-2 shadow-xl">
+                <div className="flex items-center gap-2 text-xs font-bold text-pink-300">
+                  <Film className="w-4 h-4 text-pink-400" />
+                  <span>Création Vidéo & Visuel (9:16)</span>
                 </div>
-                <div className="flex items-center gap-2 text-xs font-bold text-white">
-                  <Zap className="w-4 h-4 text-pink-400" />
-                  <span>Accroches psychologiques pour captiver</span>
-                </div>
-                <div className="flex items-center gap-2 text-xs font-bold text-white">
-                  <Zap className="w-4 h-4 text-cyan-400" />
-                  <span>Export haute fidélité pour vos réseaux</span>
+                <div className="space-y-1 text-[11px] text-[#c4b5fd]">
+                  <div>✓ Accroches psychologiques (Hooks 0-3s)</div>
+                  <div>✓ Cadres pré-calibrés pour rétention</div>
+                  <div>✓ Sous-titres dynamiques contrastés</div>
                 </div>
               </div>
             </div>
 
             <div className="text-center text-[11px] text-pink-300/80 font-medium">
-              Conçu pour tous vos formats verticaux et vos réseaux sociaux sans complexité.
+              Méthodes de révision active pour l'école et templates à fort impact pour vos vidéos.
             </div>
           </div>
         )}
 
-        {/* SCENE 3: SIGNATURE OFFICIELLE AVEC LOGO ANDREA & BEHAVIORLAB AI */}
+        {/* SCENE 3: RECHERCHE WEB EN DIRECT & SIGNATURE ANDREA */}
         {activeChapterIndex === 3 && (
           <div className="w-full h-full p-4 sm:p-8 flex flex-col items-center justify-center text-center space-y-4 transition-opacity duration-700 ease-in-out">
             <div className="relative">
@@ -407,19 +397,19 @@ export const AndreaShowcaseVideo: React.FC = () => {
                 Andrea
               </h2>
               <div className="text-xs sm:text-sm font-extrabold tracking-widest text-[#a855f7] uppercase">
-                Intelligence Stratégique & Créative
+                Intelligence Stratégique avec Recherche Web en Direct
               </div>
             </div>
 
             <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#1b143c] border border-[#5A33FF66] shadow-lg">
               <Sparkles className="w-4 h-4 text-amber-400" />
               <span className="text-xs sm:text-sm font-bold text-[#c4b5fd]">
-                Architecture conçue par <strong className="text-white">BehaviorLab AI</strong>
+                Accès direct à Internet · Propulsée par <strong className="text-white">BehaviorLab AI</strong>
               </span>
             </div>
 
             <p className="text-xs text-[#a89cff] max-w-md mx-auto leading-relaxed pt-1">
-              Prêt à passer à l'action ? Créez votre compte ci-dessus pour accéder immédiatement à tous vos outils.
+              Prêt à transformer vos idées floues en réalisations concrètes ? Connectez-vous ci-dessus.
             </p>
           </div>
         )}
@@ -437,7 +427,7 @@ export const AndreaShowcaseVideo: React.FC = () => {
               Lancer la démonstration complète avec Andrea
             </div>
             <div className="text-[11px] text-[#c4b5fd] mt-1">
-              Questions-réponses · Création de site · Montage vidéo · Signature officielle
+              Idée floue → Projet · Biais cognitifs · Site web en 1 prompt · Scolaire & Vidéo · Recherche Web
             </div>
           </div>
         )}
