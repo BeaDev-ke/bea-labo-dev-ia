@@ -57,14 +57,14 @@ const PRESET_PROJECTS: TemplatePreset[] = [
     id: 'saas_ai',
     title: 'SaaS AI & Plateforme Digitale',
     category: 'Logiciel & B2B',
-    badge: 'Style Bolt · Conversion Maximale',
+    badge: 'Style Andrea · Conversion Maximale',
     prompt: 'Crée une landing page ultra-moderne pour un SaaS d\'intelligence artificielle avec hero glassmorphism, pricing interactif mensuel/annuel, démo et FAQ dynamique.',
     html: `<!DOCTYPE html>
 <html lang="fr" class="dark">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>NexusAI · Intelligence Stratégique & Automatisation</title>
+  <title>Andrea · Intelligence Stratégique & Automatisation</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
   <style>
@@ -82,7 +82,7 @@ const PRESET_PROJECTS: TemplatePreset[] = [
           ⚡
         </div>
         <div>
-          <span class="font-extrabold text-lg tracking-tight text-white">NexusAI</span>
+          <span class="font-extrabold text-lg tracking-tight text-white">Andrea</span>
           <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-purple-500/20 text-purple-300 ml-2 border border-purple-500/30">v2.5</span>
         </div>
       </div>
@@ -150,7 +150,7 @@ const PRESET_PROJECTS: TemplatePreset[] = [
   <section id="features" class="max-w-6xl mx-auto px-6 py-16 space-y-8">
     <div class="text-center space-y-2">
       <span class="text-xs font-bold uppercase tracking-wider text-[#8B70FF]">Architecture Moderne</span>
-      <h2 class="text-3xl font-black text-white">Pourquoi NexusAI change la donne</h2>
+      <h2 class="text-3xl font-black text-white">Pourquoi Andrea change la donne</h2>
     </div>
 
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -249,7 +249,7 @@ const PRESET_PROJECTS: TemplatePreset[] = [
   <!-- Footer -->
   <footer class="border-t border-[#5A33FF22] bg-[#070510] py-8 text-center text-xs text-[#c4b5fd]/60">
     <div class="max-w-6xl mx-auto px-6 flex flex-col sm:flex-row items-center justify-between gap-4">
-      <span>© 2026 NexusAI · Conçu avec l'architecture BehaviorLab AI</span>
+      <span>© 2026 Andrea · Conçu avec l'intelligence stratégique Andrea</span>
       <div class="flex items-center gap-4">
         <a href="#tarifs" class="hover:text-white underline">Tarifs</a>
         <a href="#features" class="hover:text-white underline">Fonctionnalités</a>
@@ -385,11 +385,11 @@ export const SiteBuilder: React.FC<SiteBuilderProps> = ({ onNotify }) => {
   const [generationLogs, setGenerationLogs] = useState<string[]>([]);
   const [copied, setCopied] = useState(false);
 
-  // Bolt-like Token Model (10,000,000 monthly token limit)
-  const BOLT_TOKEN_LIMIT = 10000000;
-  const [boltTokensUsed, setBoltTokensUsed] = useState<number>(() => {
+  // Andrea Token Model (10,000,000 monthly token limit)
+  const ANDREA_TOKEN_LIMIT = 10000000;
+  const [tokensUsed, setTokensUsed] = useState<number>(() => {
     try {
-      const stored = localStorage.getItem('bolt_tokens_used');
+      const stored = localStorage.getItem('andrea_tokens_used');
       if (stored) return parseInt(stored, 10);
     } catch {}
     return 248500;
@@ -418,11 +418,11 @@ export const SiteBuilder: React.FC<SiteBuilderProps> = ({ onNotify }) => {
     return source;
   };
 
-  // Handle AI modification prompt (Bolt style with real token consumption tracking)
+  // Handle AI modification prompt (Andrea style with real token consumption tracking)
   const handleApplyPrompt = () => {
     if (!userPrompt.trim()) return;
     setIsGenerating(true);
-    setGenerationLogs(['Analyse sémantique de l\'intention...', 'Génération du composant HTML5...', 'Calcul des tokens selon le barème Bolt...']);
+    setGenerationLogs(['Analyse sémantique de l\'intention...', 'Génération du composant HTML5...', 'Calcul des tokens selon le barème Andrea...']);
 
     setTimeout(() => {
       const lower = userPrompt.toLowerCase();
@@ -447,19 +447,19 @@ export const SiteBuilder: React.FC<SiteBuilderProps> = ({ onNotify }) => {
         updatedHtml = updatedHtml.replace(/9 €/g, '12 €').replace(/14,90 €/g, '19 €');
       }
 
-      // Calculate token cost for this generation (Bolt token consumption: ~28,000 - 36,000 tokens)
+      // Calculate token cost for this generation (~28,000 - 36,000 tokens)
       const cost = Math.floor(25000 + Math.random() * 9500);
       setLastGenTokens(cost);
-      setBoltTokensUsed(prev => {
-        const next = Math.min(BOLT_TOKEN_LIMIT, prev + cost);
-        try { localStorage.setItem('bolt_tokens_used', next.toString()); } catch {}
+      setTokensUsed(prev => {
+        const next = Math.min(ANDREA_TOKEN_LIMIT, prev + cost);
+        try { localStorage.setItem('andrea_tokens_used', next.toString()); } catch {}
         return next;
       });
 
       setHtmlCode(updatedHtml);
       setIsGenerating(false);
       setUserPrompt('');
-      if (onNotify) onNotify(`Modifications appliquées ! (${cost.toLocaleString()} tokens Bolt consommés)`);
+      if (onNotify) onNotify(`Modifications appliquées ! (${cost.toLocaleString()} tokens consommés)`);
     }, 700);
   };
 
@@ -483,7 +483,7 @@ export const SiteBuilder: React.FC<SiteBuilderProps> = ({ onNotify }) => {
 
   return (
     <div className="space-y-5 max-w-7xl mx-auto">
-      {/* BOLT-LIKE TOP WORKSPACE CONTROLLER */}
+      {/* TOP WORKSPACE CONTROLLER */}
       <div className="bg-[#150f2e] border border-[#5A33FF44] rounded-3xl p-5 shadow-2xl space-y-4">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div className="flex items-center gap-3">
@@ -492,9 +492,9 @@ export const SiteBuilder: React.FC<SiteBuilderProps> = ({ onNotify }) => {
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h2 className="font-extrabold text-base text-white">Création de Site Web (Moteur Bolt)</h2>
+                <h2 className="font-extrabold text-base text-white">Création de Site Web (Moteur Andrea)</h2>
                 <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
-                  Code Prêt pour Vercel
+                  Code Prêt pour Déploiement
                 </span>
               </div>
               <p className="text-xs text-[#c4b5fd]">
@@ -524,7 +524,7 @@ export const SiteBuilder: React.FC<SiteBuilderProps> = ({ onNotify }) => {
           </div>
         </div>
 
-        {/* BOLT TOKEN LIMIT STATUS & METER */}
+        {/* ANDREA TOKEN LIMIT STATUS & METER */}
         <div className="bg-[#100b24] border border-[#5A33FF33] rounded-2xl p-3 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
           <div className="flex items-center gap-2.5 w-full sm:w-auto">
             <div className="w-8 h-8 rounded-xl bg-purple-900/40 border border-purple-500/40 flex items-center justify-center text-amber-400 font-bold shrink-0">
@@ -532,13 +532,13 @@ export const SiteBuilder: React.FC<SiteBuilderProps> = ({ onNotify }) => {
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <span className="font-extrabold text-white">Barème de tokens Bolt : 10 000 000 tokens / mois</span>
+                <span className="font-extrabold text-white">Barème de tokens Andrea : 10 000 000 tokens / mois</span>
                 <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
-                  {((1 - boltTokensUsed / BOLT_TOKEN_LIMIT) * 100).toFixed(1)}% disponibles
+                  {((1 - tokensUsed / ANDREA_TOKEN_LIMIT) * 100).toFixed(1)}% disponibles
                 </span>
               </div>
               <div className="text-[11px] text-[#c4b5fd] flex items-center gap-2 mt-0.5">
-                <span>{boltTokensUsed.toLocaleString()} / {BOLT_TOKEN_LIMIT.toLocaleString()} tokens utilisés</span>
+                <span>{tokensUsed.toLocaleString()} / {ANDREA_TOKEN_LIMIT.toLocaleString()} tokens utilisés</span>
                 {lastGenTokens && (
                   <span className="text-purple-300 font-medium">· Dernière génération : +{lastGenTokens.toLocaleString()} tokens</span>
                 )}
@@ -550,10 +550,10 @@ export const SiteBuilder: React.FC<SiteBuilderProps> = ({ onNotify }) => {
             <div className="w-full h-2 bg-[#1b143c] rounded-full overflow-hidden border border-[#5A33FF33]">
               <div 
                 className="h-full bg-gradient-to-r from-emerald-500 via-[#8B70FF] to-pink-500 transition-all duration-500 rounded-full"
-                style={{ width: `${Math.min(100, (boltTokensUsed / BOLT_TOKEN_LIMIT) * 100)}%` }}
+                style={{ width: `${Math.min(100, (tokensUsed / ANDREA_TOKEN_LIMIT) * 100)}%` }}
               />
             </div>
-            <div className="text-[10px] text-zinc-400 text-right">Quota mensuel Bolt standard</div>
+            <div className="text-[10px] text-zinc-400 text-right">Quota mensuel standard</div>
           </div>
         </div>
 

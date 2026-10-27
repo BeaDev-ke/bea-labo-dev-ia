@@ -112,22 +112,19 @@ export default function App() {
             <div className="flex items-center gap-3">
               <button 
                 onClick={() => navigateTo('visiteur')}
-                className="w-10 h-10 rounded-2xl bg-[#201844] border border-[#5A33FF44] flex items-center justify-center p-1 shadow-md hover:scale-105 transition-transform overflow-hidden"
+                className="hover:scale-105 transition-transform shrink-0"
                 title="Page d'accueil Andrea (/)"
               >
                 <img 
                   src="/logo_bea.png" 
                   alt="Andrea Logo" 
-                  className="w-full h-full object-contain"
+                  className="w-10 h-10 object-contain"
                   onError={(e) => { e.currentTarget.src = '/logo_andrea.png'; }}
                 />
               </button>
               <div>
                 <div className="flex items-center gap-2">
                   <span className="font-extrabold text-lg text-white tracking-tight">Andrea</span>
-                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#201844] text-[#c4b5fd] border border-[#5A33FF33]">
-                    BehaviorLab AI
-                  </span>
                   {currentUser && (
                     <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">
                       {currentUser.displayName} ({currentUser.plan.toUpperCase()})
@@ -348,7 +345,7 @@ export default function App() {
       {currentView === 'visiteur' && (
         <footer className="border-t border-[#5A33FF22] bg-[#100b24] py-4 px-6 text-center text-xs text-[#c4b5fd]/70 mt-auto">
           <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2">
-            <span>BehaviorLab AI · Système Andrea · Prêt pour déploiement Vercel</span>
+            <span>Système Andrea · Prêt pour déploiement Vercel</span>
             <div className="flex items-center gap-3">
               <button onClick={() => navigateTo('visiteur')} className="hover:text-white underline">
                 Accueil (/)

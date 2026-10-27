@@ -189,17 +189,20 @@ class BeaVoiceEngine {
       .replace(/\[(.*?)\]\(.*?\)/g, '$1')
       .replace(/[-*•]\s+/g, ', ')
       // Remplacement des acronymes et termes techniques par leur prononciation naturelle
-      .replace(/\bBehaviorLab AI\b/gi, 'BehaviorLab I.A.')
-      .replace(/\bAI\b/g, 'I.A.')
+      .replace(/\bBehaviorLab AI\b/gi, 'Andrea')
+      .replace(/\bBehaviorLab\b/gi, 'Andrea')
+      .replace(/\bNexusAI\b/gi, 'Andrea')
+      .replace(/\bAI\b/g, 'intelligence')
+      .replace(/\bIA\b/g, 'intelligence')
       .replace(/\b1 prompt\b/gi, 'un prompt')
       .replace(/\b1 clic\b/gi, 'un clic')
       .replace(/\b3 étapes\b/gi, 'trois étapes')
       .replace(/\b15 minutes\b/gi, 'quinze minutes')
       .replace(/\b9:16\b/g, 'neuf seizièmes')
-      .replace(/\bHTML5\b/gi, 'H.T.M.L. cinq')
-      .replace(/\bCSS3\b/gi, 'C.S.S. trois')
+      .replace(/\bHTML5\b/gi, 'HTML cinq')
+      .replace(/\bCSS3\b/gi, 'CSS trois')
       .replace(/\bVercel\b/gi, 'Vercel')
-      .replace(/\bSaaS\b/gi, 'Sasse')
+      .replace(/\bSaaS\b/gi, 'logiciel en ligne')
       // Remplacement des deux-points et points-virgules par des virgules pour créer des respirations naturelles
       .replace(/:\s*/g, ', ')
       .replace(/;\s*/g, ', ')
@@ -232,11 +235,11 @@ class BeaVoiceEngine {
     
     const targetGender = options?.gender ?? this.selectedGender;
     
-    // Cadence naturelle et humaine (style ChatGPT) :
-    // PITCH = 1.0 (neutre / timbre original du modèle pour éliminer l'effet robotique)
-    // RATE = 0.98 (rythme posé, clair et conversationnel)
+    // Cadence naturelle et fluide (style ChatGPT) :
+    // PITCH = 1.0 (neutre / timbre naturel d'origine)
+    // RATE = 1.0 (vitesse fluide conversationnelle standard)
     utterance.pitch = options?.pitch ?? 1.0;
-    utterance.rate = options?.rate ?? 0.98;
+    utterance.rate = options?.rate ?? 1.0;
 
     // Sélection de la meilleure voix neuronale disponible
     const bestVoice = this.selectBestVoice(targetGender);
