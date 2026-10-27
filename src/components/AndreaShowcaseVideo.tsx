@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { 
   Play, 
   Pause, 
@@ -12,110 +12,150 @@ import {
   Globe, 
   Film, 
   CheckCircle2, 
-  Zap,
-  ArrowRight
+  Zap
 } from 'lucide-react';
 import { andreaVoice } from '../utils/speech';
 
 interface Chapter {
   id: number;
   title: string;
-  duration: number; // in seconds
-  icon: string;
+  badge: string;
+  script: string;
 }
 
 const CHAPTERS: Chapter[] = [
-  { id: 0, title: 'Questions / Réponses avec Andrea', duration: 10, icon: '💬' },
-  { id: 1, title: 'Création de Site Web en 1 prompt', duration: 10, icon: '🌐' },
-  { id: 2, title: 'Montage Vidéo & Formats Courts', duration: 10, icon: '🎬' },
-  { id: 3, title: 'Signature Andrea & BehaviorLab AI', duration: 8, icon: '🧠' }
-];
-
-const TOTAL_DURATION = CHAPTERS.reduce((acc, c) => acc + c.duration, 0); // 38s
-
-const NARRATION_SCRIPTS = [
-  "Bienvenue dans l'univers Andrea. Posez votre blocage, Andrea vous répond immédiatement avec une analyse comportementale et un plan d'action sans dispersion.",
-  "Besoin d'un site web ? Décrivez simplement votre projet. Andrea génère instantanément une page complète, responsive et prête pour Vercel.",
-  "Pour vos vidéos, le studio de montage intégré calibre vos accroches, sous-titres et formats courts en quelques clics.",
-  "Andrea, propulsée par l'architecture BehaviorLab AI. L'intelligence stratégique qui transforme vos ambitions en résultats réels."
+  { 
+    id: 0, 
+    title: 'Questions / Réponses avec Andrea', 
+    badge: '1. Coaching & Plan d\'Action',
+    script: "Bonjour, je suis Andrea. Dites-moi ce qui vous bloque aujourd'hui, et nous construisons ensemble un plan clair en trois étapes pour avancer sans stress."
+  },
+  { 
+    id: 1, 
+    title: 'Création de Site Web en 1 prompt', 
+    badge: '2. Générateur de Site Web',
+    script: "Pour vos sites web, décrivez simplement votre projet en une phrase. Andrea génère un code complet, moderne et prêt pour Vercel."
+  },
+  { 
+    id: 2, 
+    title: 'Montage Vidéo & Formats Courts', 
+    badge: '3. Studio de Montage & Rétention',
+    script: "Pour vos vidéos, le studio prépare vos accroches percutantes et vos sous-titres au format vertical en quelques clics."
+  },
+  { 
+    id: 3, 
+    title: 'Signature Andrea & BehaviorLab AI', 
+    badge: '4. Signature Officielle',
+    script: "Andrea, propulsée par BehaviorLab I.A. L'intelligence stratégique qui concrétise vos projets sans friction."
+  }
 ];
 
 export const AndreaShowcaseVideo: React.FC = () => {
   const [isPlaying, setIsPlaying] = useState(false);
-  const [currentTime, setCurrentTime] = useState(0);
   const [activeChapterIndex, setActiveChapterIndex] = useState(0);
+  const [chapterProgress, setChapterProgress] = useState(0); // 0 to 1
   const [isMuted, setIsMuted] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
+
   const containerRef = useRef<HTMLDivElement | null>(null);
+  const progressTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const postSpeechTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const isTransitioningRef = useRef(false);
 
-  // Simulation timer
-  useEffect(() => {
-    let interval: NodeJS.Timeout | null = null;
-    if (isPlaying) {
-      interval = setInterval(() => {
-        setCurrentTime(prev => {
-          const next = prev + 0.2;
-          if (next >= TOTAL_DURATION) {
-            setIsPlaying(false);
-            andreaVoice.stop();
-            return TOTAL_DURATION;
-          }
-          return next;
-        });
-      }, 200);
+  const clearTimers = () => {
+    if (progressTimerRef.current) {
+      clearInterval(progressTimerRef.current);
+      progressTimerRef.current = null;
     }
-    return () => {
-      if (interval) clearInterval(interval);
-    };
-  }, [isPlaying]);
+    if (postSpeechTimerRef.current) {
+      clearTimeout(postSpeechTimerRef.current);
+      postSpeechTimerRef.current = null;
+    }
+  };
 
-  // Determine current chapter
-  useEffect(() => {
-    let accumulated = 0;
-    for (let i = 0; i < CHAPTERS.length; i++) {
-      accumulated += CHAPTERS[i].duration;
-      if (currentTime <= accumulated) {
-        if (activeChapterIndex !== i) {
-          setActiveChapterIndex(i);
-          // Narrate chapter transition if sound is enabled
-          if (isPlaying && !isMuted) {
-            andreaVoice.speak(NARRATION_SCRIPTS[i]);
-          }
+  // Passage propre au chapitre suivant (uniquement après la fin complète de la parole)
+  const advanceToNextChapter = useCallback((currentIndex: number) => {
+    if (currentIndex < CHAPTERS.length - 1) {
+      const nextIndex = currentIndex + 1;
+      setActiveChapterIndex(nextIndex);
+      setChapterProgress(0);
+      playChapter(nextIndex);
+    } else {
+      // Fin de la vidéo complète
+      setIsPlaying(false);
+      setChapterProgress(1);
+      andreaVoice.stop();
+    }
+  }, []);
+
+  // Déroulement d'un chapitre sans coupure de voix
+  const playChapter = useCallback((index: number) => {
+    clearTimers();
+    isTransitioningRef.current = false;
+    setChapterProgress(0);
+
+    const currentChapter = CHAPTERS[index];
+    const estimatedDurationMs = isMuted ? 8000 : 9000;
+    const intervalMs = 100;
+    const step = intervalMs / estimatedDurationMs;
+
+    // Progression visuelle fluide
+    progressTimerRef.current = setInterval(() => {
+      setChapterProgress(prev => {
+        if (prev >= 0.95 && andreaVoice.isSpeaking()) {
+          // Attendre que la voix termine naturellement
+          return 0.95;
         }
-        break;
-      }
-    }
-  }, [currentTime, isPlaying, isMuted, activeChapterIndex]);
+        const next = prev + step;
+        return next > 0.98 ? 0.98 : next;
+      });
+    }, intervalMs);
 
+    if (!isMuted) {
+      andreaVoice.speak(currentChapter.script, () => {
+        // La voix s'est terminée naturellement à la dernière syllabe
+        if (progressTimerRef.current) clearInterval(progressTimerRef.current);
+        setChapterProgress(1);
+
+        // Pause de respiration visuelle de 2.2 secondes avant la scène suivante
+        postSpeechTimerRef.current = setTimeout(() => {
+          advanceToNextChapter(index);
+        }, 2200);
+      });
+    } else {
+      // En mode muet, attendre 8 secondes puis passer au chapitre suivant
+      postSpeechTimerRef.current = setTimeout(() => {
+        setChapterProgress(1);
+        advanceToNextChapter(index);
+      }, 8000);
+    }
+  }, [isMuted, advanceToNextChapter]);
+
+  // Démarrer ou stopper la vidéo
   const handleTogglePlay = () => {
     if (!isPlaying) {
-      if (currentTime >= TOTAL_DURATION) {
-        setCurrentTime(0);
-        setActiveChapterIndex(0);
-      }
       setIsPlaying(true);
-      if (!isMuted) {
-        andreaVoice.speak(NARRATION_SCRIPTS[activeChapterIndex]);
+      if (activeChapterIndex >= CHAPTERS.length - 1 && chapterProgress >= 1) {
+        setActiveChapterIndex(0);
+        setChapterProgress(0);
+        playChapter(0);
+      } else {
+        playChapter(activeChapterIndex);
       }
     } else {
       setIsPlaying(false);
+      clearTimers();
       andreaVoice.stop();
     }
   };
 
-  const handleSeek = (newTime: number) => {
-    setCurrentTime(newTime);
-    let accumulated = 0;
-    for (let i = 0; i < CHAPTERS.length; i++) {
-      accumulated += CHAPTERS[i].duration;
-      if (newTime <= accumulated) {
-        setActiveChapterIndex(i);
-        if (isPlaying && !isMuted) {
-          andreaVoice.speak(NARRATION_SCRIPTS[i]);
-        }
-        break;
-      }
-    }
+  const handleRestart = () => {
+    clearTimers();
+    andreaVoice.stop();
+    setActiveChapterIndex(0);
+    setChapterProgress(0);
+    setIsPlaying(true);
+    playChapter(0);
   };
 
   const handleToggleMute = () => {
@@ -125,17 +165,18 @@ export const AndreaShowcaseVideo: React.FC = () => {
     } else {
       setIsMuted(false);
       if (isPlaying) {
-        andreaVoice.speak(NARRATION_SCRIPTS[activeChapterIndex]);
+        playChapter(activeChapterIndex);
       }
     }
   };
 
-  const handleRestart = () => {
-    setCurrentTime(0);
-    setActiveChapterIndex(0);
-    setIsPlaying(true);
-    if (!isMuted) {
-      andreaVoice.speak(NARRATION_SCRIPTS[0]);
+  const handleSeekChapter = (index: number) => {
+    clearTimers();
+    andreaVoice.stop();
+    setActiveChapterIndex(index);
+    setChapterProgress(0);
+    if (isPlaying) {
+      playChapter(index);
     }
   };
 
@@ -150,17 +191,15 @@ export const AndreaShowcaseVideo: React.FC = () => {
     }
   };
 
-  // Chapter 0 progress (0 to 1)
-  const getChapterProgress = () => {
-    let startOfChapter = 0;
-    for (let i = 0; i < activeChapterIndex; i++) {
-      startOfChapter += CHAPTERS[i].duration;
-    }
-    const elapsed = currentTime - startOfChapter;
-    return Math.min(1, Math.max(0, elapsed / CHAPTERS[activeChapterIndex].duration));
-  };
+  useEffect(() => {
+    return () => {
+      clearTimers();
+      andreaVoice.stop();
+    };
+  }, []);
 
-  const chProg = getChapterProgress();
+  // Calcul du pourcentage global de la vidéo
+  const totalPercentage = ((activeChapterIndex + chapterProgress) / CHAPTERS.length) * 100;
 
   return (
     <div 
@@ -183,7 +222,7 @@ export const AndreaShowcaseVideo: React.FC = () => {
 
         <div className="flex items-center gap-2 text-xs">
           <span className="text-[#c4b5fd] font-mono">
-            {Math.floor(currentTime)}s / {TOTAL_DURATION}s
+            Chapitre {activeChapterIndex + 1} / {CHAPTERS.length}
           </span>
         </div>
       </div>
@@ -198,8 +237,7 @@ export const AndreaShowcaseVideo: React.FC = () => {
 
         {/* SCENE 0: QUESTIONS / RÉPONSES AVEC ANDREA */}
         {activeChapterIndex === 0 && (
-          <div className="w-full h-full p-4 sm:p-8 flex flex-col justify-between animate-in fade-in zoom-in-95 duration-500">
-            {/* Top Scene Tag */}
+          <div className="w-full h-full p-4 sm:p-8 flex flex-col justify-between transition-opacity duration-700 ease-in-out">
             <div className="flex items-center justify-between">
               <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-purple-950/80 border border-purple-500/40 text-purple-300 text-xs font-bold shadow">
                 <MessageSquare className="w-3.5 h-3.5 text-amber-400" />
@@ -210,17 +248,14 @@ export const AndreaShowcaseVideo: React.FC = () => {
               </span>
             </div>
 
-            {/* Simulated Live Chat Bubbles */}
             <div className="space-y-3 max-w-xl mx-auto w-full my-auto">
-              {/* User Question */}
-              <div className="p-3.5 rounded-2xl bg-[#231a4a] border border-[#5A33FF44] text-white text-xs sm:text-sm font-medium shadow-lg ml-auto max-w-md animate-in slide-in-from-bottom-2">
+              <div className="p-3.5 rounded-2xl bg-[#231a4a] border border-[#5A33FF44] text-white text-xs sm:text-sm font-medium shadow-lg ml-auto max-w-md">
                 <div className="text-[10px] text-purple-300 font-bold mb-1">👤 Vous</div>
-                « Je n'arrive pas à avancer sur mon projet, je passe 5 heures à douter et je me décourage. »
+                « Je n'arrive pas à avancer sur mon projet, je passe des heures à douter et je me décourage. »
               </div>
 
-              {/* Andrea Live Response */}
-              {chProg > 0.25 && (
-                <div className="p-4 rounded-2xl bg-[#171033] border-2 border-[#8B70FF] text-white text-xs sm:text-sm shadow-2xl mr-auto max-w-lg space-y-2 animate-in slide-in-from-left-3 duration-500">
+              {chapterProgress > 0.15 && (
+                <div className="p-4 rounded-2xl bg-[#171033] border-2 border-[#8B70FF] text-white text-xs sm:text-sm shadow-2xl mr-auto max-w-lg space-y-2 animate-in fade-in">
                   <div className="flex items-center justify-between">
                     <span className="text-[11px] font-extrabold text-amber-300 flex items-center gap-1.5">
                       <span>🧠 Andrea (BehaviorLab AI)</span>
@@ -230,7 +265,7 @@ export const AndreaShowcaseVideo: React.FC = () => {
                     </span>
                   </div>
                   <p className="text-zinc-200 leading-relaxed">
-                    Ce blocage est une <strong>surcharge cognitive</strong>, pas un manque de compétence. Voici ton plan immédiat :
+                    Ce blocage est une <strong>surcharge cognitive</strong>, pas un manque de compétence. Voici votre plan d'action immédiat :
                   </p>
                   <div className="text-xs bg-[#0f0a24] p-2.5 rounded-xl border border-purple-500/30 space-y-1 font-mono text-[#c4b5fd]">
                     <div>✓ Étape 1 : 1 idée directrice unique (Zéro dispersion)</div>
@@ -242,49 +277,46 @@ export const AndreaShowcaseVideo: React.FC = () => {
             </div>
 
             <div className="text-center text-[11px] text-purple-300/80 font-medium">
-              Andrea adapte ses conseils selon votre profil : créateur, étudiant ou indépendant.
+              Andrea adapte ses réponses selon votre profil : créateur, étudiant ou indépendant.
             </div>
           </div>
         )}
 
-        {/* SCENE 1: CRÉATION DE SITE WEB (MOTEUR BOLT) */}
+        {/* SCENE 1: CRÉATION DE SITE WEB */}
         {activeChapterIndex === 1 && (
-          <div className="w-full h-full p-4 sm:p-8 flex flex-col justify-between animate-in fade-in zoom-in-95 duration-500">
+          <div className="w-full h-full p-4 sm:p-8 flex flex-col justify-between transition-opacity duration-700 ease-in-out">
             <div className="flex items-center justify-between">
               <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-950/80 border border-blue-500/40 text-blue-300 text-xs font-bold shadow">
                 <Globe className="w-3.5 h-3.5 text-cyan-400" />
-                <span>2. Création de Site Web en 1 Prompt (Moteur Bolt)</span>
+                <span>2. Création de Site Web en 1 Prompt</span>
               </span>
               <span className="text-[10px] font-mono text-purple-300 font-bold bg-[#1b143c] px-2.5 py-1 rounded-lg border border-purple-500/30">
-                ⚡ Quota Bolt : 10M tokens
+                ⚡ Moteur Rapide : 10M tokens
               </span>
             </div>
 
-            {/* Split Screen : Prompt & Site Generated Live */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-2xl mx-auto w-full my-auto items-center">
-              {/* Prompt box */}
               <div className="bg-[#150f2e] border border-[#5A33FF55] p-3.5 rounded-2xl space-y-2 shadow-xl">
-                <div className="text-[10px] font-bold text-[#8B70FF] uppercase tracking-wider">Prompt Utilisateur</div>
+                <div className="text-[10px] font-bold text-[#8B70FF] uppercase tracking-wider">Votre Prompt</div>
                 <div className="text-xs text-white font-mono bg-[#0c081f] p-2.5 rounded-xl border border-white/10">
-                  « Crée une landing page SaaS sombre avec pricing interactif et code HTML5 prêt pour Vercel »
+                  « Crée une landing page sombre avec présentation, tarifs et code HTML5 prêt pour Vercel »
                 </div>
                 <div className="flex items-center gap-2 text-[10px] text-emerald-400">
                   <CheckCircle2 className="w-3.5 h-3.5" />
-                  <span>Compilation terminée en 0.8s</span>
+                  <span>Code complet généré en 0.8s</span>
                 </div>
               </div>
 
-              {/* Generated Mini Site Mockup */}
-              <div className="bg-[#0b0819] border-2 border-cyan-500/60 rounded-2xl p-3 shadow-2xl space-y-2 relative overflow-hidden group">
+              <div className="bg-[#0b0819] border-2 border-cyan-500/60 rounded-2xl p-3 shadow-2xl space-y-2 relative overflow-hidden">
                 <div className="flex items-center gap-1.5 pb-2 border-b border-white/10">
                   <div className="w-2 h-2 rounded-full bg-rose-500" />
                   <div className="w-2 h-2 rounded-full bg-amber-500" />
                   <div className="w-2 h-2 rounded-full bg-emerald-500" />
-                  <span className="text-[9px] text-zinc-400 font-mono ml-2">nexus-saas.vercel.app</span>
+                  <span className="text-[9px] text-zinc-400 font-mono ml-2">andrea-projet.vercel.app</span>
                 </div>
                 <div className="p-3 bg-gradient-to-br from-[#1E1B8C]/40 to-purple-900/40 rounded-xl border border-purple-500/30 text-center space-y-1.5">
-                  <div className="text-xs font-black text-white">NexusAI · SaaS Moderne</div>
-                  <div className="text-[10px] text-purple-200">Généré et exportable en 1 clic</div>
+                  <div className="text-xs font-black text-white">Votre Site Web · Moderne</div>
+                  <div className="text-[10px] text-purple-200">Généré et prêt au déploiement</div>
                   <div className="inline-block px-3 py-1 bg-[#5A33FF] text-white text-[9px] font-bold rounded-lg shadow mt-1">
                     Export HTML & CSS
                   </div>
@@ -293,14 +325,14 @@ export const AndreaShowcaseVideo: React.FC = () => {
             </div>
 
             <div className="text-center text-[11px] text-cyan-300/80 font-medium">
-              Code sémantique pur, 100% responsive et téléchargeable sans engagement.
+              Code sémantique propre, 100% responsive et immédiatement téléchargeable.
             </div>
           </div>
         )}
 
         {/* SCENE 2: MONTAGE VIDÉO & FORMATS COURTS */}
         {activeChapterIndex === 2 && (
-          <div className="w-full h-full p-4 sm:p-8 flex flex-col justify-between animate-in fade-in zoom-in-95 duration-500">
+          <div className="w-full h-full p-4 sm:p-8 flex flex-col justify-between transition-opacity duration-700 ease-in-out">
             <div className="flex items-center justify-between">
               <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-pink-950/80 border border-pink-500/40 text-pink-300 text-xs font-bold shadow">
                 <Film className="w-3.5 h-3.5 text-pink-400" />
@@ -311,9 +343,8 @@ export const AndreaShowcaseVideo: React.FC = () => {
               </span>
             </div>
 
-            {/* Mobile Vertical Frame Preview */}
             <div className="flex items-center justify-center gap-6 my-auto">
-              <div className="w-36 h-56 rounded-2xl bg-gradient-to-br from-indigo-950 via-purple-950 to-pink-950 border-2 border-pink-500 p-2.5 flex flex-col justify-between shadow-2xl relative overflow-hidden animate-pulse">
+              <div className="w-36 h-56 rounded-2xl bg-gradient-to-br from-indigo-950 via-purple-950 to-pink-950 border-2 border-pink-500 p-2.5 flex flex-col justify-between shadow-2xl relative overflow-hidden">
                 <div className="text-center">
                   <span className="text-[8px] font-black px-2 py-0.5 rounded-full bg-amber-500 text-black">
                     HOOK VIRAL (0-3s)
@@ -329,40 +360,38 @@ export const AndreaShowcaseVideo: React.FC = () => {
                 </div>
                 <div className="text-center">
                   <span className="text-[8px] font-bold text-white bg-purple-600 px-2 py-0.5 rounded-lg shadow">
-                    CTA Engageant
+                    Appel à l'Action
                   </span>
                 </div>
               </div>
 
-              {/* Features list */}
               <div className="space-y-2 text-left hidden sm:block">
                 <div className="flex items-center gap-2 text-xs font-bold text-white">
                   <Zap className="w-4 h-4 text-amber-400" />
-                  <span>Templates pré-calibrés 9:16</span>
+                  <span>Cadres pré-calibrés 9:16</span>
                 </div>
                 <div className="flex items-center gap-2 text-xs font-bold text-white">
                   <Zap className="w-4 h-4 text-pink-400" />
-                  <span>Accroches virales et psychologiques</span>
+                  <span>Accroches psychologiques pour captiver</span>
                 </div>
                 <div className="flex items-center gap-2 text-xs font-bold text-white">
                   <Zap className="w-4 h-4 text-cyan-400" />
-                  <span>Export haute définition sans filigrane</span>
+                  <span>Export haute fidélité pour vos réseaux</span>
                 </div>
               </div>
             </div>
 
             <div className="text-center text-[11px] text-pink-300/80 font-medium">
-              Conçu pour TikTok, Reels et Shorts sans complexité technique.
+              Conçu pour tous vos formats verticaux et vos réseaux sociaux sans complexité.
             </div>
           </div>
         )}
 
-        {/* SCENE 3: OUTRO OFFICIEL AVEC LOGO ANDREA & BEHAVIORLAB AI */}
+        {/* SCENE 3: SIGNATURE OFFICIELLE AVEC LOGO ANDREA & BEHAVIORLAB AI */}
         {activeChapterIndex === 3 && (
-          <div className="w-full h-full p-4 sm:p-8 flex flex-col items-center justify-center text-center space-y-4 animate-in fade-in zoom-in-95 duration-700">
-            {/* Grand Logo Officiel avec Halo Lumineux */}
+          <div className="w-full h-full p-4 sm:p-8 flex flex-col items-center justify-center text-center space-y-4 transition-opacity duration-700 ease-in-out">
             <div className="relative">
-              <div className="absolute inset-0 bg-[#8B70FF] rounded-3xl blur-2xl opacity-50 animate-pulse" />
+              <div className="absolute inset-0 bg-[#8B70FF] rounded-3xl blur-2xl opacity-50" />
               <div className="relative w-24 h-24 sm:w-28 sm:h-28 rounded-3xl bg-[#140e2d] border-2 border-[#8B70FF] p-2 shadow-2xl flex items-center justify-center overflow-hidden">
                 <img 
                   src="/logo_bea.png" 
@@ -373,7 +402,6 @@ export const AndreaShowcaseVideo: React.FC = () => {
               </div>
             </div>
 
-            {/* Brand Title */}
             <div className="space-y-1.5">
               <h2 className="text-2xl sm:text-4xl font-black text-white tracking-tight">
                 Andrea
@@ -383,7 +411,6 @@ export const AndreaShowcaseVideo: React.FC = () => {
               </div>
             </div>
 
-            {/* Signature BehaviorLab AI */}
             <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#1b143c] border border-[#5A33FF66] shadow-lg">
               <Sparkles className="w-4 h-4 text-amber-400" />
               <span className="text-xs sm:text-sm font-bold text-[#c4b5fd]">
@@ -392,7 +419,7 @@ export const AndreaShowcaseVideo: React.FC = () => {
             </div>
 
             <p className="text-xs text-[#a89cff] max-w-md mx-auto leading-relaxed pt-1">
-              Prêt à passer à l'action ? Créez votre compte en 10 secondes ci-contre pour accéder à tous vos outils.
+              Prêt à passer à l'action ? Créez votre compte ci-dessus pour accéder immédiatement à tous vos outils.
             </p>
           </div>
         )}
@@ -401,7 +428,7 @@ export const AndreaShowcaseVideo: React.FC = () => {
         {!isPlaying && (
           <div 
             onClick={handleTogglePlay}
-            className="absolute inset-0 bg-black/50 backdrop-blur-[2px] flex flex-col items-center justify-center cursor-pointer group transition-all"
+            className="absolute inset-0 bg-black/55 backdrop-blur-[2px] flex flex-col items-center justify-center cursor-pointer group transition-all"
           >
             <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-gradient-to-tr from-[#1E1B8C] to-[#8B70FF] flex items-center justify-center text-white shadow-2xl group-hover:scale-110 transition-transform border border-white/30">
               <Play className="w-8 h-8 fill-white ml-1" />
@@ -410,53 +437,28 @@ export const AndreaShowcaseVideo: React.FC = () => {
               Lancer la démonstration complète avec Andrea
             </div>
             <div className="text-[11px] text-[#c4b5fd] mt-1">
-              Questions-réponses · Création de site · Montage vidéo · Logo officiel
+              Questions-réponses · Création de site · Montage vidéo · Signature officielle
             </div>
           </div>
         )}
       </div>
 
-      {/* Chapters Bar (Direct Jump) */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-1 p-2 bg-[#0e0924] border-t border-[#5A33FF33] text-xs">
-        {CHAPTERS.map((ch, idx) => {
-          const isActive = activeChapterIndex === idx;
-          let chapterStart = 0;
-          for (let i = 0; i < idx; i++) chapterStart += CHAPTERS[i].duration;
-
-          return (
-            <button
-              key={ch.id}
-              onClick={() => handleSeek(chapterStart)}
-              className={`p-2 rounded-xl text-left transition flex items-center gap-2 ${
-                isActive 
-                  ? 'bg-[#231a4a] text-white border border-[#8B70FF] shadow' 
-                  : 'text-[#c4b5fd]/80 hover:bg-[#181135] hover:text-white'
-              }`}
-            >
-              <span className="text-base shrink-0">{ch.icon}</span>
-              <div className="truncate">
-                <div className="font-bold text-[11px] truncate">{ch.title}</div>
-                <div className="text-[9px] text-[#a89cff]/70 font-mono">{ch.duration}s</div>
-              </div>
-            </button>
-          );
-        })}
-      </div>
-
-      {/* Video Control Bottom Bar */}
+      {/* Video Control Bottom Bar (Uniquement commandes du lecteur, zéro bouton superflu) */}
       <div className="bg-[#120c2c] px-4 py-3 border-t border-[#5A33FF33] space-y-2">
-        {/* Scrubber / Progress Bar */}
+        {/* Scrubber / Progress Bar globale */}
         <div 
           onClick={(e) => {
             const rect = e.currentTarget.getBoundingClientRect();
             const clickPos = (e.clientX - rect.left) / rect.width;
-            handleSeek(clickPos * TOTAL_DURATION);
+            const targetChapter = Math.min(CHAPTERS.length - 1, Math.floor(clickPos * CHAPTERS.length));
+            handleSeekChapter(targetChapter);
           }}
           className="relative w-full h-2 bg-[#1b143c] rounded-full overflow-hidden cursor-pointer hover:h-2.5 transition-all"
+          title="Naviguer dans la vidéo"
         >
           <div 
             className="h-full bg-gradient-to-r from-[#1E1B8C] via-[#8B70FF] to-pink-500 rounded-full transition-all duration-150"
-            style={{ width: `${(currentTime / TOTAL_DURATION) * 100}%` }}
+            style={{ width: `${Math.min(100, Math.max(0, totalPercentage))}%` }}
           />
         </div>
 

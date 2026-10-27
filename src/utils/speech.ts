@@ -1,9 +1,7 @@
 /**
- * Moteur Vocal 100% Gratuit pour Andrea
- * Utilise l'API standard Web Speech Synthesis du navigateur :
- * - 0 € pour toujours (aucun abonnement, aucun token payant)
- * - Aucune clé API requise
- * - Fonctionne instantanément en local sur n'importe quel appareil
+ * Moteur Vocal Haute Fidélité pour Andrea (Style ChatGPT)
+ * Sélectionne en priorité absolue les voix neuronales et naturelles (Natural / Neural / Online / Google / Enhanced)
+ * et applique un phrasé humain avec micro-pauses et intonation chaleureuse.
  */
 
 export interface VoiceOption {
@@ -20,6 +18,7 @@ class BeaVoiceEngine {
   private isSpeakingState = false;
   private listeners: ((speaking: boolean) => void)[] = [];
   private selectedGender: VoiceGender = 'feminine';
+  private cachedVoices: SpeechSynthesisVoice[] = [];
 
   constructor() {
     if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
@@ -30,7 +29,28 @@ class BeaVoiceEngine {
           this.selectedGender = saved;
         }
       } catch {}
+
+      // Pré-charger et surveiller le chargement des voix du système
+      this.loadVoices();
+      if (this.synth.onvoiceschanged !== undefined) {
+        this.synth.onvoiceschanged = () => {
+          this.loadVoices();
+        };
+      }
     }
+  }
+
+  private loadVoices(): void {
+    if (!this.synth) return;
+    try {
+      const voices = this.synth.getVoices();
+      if (voices && voices.length > 0) {
+        this.cachedVoices = voices.filter(v => {
+          const l = v.lang.toLowerCase();
+          return l.startsWith('fr') || l.includes('french');
+        });
+      }
+    } catch {}
   }
 
   public isAvailable(): boolean {
@@ -62,19 +82,130 @@ class BeaVoiceEngine {
 
   public getFrenchVoices(): SpeechSynthesisVoice[] {
     if (!this.synth) return [];
-    const voices = this.synth.getVoices();
-    return voices.filter(v => v.lang.startsWith('fr') || v.lang.startsWith('FR'));
+    this.loadVoices();
+    return this.cachedVoices;
   }
 
-  public cleanTextForSpeech(text: string): string {
-    // Nettoie le markdown pour que la voix lise fluidement
+  /**
+   * Évalue la qualité et le réalisme d'une voix selon son type de modèle
+   * Privilégie les voix neuronales (Neural, Natural, Google Cloud TTS, Apple Enhanced)
+   * et pénalise les synthétiseurs robotiques Desktop des années 2000.
+   */
+  private scoreVoice(voice: SpeechSynthesisVoice, targetGender: VoiceGender): number {
+    let score = 0;
+    const name = voice.name.toLowerCase();
+    const uri = (voice.voiceURI || '').toLowerCase();
+    const lang = voice.lang.toLowerCase();
+
+    // Doit être française
+    if (!lang.startsWith('fr') && !lang.includes('french')) {
+      return -100;
+    }
+
+    // 1. Voix neuronales ultra-réalistes modernes (Azure Natural, Google Cloud, Apple Enhanced)
+    const isNatural = name.includes('natural') || uri.includes('natural');
+    const isNeural = name.includes('neural') || uri.includes('neural');
+    const isOnline = name.includes('online') || uri.includes('online');
+    const isEnhanced = name.includes('enhanced') || uri.includes('enhanced');
+    const isGoogle = name.includes('google') || uri.includes('google');
+    const isSiri = name.includes('siri') || uri.includes('siri');
+
+    if (isNatural) score += 60;
+    if (isNeural) score += 50;
+    if (isOnline) score += 40;
+    if (isEnhanced) score += 45;
+    if (isGoogle) score += 40;
+    if (isSiri) score += 35;
+
+    // Détection du genre ciblé
+    if (targetGender === 'masculine') {
+      const maleNames = ['henri', 'thomas', 'alain', 'claude', 'jerome', 'paul', 'nicolas', 'maurice', 'yves', 'yvon', 'celestin', 'mathieu'];
+      if (maleNames.some(m => name.includes(m) || uri.includes(m))) {
+        score += 35;
+      }
+      if (name.includes('male') && !name.includes('female')) {
+        score += 25;
+      }
+      // Pénaliser les voix féminines si l'utilisateur demande masculine
+      const femaleNames = ['denise', 'julie', 'audrey', 'hortense', 'brigitte', 'eloise', 'coralie', 'jacqueline', 'amelie', 'female'];
+      if (femaleNames.some(f => name.includes(f) || uri.includes(f))) {
+        score -= 50;
+      }
+    } else {
+      // Féminin par défaut
+      const femaleNames = ['denise', 'julie', 'audrey', 'brigitte', 'eloise', 'coralie', 'jacqueline', 'amelie', 'hortense'];
+      if (femaleNames.some(f => name.includes(f) || uri.includes(f))) {
+        score += 35;
+      }
+      if (name.includes('female')) {
+        score += 25;
+      }
+      // Pénaliser les voix masculines si l'utilisateur demande féminine
+      const maleNames = ['henri', 'thomas', 'alain', 'claude', 'jerome', 'paul', 'nicolas', 'male'];
+      if (maleNames.some(m => name.includes(m) || uri.includes(m))) {
+        score -= 50;
+      }
+    }
+
+    // Pénaliser fortement les anciennes voix synthétiques robotiques desktop
+    if (name.includes('desktop') && !isNatural && !isNeural) {
+      score -= 30;
+    }
+
+    // Préférence pour le français métropolitain (France)
+    if (lang === 'fr-fr' || lang === 'fr_fr') {
+      score += 10;
+    }
+
+    return score;
+  }
+
+  /**
+   * Trouve la voix neuronale / naturelle la plus humaine et expressive (style ChatGPT)
+   */
+  public selectBestVoice(gender: VoiceGender): SpeechSynthesisVoice | null {
+    const frenchVoices = this.getFrenchVoices();
+    if (frenchVoices.length === 0) return null;
+
+    // Trier les voix selon leur score de réalisme
+    const ranked = [...frenchVoices].sort((a, b) => {
+      return this.scoreVoice(b, gender) - this.scoreVoice(a, gender);
+    });
+
+    return ranked[0] || frenchVoices[0];
+  }
+
+  /**
+   * Humanise le texte pour supprimer les hésitations synthétiques
+   * et prononcer naturellement comme un humain (ChatGPT Voice style)
+   */
+  public humanizeTextForSpeech(text: string): string {
     return text
+      // Suppression du markdown
       .replace(/\*\*(.*?)\*\*/g, '$1')
       .replace(/\*(.*?)\*/g, '$1')
       .replace(/#{1,6}\s?/g, '')
       .replace(/`{1,3}(.*?)`{1,3}/g, '$1')
       .replace(/\[(.*?)\]\(.*?\)/g, '$1')
-      .replace(/[-*•]\s/g, '. ')
+      .replace(/[-*•]\s+/g, ', ')
+      // Remplacement des acronymes et termes techniques par leur prononciation naturelle
+      .replace(/\bBehaviorLab AI\b/gi, 'BehaviorLab I.A.')
+      .replace(/\bAI\b/g, 'I.A.')
+      .replace(/\b1 prompt\b/gi, 'un prompt')
+      .replace(/\b1 clic\b/gi, 'un clic')
+      .replace(/\b3 étapes\b/gi, 'trois étapes')
+      .replace(/\b15 minutes\b/gi, 'quinze minutes')
+      .replace(/\b9:16\b/g, 'neuf seizièmes')
+      .replace(/\bHTML5\b/gi, 'H.T.M.L. cinq')
+      .replace(/\bCSS3\b/gi, 'C.S.S. trois')
+      .replace(/\bVercel\b/gi, 'Vercel')
+      .replace(/\bSaaS\b/gi, 'Sasse')
+      // Remplacement des deux-points et points-virgules par des virgules pour créer des respirations naturelles
+      .replace(/:\s*/g, ', ')
+      .replace(/;\s*/g, ', ')
+      // Éviter les doubles virgules ou espaces
+      .replace(/,\s*,/g, ',')
+      .replace(/\s+/g, ' ')
       .trim();
   }
 
@@ -83,74 +214,63 @@ class BeaVoiceEngine {
     onEnd?: () => void,
     options?: { pitch?: number; rate?: number; gender?: VoiceGender }
   ): void {
-    if (!this.synth) return;
+    if (!this.synth) {
+      if (onEnd) onEnd();
+      return;
+    }
 
     this.stop();
 
-    const clean = this.cleanTextForSpeech(text);
-    if (!clean) return;
+    const humanized = this.humanizeTextForSpeech(text);
+    if (!humanized) {
+      if (onEnd) onEnd();
+      return;
+    }
 
-    const utterance = new SpeechSynthesisUtterance(clean);
+    const utterance = new SpeechSynthesisUtterance(humanized);
     utterance.lang = 'fr-FR';
     
     const targetGender = options?.gender ?? this.selectedGender;
     
-    // Calibrer la tonalité selon le genre
-    if (targetGender === 'masculine') {
-      utterance.pitch = options?.pitch ?? 0.85; // Tonalité masculine plus grave et posée
-      utterance.rate = options?.rate ?? 0.98;
-    } else {
-      utterance.pitch = options?.pitch ?? 1.15; // Tonalité féminine plus claire et dynamique
-      utterance.rate = options?.rate ?? 1.02;
+    // Cadence naturelle et humaine (style ChatGPT) :
+    // PITCH = 1.0 (neutre / timbre original du modèle pour éliminer l'effet robotique)
+    // RATE = 0.98 (rythme posé, clair et conversationnel)
+    utterance.pitch = options?.pitch ?? 1.0;
+    utterance.rate = options?.rate ?? 0.98;
+
+    // Sélection de la meilleure voix neuronale disponible
+    const bestVoice = this.selectBestVoice(targetGender);
+    if (bestVoice) {
+      utterance.voice = bestVoice;
     }
 
-    // Choisir la voix la plus adaptée disponible dans le système
-    const frenchVoices = this.getFrenchVoices();
-    if (frenchVoices.length > 0) {
-      if (targetGender === 'masculine') {
-        const maleVoice = frenchVoices.find(v => {
-          const name = v.name.toLowerCase();
-          return name.includes('thomas') || 
-                 name.includes('paul') || 
-                 name.includes('henri') || 
-                 name.includes('claude') || 
-                 name.includes('nicolas') || 
-                 name.includes('mathieu') || 
-                 name.includes('male');
-        });
-        if (maleVoice) utterance.voice = maleVoice;
-        else utterance.voice = frenchVoices[0];
-      } else {
-        const femaleVoice = frenchVoices.find(v => {
-          const name = v.name.toLowerCase();
-          return name.includes('hortense') || 
-                 name.includes('julie') || 
-                 name.includes('denise') || 
-                 name.includes('audrey') || 
-                 name.includes('celine') || 
-                 name.includes('female');
-        });
-        if (femaleVoice) utterance.voice = femaleVoice;
-        else utterance.voice = frenchVoices[0];
+    let hasEnded = false;
+    const triggerEnd = () => {
+      if (!hasEnded) {
+        hasEnded = true;
+        this.notify(false);
+        if (onEnd) onEnd();
       }
-    }
+    };
 
     utterance.onstart = () => {
       this.notify(true);
     };
 
     utterance.onend = () => {
-      this.notify(false);
-      if (onEnd) onEnd();
+      triggerEnd();
     };
 
     utterance.onerror = () => {
-      this.notify(false);
-      if (onEnd) onEnd();
+      triggerEnd();
     };
 
     this.currentUtterance = utterance;
-    this.synth.speak(utterance);
+    try {
+      this.synth.speak(utterance);
+    } catch {
+      triggerEnd();
+    }
   }
 
   public testVoice(
@@ -158,14 +278,16 @@ class BeaVoiceEngine {
     onEnd?: () => void
   ): void {
     const sample = gender === 'masculine'
-      ? "Bonjour, je suis Andrea avec ma voix masculine. Je vous accompagne dans votre stratégie et la création de vos projets."
-      : "Bonjour, je suis Andrea avec ma voix féminine. Je vous accompagne avec clarté pour transformer vos idées en actions concrètes.";
+      ? "Bonjour ! Je suis Andrea. Je vous accompagne avec clarté pour structurer votre travail et concrétiser vos projets."
+      : "Bonjour ! Je suis Andrea. Je vous accompagne avec clarté pour structurer votre travail et concrétiser vos projets.";
     this.speak(sample, onEnd, { gender });
   }
 
   public stop(): void {
     if (!this.synth) return;
-    this.synth.cancel();
+    try {
+      this.synth.cancel();
+    } catch {}
     this.notify(false);
   }
 
