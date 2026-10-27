@@ -238,6 +238,7 @@ export const SALES_PLANS: SalesPlan[] = [
     transformation: 'Passez de l’hésitation à l’action en moins de 10 minutes chaque matin.',
     highlightRoi: 'Rentabilisé dès la première heure de procrastination évitée.',
     features: [
+      '⚡ 10 000 tokens/jour (+2 500 tokens par jour de série, max 50 000)',
       'IA Comportementale complète (Méthode BehaviorLab)',
       'Humaniseur de dialogue naturel & personnalisé',
       'Plans d’action en 3 étapes concrètes (sans blabla)',
@@ -263,8 +264,9 @@ export const SALES_PLANS: SalesPlan[] = [
     transformation: 'Divisez par 3 votre temps de travail et multipliez vos résultats visibles.',
     highlightRoi: 'Économisez plus de 15h de travail pénible chaque semaine.',
     features: [
+      '⚡ 35 000 tokens/jour (+5 000 tokens par jour de série, max 120 000)',
       'Tout ce qui est dans Andrea Basique',
-      '🎨 Studio de Design Visuel Plein Écran (Tous formats)',
+      '🎬 Outil de Montage Vidéo & Visuel Plein Écran (Tous formats)',
       '🎓 Mode Accompagnement Scolaire avec Micro-Défis',
       '🔥 Compteur de série & Momentum Dopamine',
       '💼 Analyse psychologique des clients & réponses anti-objection',
@@ -288,12 +290,13 @@ export const SALES_PLANS: SalesPlan[] = [
     transformation: 'Lancez votre site web prêt à convertir en 30 secondes chrono à partir d’un simple prompt.',
     highlightRoi: 'Remplace une agence web à 1 500 € et un développeur freelance.',
     features: [
+      '⚡ TOKENS 100% ILLIMITÉS (∞ Aucun plafond, aucune restriction)',
       'Tout ce qui est dans Andrea Pro sans aucune restriction',
       '🌐 Bâtisseur de Site Web en 1 Prompt (Code complet téléchargeable)',
       '💻 Éditeur de Code IA & Débogueur chirurgical',
       '🚀 Accès au Moteur Andrea Ultra Haute Vitesse',
       '💾 Sauvegarde illimitée de projets et mémoire permanente',
-      '🧪 Accès en avant-première à toutes les nouveautés du Labo Dev',
+      '🧪 Accès en avant-première à toutes les nouveautés',
     ],
     ctaLabel: 'Passer à Andrea Ultra (18 €) — Accès Illimité',
     ctaSubtext: 'Offre complète sans compromis · Annulable à tout moment',

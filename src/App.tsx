@@ -4,7 +4,9 @@ import {
   Code2, 
   Film,
   LogOut,
-  Sparkles
+  Sparkles,
+  Lock,
+  ArrowLeft
 } from 'lucide-react';
 import { DevPortal } from './components/DevPortal';
 import { DevLab } from './components/DevLab';
@@ -25,6 +27,9 @@ export default function App() {
     } catch {}
     return null;
   });
+
+  // Strict Developer Admin verification
+  const isDevAdmin = currentUser?.email?.toLowerCase().trim() === 'saydoukebe31@gmail.com';
 
   // Determine initial view from window.location.pathname
   const getInitialView = (): MainView => {
@@ -160,19 +165,21 @@ export default function App() {
                 <span>💬 App Andrea</span>
               </button>
 
-              {/* 3. Portail Développeur (/portail-dev) */}
-              <button
-                onClick={() => navigateTo('portal')}
-                className={`px-3 py-1.5 rounded-xl text-xs font-medium transition flex items-center gap-1.5 ${
-                  currentView === 'portal' || currentView === 'lab' || currentView === 'code'
-                    ? 'bg-zinc-800 text-white shadow-sm border border-zinc-700'
-                    : 'text-zinc-400 hover:text-white hover:bg-zinc-800/40'
-                }`}
-                title="Accéder au Portail Développeur (/portail-dev)"
-              >
-                <Code2 className="w-3.5 h-3.5" />
-                <span>🛠️ Portail Dev (/portail-dev)</span>
-              </button>
+              {/* 3. Portail Développeur STRICTEMENT VISIBLE POUR saydoukebe31@gmail.com */}
+              {isDevAdmin && (
+                <button
+                  onClick={() => navigateTo('portal')}
+                  className={`px-3 py-1.5 rounded-xl text-xs font-medium transition flex items-center gap-1.5 ${
+                    currentView === 'portal' || currentView === 'lab' || currentView === 'code'
+                      ? 'bg-zinc-800 text-white shadow-sm border border-zinc-700'
+                      : 'text-zinc-400 hover:text-white hover:bg-zinc-800/40'
+                  }`}
+                  title="Accéder au Portail Développeur (Admin saydoukebe31@gmail.com)"
+                >
+                  <Code2 className="w-3.5 h-3.5" />
+                  <span>🛠️ Portail Dev (/portail-dev)</span>
+                </button>
+              )}
 
               {/* Sign out button if logged in */}
               {currentUser && (
@@ -198,7 +205,7 @@ export default function App() {
             <VisitorLanding 
               onEnterApp={handleEnterApp} 
               onOpenLab={() => navigateTo('lab')}
-              onGoToDevPortal={() => navigateTo('portal')}
+              onGoToDevPortal={isDevAdmin ? () => navigateTo('portal') : undefined}
             />
           </div>
         )}
@@ -220,64 +227,119 @@ export default function App() {
           <FullScreenStudio onBackToApp={() => navigateTo('prod')} />
         )}
 
-        {/* VIEW 4: PORTAIL DÉVELOPPEUR (/portail-dev) */}
+        {/* VIEW 4: PORTAIL DÉVELOPPEUR (/portail-dev) - STRICTEMENT RÉSERVÉ À saydoukebe31@gmail.com */}
         {currentView === 'portal' && (
           <div className="max-w-7xl mx-auto p-4 sm:p-6 md:p-8 space-y-4">
-            <div className="flex items-center justify-between bg-[#18181b] border border-zinc-800 p-3 rounded-2xl text-xs text-zinc-400">
-              <div className="flex items-center gap-2">
-                <span className="font-mono text-zinc-200 font-bold">/portail-dev</span>
-                <span>· Portail Développeur & Outils d'Architecture Système</span>
+            {isDevAdmin ? (
+              <>
+                <div className="flex items-center justify-between bg-[#18181b] border border-zinc-800 p-3 rounded-2xl text-xs text-zinc-400">
+                  <div className="flex items-center gap-2">
+                    <span className="font-mono text-zinc-200 font-bold">/portail-dev</span>
+                    <span>· Portail Développeur & Outils d'Architecture Système (Admin : saydoukebe31@gmail.com)</span>
+                  </div>
+                  <button
+                    onClick={() => navigateTo('visiteur')}
+                    className="px-3 py-1.5 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-white font-semibold text-xs transition flex items-center gap-1.5 border border-zinc-700"
+                  >
+                    <span>← Retour au Site Principal (/)</span>
+                  </button>
+                </div>
+                <DevPortal
+                  onGoToProd={() => navigateTo('prod')}
+                  onGoToLab={() => navigateTo('lab')}
+                  onGoToCode={() => navigateTo('code')}
+                  onGoToVisitor={() => navigateTo('visiteur')}
+                />
+              </>
+            ) : (
+              <div className="max-w-md mx-auto my-16 p-8 rounded-3xl bg-[#140e2e] border border-[#5A33FF55] text-center space-y-4 shadow-2xl">
+                <div className="w-14 h-14 rounded-2xl bg-rose-500/20 text-rose-300 border border-rose-500/30 flex items-center justify-center mx-auto text-2xl">
+                  <Lock className="w-7 h-7 text-rose-400" />
+                </div>
+                <h3 className="text-xl font-extrabold text-white">Espace Développeur Restreint</h3>
+                <p className="text-xs text-[#c4b5fd] leading-relaxed">
+                  L'accès au portail développeur et au laboratoire de code est strictement réservé au compte administrateur <strong>saydoukebe31@gmail.com</strong>.
+                </p>
+                <button
+                  onClick={() => navigateTo('visiteur')}
+                  className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-[#1E1B8C] to-[#5A33FF] text-white text-xs font-bold transition flex items-center gap-2 mx-auto shadow-md"
+                >
+                  <ArrowLeft className="w-4 h-4" />
+                  <span>Retour à l'accueil public</span>
+                </button>
               </div>
-              <button
-                onClick={() => navigateTo('visiteur')}
-                className="px-3 py-1.5 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-white font-semibold text-xs transition flex items-center gap-1.5 border border-zinc-700"
-              >
-                <span>← Retour au Site Principal (/)</span>
-              </button>
-            </div>
-            <DevPortal
-              onGoToProd={() => navigateTo('prod')}
-              onGoToLab={() => navigateTo('lab')}
-              onGoToCode={() => navigateTo('code')}
-              onGoToVisitor={() => navigateTo('visiteur')}
-            />
+            )}
           </div>
         )}
 
         {/* VIEW 5: LABO DEV 8 NIVEAUX (/portail-dev#lab) */}
         {currentView === 'lab' && (
           <div className="max-w-7xl mx-auto p-4 sm:p-6 md:p-8 space-y-4">
-            <div className="flex items-center justify-between bg-[#18181b] border border-zinc-800 p-3 rounded-2xl text-xs text-zinc-400">
-              <span className="font-medium">
-                Laboratoire de Modifications par Niveau (1 à 8) avec validation de syntaxe.
-              </span>
-              <button
-                onClick={() => navigateTo('portal')}
-                className="px-3 py-1.5 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-white text-xs font-semibold transition"
-              >
-                ← Retour au Portail Dev
-              </button>
-            </div>
-            <DevLab 
-              onGoToProd={() => navigateTo('prod')}
-              onViewFullCode={() => navigateTo('code')}
-            />
+            {isDevAdmin ? (
+              <>
+                <div className="flex items-center justify-between bg-[#18181b] border border-zinc-800 p-3 rounded-2xl text-xs text-zinc-400">
+                  <span className="font-medium">
+                    Laboratoire de Modifications par Niveau (1 à 8) avec validation de syntaxe.
+                  </span>
+                  <button
+                    onClick={() => navigateTo('portal')}
+                    className="px-3 py-1.5 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-white text-xs font-semibold transition"
+                  >
+                    ← Retour au Portail Dev
+                  </button>
+                </div>
+                <DevLab 
+                  onGoToProd={() => navigateTo('prod')}
+                  onViewFullCode={() => navigateTo('code')}
+                />
+              </>
+            ) : (
+              <div className="max-w-md mx-auto my-16 p-8 rounded-3xl bg-[#140e2e] border border-[#5A33FF55] text-center space-y-4 shadow-2xl">
+                <div className="w-14 h-14 rounded-2xl bg-rose-500/20 text-rose-300 border border-rose-500/30 flex items-center justify-center mx-auto text-2xl">
+                  <Lock className="w-7 h-7 text-rose-400" />
+                </div>
+                <h3 className="text-xl font-extrabold text-white">Accès Restreint</h3>
+                <p className="text-xs text-[#c4b5fd]">
+                  Réservé au compte développeur <strong>saydoukebe31@gmail.com</strong>.
+                </p>
+                <button
+                  onClick={() => navigateTo('visiteur')}
+                  className="px-5 py-2.5 rounded-xl bg-[#5A33FF] text-white text-xs font-bold transition mx-auto"
+                >
+                  Retour à l'accueil
+                </button>
+              </div>
+            )}
           </div>
         )}
 
         {/* VIEW 6: CODE VIEWER */}
         {currentView === 'code' && (
           <div className="max-w-7xl mx-auto p-4 sm:p-6 md:p-8 space-y-4">
-            <div className="flex items-center justify-between bg-[#18181b] border border-zinc-800 p-3 rounded-2xl text-xs text-zinc-400">
-              <span className="font-medium">Inspecteur du fichier Python app.py</span>
-              <button
-                onClick={() => navigateTo('portal')}
-                className="px-3 py-1.5 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-white text-xs font-semibold transition"
-              >
-                ← Retour au Portail Dev
-              </button>
-            </div>
-            <AppPyViewer />
+            {isDevAdmin ? (
+              <>
+                <div className="flex items-center justify-between bg-[#18181b] border border-zinc-800 p-3 rounded-2xl text-xs text-zinc-400">
+                  <span className="font-medium">Inspecteur du fichier Python app.py</span>
+                  <button
+                    onClick={() => navigateTo('portal')}
+                    className="px-3 py-1.5 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-white text-xs font-semibold transition"
+                  >
+                    ← Retour au Portail Dev
+                  </button>
+                </div>
+                <AppPyViewer />
+              </>
+            ) : (
+              <div className="max-w-md mx-auto my-16 p-8 rounded-3xl bg-[#140e2e] border border-[#5A33FF55] text-center space-y-4 shadow-2xl">
+                <h3 className="text-xl font-extrabold text-white">Accès Restreint</h3>
+                <button
+                  onClick={() => navigateTo('visiteur')}
+                  className="px-5 py-2.5 rounded-xl bg-[#5A33FF] text-white text-xs font-bold transition mx-auto"
+                >
+                  Retour à l'accueil
+                </button>
+              </div>
+            )}
           </div>
         )}
       </main>
@@ -291,9 +353,11 @@ export default function App() {
               <button onClick={() => navigateTo('visiteur')} className="hover:text-white underline">
                 Accueil (/)
               </button>
-              <button onClick={() => navigateTo('portal')} className="hover:text-white underline">
-                Portail Dev (/portail-dev)
-              </button>
+              {isDevAdmin && (
+                <button onClick={() => navigateTo('portal')} className="hover:text-white underline">
+                  Portail Dev (/portail-dev)
+                </button>
+              )}
             </div>
           </div>
         </footer>

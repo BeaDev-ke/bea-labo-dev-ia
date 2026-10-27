@@ -28,7 +28,8 @@ import {
   ArrowUp,
   Sliders,
   LogOut,
-  ExternalLink
+  ExternalLink,
+  HelpCircle
 } from 'lucide-react';
 import { ChatMessage, PageView, UserProfile, ProfileType, UseCaseType } from '../types/bea';
 import { andreaVoice } from '../utils/speech';
@@ -49,6 +50,8 @@ import {
   isHoneypotTriggered 
 } from '../utils/security';
 import { generateHumanAndreaResponse } from '../utils/textHumanizer';
+import { calculateTokenStatus, consumeTokens, TokenStatus } from '../utils/tokenLimit';
+import { DidacticielWrapper } from './DidacticielTooltip';
 
 export interface AndreaAppPreviewProps {
   onOpenLab: () => void;
@@ -90,7 +93,7 @@ export const AndreaAppPreview: React.FC<AndreaAppPreviewProps> = ({
   const [showPlusMenu, setShowPlusMenu] = useState(false);
   const [modelChoice, setModelChoice] = useState<'rapide' | 'puissant'>('rapide');
   
-  // Ref to automatically scroll to the bottom of the conversation (WhatsApp behavior)
+  // WhatsApp-style automatic scroll to latest message
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
 
   const handleToggleVoiceRecording = () => {
@@ -156,15 +159,24 @@ export const AndreaAppPreview: React.FC<AndreaAppPreviewProps> = ({
     }
   }, [currentUser]);
 
+  // Check if current user is the developer administrator
+  const isDevAdmin = userProfile.email?.toLowerCase().trim() === 'saydoukebe31@gmail.com';
+
   // Active use case mode synchronisé avec le profil utilisateur
   const useCase: UseCaseType = userProfile.useCase;
-  const [showChallengeInfo, setShowChallengeInfo] = useState(false);
-
-  // PSYCHOLOGIE & RÉTENTION :
   const hasStreak = useCase === 'contenu' || useCase === 'scolaire';
   const hasDailyChallenge = useCase === 'scolaire';
   const [dailyChallengeDone, setDailyChallengeDone] = useState(false);
   const [showCelebration, setShowCelebration] = useState(false);
+
+  // Dynamic Token Status calculation based on Plan & Streak
+  const [tokenStatus, setTokenStatus] = useState<TokenStatus>(() => 
+    calculateTokenStatus(userProfile.plan, userProfile.streakDays)
+  );
+
+  useEffect(() => {
+    setTokenStatus(calculateTokenStatus(userProfile.plan, userProfile.streakDays));
+  }, [userProfile.plan, userProfile.streakDays]);
 
   // Messages de départ adaptés au profil
   const [messages, setMessages] = useState<ChatMessage[]>([
@@ -187,7 +199,7 @@ Voici comment compresser ta production de 5h à 45 minutes :
 - **Couche Sortie (45 à 55 sec)** : 1 appel à l'action limpide et engageant.
 
 **2. Le découplage des tâches (Batching) :**
-Ne filme jamais et ne monte jamais dans la même session. La fatigue décisionnelle après le tournage te fait hésiter sur chaque coupe. Découpe en deux créneaux :
+Ne filme jamais et ne monte jamais dans la même session. Découpe en deux créneaux :
 - Bloc A : Écriture et tournage d'affilée de 3 vidéos brutes.
 - Bloc B : Montage standardisé le lendemain avec un template pré-calibré dans l'outil de Montage Andrea.
 
@@ -229,14 +241,6 @@ if __name__ == "__main__":
     }
   };
 
-  const handleUseCaseSwitch = (newUseCase: UseCaseType) => {
-    const updated: UserProfile = {
-      ...userProfile,
-      useCase: newUseCase,
-    };
-    handleUpdateProfile(updated);
-  };
-
   const toggleSpeak = (msgId: string, text: string) => {
     if (speakingMsgId === msgId) {
       andreaVoice.stop();
@@ -249,7 +253,7 @@ if __name__ == "__main__":
     }
   };
 
-  // ENVOI SÉCURISÉ AVEC TRIPLE COUCHE ANTI-PIRATAGE
+  // ENVOI SÉCURISÉ AVEC GESTION DU QUOTA DE TOKENS
   const handleSend = () => {
     if (isHoneypotTriggered(honeypot)) {
       console.warn('[SECURITY] Bot piégé par le Honeypot.');
@@ -257,6 +261,12 @@ if __name__ == "__main__":
     }
 
     if (!inputMessage.trim()) return;
+
+    // Check Token Limit (unless Ultra unlimited)
+    if (!tokenStatus.isUnlimited && tokenStatus.remainingToday <= 0) {
+      setSecurityAlert(`Quota quotidien de tokens atteint (${tokenStatus.totalDailyLimit.toLocaleString()} tokens). Votre quota se recharge à minuit avec vos bonus de série, ou passez à l'offre Ultra pour des tokens 100% ILLIMITÉS.`);
+      return;
+    }
 
     // Rate limiting anti-flood
     const rateCheck = checkRateLimit('user-chat-app', 15, 60000);
@@ -274,6 +284,10 @@ if __name__ == "__main__":
 
     // Assainissement XSS
     const sanitizedText = sanitizeXSS(inputMessage.trim());
+
+    // Deduct tokens
+    consumeTokens(250);
+    setTokenStatus(calculateTokenStatus(userProfile.plan, userProfile.streakDays));
 
     const userMsg: ChatMessage = {
       id: Date.now().toString(),
@@ -335,13 +349,13 @@ if __name__ == "__main__":
   return (
     <div className="h-full w-full flex bg-[#181135] text-white font-sans overflow-hidden select-none">
       
-      {/* 1. LEFT SIDEBAR */}
-      <aside className="w-64 md:w-72 bg-[#100b24] border-r border-[#5A33FF33] flex flex-col justify-between shrink-0 h-full overflow-y-auto z-20 shadow-2xl">
-        <div className="p-3.5 space-y-3.5">
+      {/* 1. LEFT SIDEBAR (AGRANDI ET ÉPURÉ) */}
+      <aside className="w-72 md:w-80 lg:w-[330px] bg-[#100b24] border-r border-[#5A33FF33] flex flex-col justify-between shrink-0 h-full overflow-y-auto z-20 shadow-2xl">
+        <div className="p-4 sm:p-5 space-y-4">
           
           {/* Logo Andrea (logo_bea.png) */}
           <div className="flex flex-col items-center justify-center text-center pt-1">
-            <div className="w-14 h-14 rounded-2xl bg-[#161033] border border-[#5A33FF55] p-1 shadow-lg mb-1.5 flex items-center justify-center overflow-hidden hover:scale-105 transition-transform">
+            <div className="w-16 h-16 rounded-2xl bg-[#161033] border border-[#5A33FF55] p-1.5 shadow-xl mb-2 flex items-center justify-center overflow-hidden hover:scale-105 transition-transform">
               <img 
                 src="/logo_bea.png" 
                 alt="Andrea Logo" 
@@ -349,122 +363,111 @@ if __name__ == "__main__":
                 onError={(e) => { e.currentTarget.src = "/logo_andrea.png"; }}
               />
             </div>
-            <div className="font-extrabold text-base text-white tracking-tight">Andrea</div>
-            <div className="text-[10px] font-bold text-[#a78bfa] tracking-widest uppercase">BehaviorLab AI</div>
+            <div className="font-extrabold text-lg text-white tracking-tight">Andrea</div>
+            <div className="text-[11px] font-bold text-[#a78bfa] tracking-widest uppercase">BehaviorLab AI</div>
           </div>
 
-          {/* ACTIVE USER PROFILE CHIP */}
+          {/* ACTIVE USER PROFILE CHIP (Agrandie et claire) */}
           <button
             onClick={() => setCurrentPage('profil')}
-            className="w-full bg-[#181135] hover:bg-[#231a4a] border border-[#5A33FF44] p-2.5 rounded-2xl text-left transition flex items-center justify-between shadow-inner"
+            className="w-full bg-[#181135] hover:bg-[#231a4a] border border-[#5A33FF44] p-3 rounded-2xl text-left transition flex items-center justify-between shadow-inner group"
             title="Gérer votre profil utilisateur"
           >
-            <div className="flex items-center gap-2 overflow-hidden">
-              <span className="text-xl shrink-0">{PROFILE_METAS[userProfile.profileType]?.icon || '👤'}</span>
+            <div className="flex items-center gap-2.5 overflow-hidden">
+              <span className="text-2xl shrink-0 group-hover:scale-110 transition-transform">
+                {PROFILE_METAS[userProfile.profileType]?.icon || '👤'}
+              </span>
               <div className="truncate">
-                <div className="text-xs font-bold text-white truncate">{userProfile.displayName}</div>
-                <div className="text-[10px] text-[#c4b5fd] truncate">{PROFILE_METAS[userProfile.profileType]?.label}</div>
+                <div className="text-sm font-bold text-white truncate">{userProfile.displayName}</div>
+                <div className="text-[11px] text-[#c4b5fd] truncate">{PROFILE_METAS[userProfile.profileType]?.label}</div>
               </div>
             </div>
-            <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-purple-500/20 text-purple-300 shrink-0">
+            <span className="text-[10px] font-bold px-2 py-0.5 rounded-lg bg-purple-500/20 text-purple-300 shrink-0">
               Éditer
             </span>
           </button>
 
-          {/* MODE SELECTOR */}
-          <div className="bg-[#15112a] border border-[#5A33FF33] rounded-xl p-1.5 space-y-1 text-xs">
-            <span className="text-[10px] text-[#a78bfa] font-bold block px-1">Cas d'usage actif :</span>
-            <div className="grid grid-cols-2 gap-1">
-              {[
-                { id: 'scolaire', label: '🎓 Scolaire', hint: 'Défis + Série' },
-                { id: 'contenu', label: '🎬 Contenu', hint: 'Série active' },
-                { id: 'clients', label: '💼 Clients', hint: 'Sans streak' },
-                { id: 'general', label: '✨ Général', hint: 'Sans streak' },
-              ].map(m => (
-                <button
-                  key={m.id}
-                  onClick={() => handleUseCaseSwitch(m.id as any)}
-                  className={`px-2 py-1.5 rounded-lg text-[11px] font-semibold transition text-left ${
-                    useCase === m.id
-                      ? 'bg-[#5A33FF] text-white shadow-sm'
-                      : 'text-[#c4b5fd] hover:bg-[#231a4a]'
-                  }`}
-                >
-                  <div className="font-bold">{m.label}</div>
-                  <div className="text-[9px] opacity-75">{m.hint}</div>
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* COMPTEUR DE SÉRIE */}
+          {/* COMPTEUR DE SÉRIE & PROGRESSION */}
           {hasStreak && (
-            <div className="bg-gradient-to-br from-[#1e143b] to-[#140e2b] border border-[#5A33FF44] rounded-2xl p-2.5 space-y-1.5 shadow-inner">
+            <div className="bg-gradient-to-br from-[#1e143b] to-[#140e2b] border border-[#5A33FF44] rounded-2xl p-3 space-y-2 shadow-inner">
               <div className="flex items-center justify-between">
-                <span className="text-[11px] font-bold text-white flex items-center gap-1.5">
-                  <Flame className="w-3.5 h-3.5 text-amber-400 fill-amber-400" />
+                <span className="text-xs font-bold text-white flex items-center gap-1.5">
+                  <Flame className="w-4 h-4 text-amber-400 fill-amber-400" />
                   <span>
                     {useCase === 'scolaire' ? `Série révisions : ${userProfile.streakDays}j` : `Série publications : ${userProfile.streakDays}j`}
                   </span>
                 </span>
-                <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-purple-500/20 text-purple-300">
+                <span className="text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-purple-500/30 text-purple-200 border border-purple-400/40">
                   {userProfile.momentumPoints} pts
                 </span>
               </div>
-              <div className="w-full h-1.5 bg-[#0a0718] rounded-full overflow-hidden">
+              <div className="w-full h-2 bg-[#0a0718] rounded-full overflow-hidden">
                 <div className="h-full bg-gradient-to-r from-[#5A33FF] via-[#a855f7] to-[#ec4899] rounded-full transition-all duration-500 w-[80%]" />
               </div>
             </div>
           )}
 
-          {/* New Chat Button */}
+          {/* New Chat Button (Plus grand et engageant) */}
           <button
             onClick={() => {
               setMessages([]);
               setCurrentPage('chat');
             }}
-            className="w-full py-2 px-3 rounded-xl bg-[#171131] hover:bg-[#231a4a] border border-[#5A33FF66] text-xs font-bold text-white transition flex items-center justify-center gap-1.5 shadow"
+            className="w-full py-2.5 px-4 rounded-2xl bg-[#171131] hover:bg-[#231a4a] border border-[#5A33FF66] text-xs font-bold text-white transition flex items-center justify-center gap-2 shadow-md hover:border-[#8B70FF]"
           >
-            <Plus className="w-3.5 h-3.5 text-purple-400" />
+            <Plus className="w-4 h-4 text-purple-400" />
             Nouvelle discussion
           </button>
 
-          {/* NOM PAR LEQUEL ANDREA APPELLE LE CLIENT */}
-          <div className="bg-[#181135] border border-[#5A33FF33] rounded-2xl p-2.5 shadow-md space-y-1">
-            <div className="flex items-center justify-between">
-              <span className="text-[10px] font-bold text-[#c4b5fd] uppercase tracking-wider">
-                Espace Personnel
-              </span>
-              <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
-                {userProfile.plan ? userProfile.plan.toUpperCase() : 'BASIQUE'}
-              </span>
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="text-sm">👋</span>
-              <div className="truncate">
-                <span className="text-[10px] text-[#c4b5fd] block">Andrea vous appelle :</span>
-                <span className="text-xs font-extrabold text-white truncate block">
-                  « {userProfile.preferredCallName || userProfile.displayName} »
+          {/* ESPACE PERSONNEL + CAS D'USAGE DIRECTEMENT EN DESSOUS (Sans la grosse case 4 boutons) */}
+          <DidacticielWrapper stepId="espace_perso" placement="right">
+            <div className="bg-[#181135] border border-[#5A33FF33] rounded-2xl p-3.5 shadow-md space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="text-[11px] font-bold text-[#c4b5fd] uppercase tracking-wider">
+                  Espace Personnel
+                </span>
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+                  {userProfile.plan ? userProfile.plan.toUpperCase() : 'BASIQUE'}
+                </span>
+              </div>
+              <div className="flex items-center gap-2.5">
+                <span className="text-base">👋</span>
+                <div className="truncate">
+                  <span className="text-[10px] text-[#c4b5fd] block">Andrea vous appelle :</span>
+                  <span className="text-sm font-extrabold text-white truncate block">
+                    « {userProfile.preferredCallName || userProfile.displayName} »
+                  </span>
+                </div>
+              </div>
+
+              {/* MENTION DU CAS D'USAGE ACTIF EN DESSOUS D'ESPACE PERSONNEL */}
+              <div className="pt-2 border-t border-[#5A33FF22] flex items-center justify-between text-[11px]">
+                <span className="text-[#a78bfa] font-semibold">Cas d'usage :</span>
+                <span className="font-bold text-white bg-[#22184c] px-2.5 py-0.5 rounded-lg border border-[#5A33FF33] text-[11px]">
+                  {useCase === 'scolaire' ? '🎓 Scolaire (Défis + Série)' :
+                   useCase === 'contenu' ? '🎬 Contenu (Série active)' :
+                   useCase === 'clients' ? '💼 Clients (Sans streak)' :
+                   '✨ Général (Sans streak)'}
                 </span>
               </div>
             </div>
-          </div>
+          </DidacticielWrapper>
 
-          {/* Navigation Menu (Sans doublons, avec Création de Site en place de Profil, et Montage) */}
-          <nav className="space-y-1">
+          {/* Navigation Menu (AGRANDI : Textes plus grands, padding confortable, zéro doublon) */}
+          <nav className="space-y-1.5 pt-1">
             {[
-              { id: 'chat', label: '💬 Discussion avec Andrea', isAction: false },
-              { id: 'app', label: '🌐 Création de Site Web', isAction: false, badge: 'Pro' },
-              { id: 'studio', label: '🎬 Montage Vidéo & Visuel', isAction: true },
-              { id: 'creative_hub', label: '✨ Labo d\'IA (Création)', isAction: false, badge: 'Viral' },
-              { id: 'profil', label: '👤 Mon Profil & Rôle', isAction: false },
-              { id: 'compte', label: '💎 Offres & Abonnements', isAction: false },
-              { id: 'code', label: '💻 Code & Débogage', isAction: false },
-              { id: 'memoire', label: "🧠 Mémoire d'Andrea", isAction: false },
-              { id: 'parametres', label: '⚙️ Paramètres IA', isAction: false },
+              { id: 'chat', label: '💬 Discussion avec Andrea', stepId: 'chat' },
+              { id: 'app', label: '🌐 Création de Site Web', stepId: 'site', badge: 'Pro' },
+              { id: 'studio', label: '🎬 Montage Vidéo & Visuel', stepId: 'montage' },
+              { id: 'creative_hub', label: '✨ Labo d\'IA (Création)', stepId: 'creative_hub', badge: 'Viral' },
+              { id: 'profil', label: '👤 Mon Profil & Rôle' },
+              { id: 'compte', label: '💎 Offres & Abonnements', stepId: 'offres' },
+              { id: 'code', label: '💻 Code & Débogage' },
+              { id: 'memoire', label: "🧠 Mémoire d'Andrea" },
+              { id: 'parametres', label: '⚙️ Paramètres IA' },
             ].map(item => {
               const active = currentPage === item.id;
-              return (
+              const buttonEl = (
                 <button
                   key={item.id}
                   onClick={() => {
@@ -474,70 +477,87 @@ if __name__ == "__main__":
                       setCurrentPage(item.id as PageView);
                     }
                   }}
-                  className={`w-full text-left px-3 py-2 rounded-xl text-xs font-semibold transition flex items-center justify-between ${
+                  className={`w-full text-left px-3.5 sm:px-4 py-2.5 rounded-2xl text-[13.5px] font-bold transition flex items-center justify-between ${
                     active
-                      ? 'bg-gradient-to-r from-[#1E1B8C] to-[#5A33FF] text-white border border-[#5A33FF] shadow-sm font-semibold'
+                      ? 'bg-gradient-to-r from-[#1E1B8C] to-[#5A33FF] text-white border border-[#5A33FF] shadow-md'
                       : 'text-[#c4b5fd] hover:bg-[#201844] hover:text-white'
                   }`}
                 >
                   <span className="truncate pr-1">{item.label}</span>
                   {item.badge && (
-                    <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 shrink-0">
+                    <span className="text-[10px] font-black px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 shrink-0">
                       {item.badge}
                     </span>
                   )}
                 </button>
               );
+
+              if (item.stepId) {
+                return (
+                  <DidacticielWrapper key={item.id} stepId={item.stepId as any} placement="right" className="w-full">
+                    {buttonEl}
+                  </DidacticielWrapper>
+                );
+              }
+              return buttonEl;
             })}
           </nav>
         </div>
 
-        {/* Dev Lab Launcher from Inside Andrea */}
-        <div className="p-3 border-t border-[#5A33FF22] bg-[#0c091d] space-y-1.5">
-          <button
-            onClick={onOpenLab}
-            className="w-full py-2 px-2.5 rounded-xl bg-purple-950/40 hover:bg-purple-900/60 border border-[#5A33FF55] text-xs font-bold text-white transition flex items-center justify-center gap-1.5 shadow"
-          >
-            <Wand2 className="w-3.5 h-3.5 text-purple-300" />
-            🧪 Ouvrir le Labo Dev IA
-          </button>
-          <div className="text-[10px] text-[#8a7ab8] text-center truncate">{userProfile.email}</div>
-        </div>
+        {/* Dev Lab Launcher : STRICTEMENT VISIBLE POUR saydoukebe31@gmail.com */}
+        {isDevAdmin && (
+          <div className="p-3.5 border-t border-[#5A33FF22] bg-[#0c091d] space-y-1.5 shrink-0">
+            <button
+              onClick={onOpenLab}
+              className="w-full py-2.5 px-3 rounded-xl bg-purple-950/60 hover:bg-purple-900/80 border border-[#5A33FF66] text-xs font-bold text-white transition flex items-center justify-center gap-2 shadow"
+            >
+              <Wand2 className="w-4 h-4 text-purple-300" />
+              🧪 Ouvrir le Labo Dev IA
+            </button>
+            <div className="text-[10px] text-purple-300 text-center font-mono truncate">
+              Admin Dev: {userProfile.email}
+            </div>
+          </div>
+        )}
       </aside>
 
       {/* 2. MAIN CONTENT AREA */}
       <div className="flex-1 flex flex-col h-full overflow-hidden bg-[#181135]">
         
-        {/* TOP NAVIGATION BAR : UN SEUL HEADER ÉPURÉ SANS BARRES EN DOUBLE */}
-        <header className="bg-[#130d2a] px-3 sm:px-6 py-2.5 border-b border-[#5A33FF33] flex items-center justify-between gap-3 shrink-0 z-10 shadow-md">
+        {/* TOP NAVIGATION BAR : MENUS EN HAUT AGRANDIS & GAUGE DE TOKENS */}
+        <header className="bg-[#130d2a] px-4 sm:px-6 py-3 border-b border-[#5A33FF33] flex items-center justify-between gap-3 shrink-0 z-10 shadow-md">
           {/* Left identity */}
-          <div className="flex items-center gap-2.5 shrink-0">
+          <div className="flex items-center gap-3 shrink-0">
             <img 
               src="/logo_bea.png" 
               alt="Andrea Logo" 
-              className="w-7 h-7 object-contain rounded-lg border border-[#5A33FF44]"
+              className="w-8 h-8 object-contain rounded-xl border border-[#5A33FF44]"
               onError={(e) => { e.currentTarget.src = "/logo_andrea.png"; }}
             />
-            <span className="font-extrabold text-sm text-white">Andrea</span>
-            <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-[#201844] text-[#c4b5fd] border border-[#5A33FF33] hidden sm:inline">
-              BehaviorLab AI
-            </span>
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="font-extrabold text-base text-white tracking-tight">Andrea</span>
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#201844] text-[#c4b5fd] border border-[#5A33FF33] hidden sm:inline">
+                  BehaviorLab AI
+                </span>
+              </div>
+            </div>
           </div>
 
-          {/* Menus horizontaux : Création de Site en place de Profil, Montage, etc. */}
-          <div className="flex items-center gap-1 overflow-x-auto min-w-0 flex-1 justify-center py-0.5 px-2">
+          {/* Menus horizontaux agrandis avec défilement invisible élégant */}
+          <div className="flex items-center gap-1.5 sm:gap-2 overflow-x-auto min-w-0 flex-1 justify-center py-1 px-2 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
             {[
-              { id: 'chat', label: '💬 Discussion' },
-              { id: 'app', label: '🌐 Création de Site' }, // In place of Profil
-              { id: 'studio', label: '🎬 Montage' },
-              { id: 'creative_hub', label: '✨ Labo d\'IA' },
+              { id: 'chat', label: '💬 Discussion', stepId: 'chat' },
+              { id: 'app', label: '🌐 Création de Site', stepId: 'site' },
+              { id: 'studio', label: '🎬 Montage', stepId: 'montage' },
+              { id: 'creative_hub', label: '✨ Labo d\'IA', stepId: 'creative_hub' },
               { id: 'code', label: '💻 Code' },
-              { id: 'compte', label: '💎 Offres' },
+              { id: 'compte', label: '💎 Offres', stepId: 'offres' },
               { id: 'memoire', label: '🧠 Mémoire' },
               { id: 'parametres', label: '⚙️ Paramètres' },
             ].map(tab => {
               const isActive = currentPage === tab.id;
-              return (
+              const tabButton = (
                 <button
                   key={tab.id}
                   onClick={() => {
@@ -547,7 +567,7 @@ if __name__ == "__main__":
                       setCurrentPage(tab.id as PageView);
                     }
                   }}
-                  className={`px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition shrink-0 ${
+                  className={`px-3.5 sm:px-4 py-2 rounded-2xl text-[13.5px] sm:text-sm font-bold whitespace-nowrap transition shrink-0 ${
                     isActive
                       ? 'bg-gradient-to-r from-[#1E1B8C] to-[#5A33FF] text-white shadow-md border border-[#5A33FF]'
                       : 'text-[#c4b5fd] hover:text-white hover:bg-[#201844]'
@@ -556,15 +576,49 @@ if __name__ == "__main__":
                   {tab.label}
                 </button>
               );
+
+              if (tab.stepId) {
+                return (
+                  <DidacticielWrapper key={tab.id} stepId={tab.stepId as any} placement="bottom" className="shrink-0">
+                    {tabButton}
+                  </DidacticielWrapper>
+                );
+              }
+              return tabButton;
             })}
           </div>
 
-          {/* Right section: Sécurité en haut à droite + Profil utilisateur + Déconnexion */}
-          <div className="flex items-center gap-2 shrink-0">
-            {/* SÉCURITÉ EN HAUT À DROITE (Comme demandé par l'utilisateur) */}
+          {/* Right section: GAUGE DE TOKENS ÉVOLUTIVE + SÉCURITÉ + PROFIL */}
+          <div className="flex items-center gap-2.5 shrink-0">
+            
+            {/* COMPTEUR & QUOTA DE TOKENS AVEC DIDACTICIEL (Survol explique le bonus de série & l'offre Ultra) */}
+            <DidacticielWrapper stepId="tokens" placement="bottom">
+              <div className="flex items-center gap-2 px-3 py-1.5 rounded-2xl bg-[#1b143c] border border-[#5A33FF44] shadow-sm hover:border-[#8B70FF] transition cursor-help">
+                <span className="text-amber-400 text-sm">⚡</span>
+                <div className="text-left">
+                  <div className="text-[10px] text-[#c4b5fd] font-semibold flex items-center gap-1 leading-none">
+                    <span>Tokens</span>
+                    {tokenStatus.isUnlimited ? (
+                      <span className="text-emerald-400 font-extrabold">ILLIMITÉS</span>
+                    ) : (
+                      <span className="text-purple-300 font-bold">+{tokenStatus.bonusStreakTokens.toLocaleString()} série</span>
+                    )}
+                  </div>
+                  <div className="text-xs font-black text-white font-mono mt-0.5">
+                    {tokenStatus.isUnlimited ? (
+                      <span className="text-emerald-300">∞ Ultra</span>
+                    ) : (
+                      <span>{tokenStatus.remainingToday.toLocaleString()} restants</span>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </DidacticielWrapper>
+
+            {/* SÉCURISÉ */}
             <div 
-              className="flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-emerald-950/60 border border-emerald-500/50 text-[11px] font-bold text-emerald-300 shadow-sm"
-              title="Connexion cryptée et protection anti-piratage active"
+              className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-2xl bg-emerald-950/60 border border-emerald-500/50 text-[11px] font-bold text-emerald-300 shadow-sm"
+              title="Connexion cryptée et protection active"
             >
               <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
               <span>🔒 Sécurisé</span>
@@ -573,7 +627,7 @@ if __name__ == "__main__":
             {/* Profil utilisateur direct */}
             <button
               onClick={() => setCurrentPage('profil')}
-              className="hidden lg:flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-[#201844] hover:bg-[#2b215c] border border-[#5A33FF44] text-xs font-bold text-white transition"
+              className="hidden xl:flex items-center gap-1.5 px-3 py-1.5 rounded-2xl bg-[#201844] hover:bg-[#2b215c] border border-[#5A33FF44] text-xs font-bold text-white transition"
               title="Accéder à mon profil"
             >
               <User className="w-3.5 h-3.5 text-purple-300" />
@@ -583,11 +637,11 @@ if __name__ == "__main__":
             {onSignOut && (
               <button
                 onClick={onSignOut}
-                className="px-2.5 py-1 rounded-xl bg-[#201844] hover:bg-rose-950/60 text-[#c4b5fd] hover:text-rose-200 text-xs font-semibold transition flex items-center gap-1"
+                className="px-3 py-1.5 rounded-2xl bg-[#201844] hover:bg-rose-950/60 text-[#c4b5fd] hover:text-rose-200 text-xs font-semibold transition flex items-center gap-1"
                 title="Se déconnecter"
               >
                 <LogOut className="w-3.5 h-3.5" />
-                <span className="hidden xl:inline">Déconnexion</span>
+                <span className="hidden md:inline">Déconnexion</span>
               </button>
             )}
           </div>
@@ -595,7 +649,7 @@ if __name__ == "__main__":
 
         {/* SECURITY ALERT BANNER */}
         {securityAlert && (
-          <div className="bg-rose-950/80 border-b border-rose-500 p-2.5 text-xs text-rose-200 flex items-center justify-between px-4 shrink-0">
+          <div className="bg-rose-950/90 border-b border-rose-500 p-3 text-xs text-rose-200 flex items-center justify-between px-4 shrink-0 shadow-lg">
             <div className="flex items-center gap-2">
               <AlertTriangle className="w-4 h-4 text-rose-400 shrink-0" />
               <span>{securityAlert}</span>
@@ -613,7 +667,7 @@ if __name__ == "__main__":
         {showCelebration && (
           <div className="bg-gradient-to-r from-emerald-600 to-teal-600 text-white p-2.5 text-center text-xs font-bold shadow-lg animate-in slide-in-from-top flex items-center justify-center gap-2 shrink-0">
             <Award className="w-4 h-4 text-amber-300" />
-            <span>Félicitations ! Micro-défi validé (+25 pts). Votre élan est lancé !</span>
+            <span>Félicitations ! Micro-défi validé (+25 pts). Votre série augmente ainsi que votre limite quotidienne de tokens !</span>
           </div>
         )}
 
@@ -623,8 +677,8 @@ if __name__ == "__main__":
             
             {/* Top Sub-Bar with Voice & Mode */}
             <div className="px-4 py-2 border-b border-[#5A33FF22] bg-[#140e2d] flex items-center justify-between text-xs shrink-0">
-              <div className="flex items-center gap-2">
-                <span className="text-[11px] px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 flex items-center gap-1 font-semibold">
+              <div className="flex items-center gap-2.5">
+                <span className="text-[11px] px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 flex items-center gap-1.5 font-semibold">
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
                   Voix 100% Gratuite Active
                 </span>
@@ -633,22 +687,22 @@ if __name__ == "__main__":
                 </span>
               </div>
 
-              {hasDailyChallenge && (
-                <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2">
+                {hasDailyChallenge && (
                   <button
                     onClick={completeDailyChallenge}
                     disabled={dailyChallengeDone}
-                    className={`px-2.5 py-0.5 rounded-full text-[11px] font-bold transition flex items-center gap-1 ${
+                    className={`px-3 py-1 rounded-full text-[11px] font-bold transition flex items-center gap-1.5 ${
                       dailyChallengeDone
                         ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40'
                         : 'bg-purple-600/30 hover:bg-purple-600/50 text-purple-200 border border-purple-400 animate-pulse'
                     }`}
                   >
                     <Zap className="w-3 h-3 text-amber-400" />
-                    {dailyChallengeDone ? '✓ Défi Révision validé' : '🎯 Micro-Défi 3 min'}
+                    {dailyChallengeDone ? '✓ Défi validé' : '🎯 Micro-Défi 3 min (+ Tokens)'}
                   </button>
-                </div>
-              )}
+                )}
+              </div>
             </div>
 
             {/* Conversation Messages Container : ON REMONTE POUR VOIR LES ANCIENS MESSAGES */}
@@ -705,7 +759,7 @@ if __name__ == "__main__":
                           key={idx}
                           type="button"
                           onClick={() => setInputMessage(item.prompt)}
-                          className="p-3 rounded-2xl bg-[#1b143c] hover:bg-[#231a4a] border border-[#5A33FF33] hover:border-[#8B70FF] transition text-left group shadow-sm hover:scale-[1.01]"
+                          className="p-3.5 rounded-2xl bg-[#1b143c] hover:bg-[#231a4a] border border-[#5A33FF33] hover:border-[#8B70FF] transition text-left group shadow-sm hover:scale-[1.01]"
                         >
                           <div className="text-xs font-bold text-white group-hover:text-purple-300 transition">
                             {item.title}
@@ -1047,7 +1101,7 @@ if __name__ == "__main__":
           </div>
         )}
 
-        {/* 10. SÉCURITÉ DÉTAILLÉE (Accessible si besoin) */}
+        {/* 10. SÉCURITÉ DÉTAILLÉE */}
         {currentPage === 'securite' && (
           <div className="flex-1 p-4 md:p-6 overflow-y-auto">
             <SecurityShield />

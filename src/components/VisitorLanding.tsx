@@ -260,16 +260,7 @@ export const VisitorLanding: React.FC<VisitorLandingProps> = ({
 
 
 
-          {onGoToDevPortal && (
-            <button
-              onClick={onGoToDevPortal}
-              className="px-3 py-1.5 rounded-xl bg-[#1b143c] hover:bg-[#251b54] text-[#c4b5fd] hover:text-white border border-[#5A33FF33] text-xs font-medium transition flex items-center gap-1"
-              title="Accéder au Portail Développeur (/portail-dev)"
-            >
-              <Code2 className="w-3.5 h-3.5" />
-              <span>Portail Dev (/portail-dev)</span>
-            </button>
-          )}
+
         </div>
       </div>
 
