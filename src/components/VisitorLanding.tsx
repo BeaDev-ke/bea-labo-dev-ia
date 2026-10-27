@@ -21,6 +21,7 @@ import {
 } from 'lucide-react';
 import { UserProfile, ProfileType, UseCaseType } from '../types/bea';
 import { SALES_PLANS } from '../data/profilesData';
+import { AndreaShowcaseVideo } from './AndreaShowcaseVideo';
 
 interface VisitorLandingProps {
   onEnterApp: (user?: UserProfile) => void;
@@ -565,6 +566,26 @@ export const VisitorLanding: React.FC<VisitorLandingProps> = ({
                 )}
               </div>
             </div>
+          </div>
+        )}
+
+        {/* VIDÉO OFFICIELLE DE DÉMONSTRATION ANDREA & BEHAVIORLAB AI */}
+        {landingSection === 'home' && (
+          <div id="demo-video-section" className="pt-4 space-y-4">
+            <div className="text-center space-y-2">
+              <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-gradient-to-r from-purple-900/60 to-indigo-900/60 border border-purple-500/40 text-purple-200 text-xs font-bold shadow">
+                <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+                <span>Vidéo de Démonstration Officielle</span>
+              </div>
+              <h2 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
+                Découvrez Andrea en action : Dialogue, Création de Site, Montage & Signature
+              </h2>
+              <p className="text-xs sm:text-sm text-[#c4b5fd] max-w-2xl mx-auto leading-relaxed">
+                Visualisez la méthode en 4 chapitres avec narration vocale réelle par Andrea.
+              </p>
+            </div>
+
+            <AndreaShowcaseVideo />
           </div>
         )}
 

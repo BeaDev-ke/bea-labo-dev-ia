@@ -12,20 +12,40 @@ export interface VoiceOption {
   isFrench: boolean;
 }
 
+export type VoiceGender = 'feminine' | 'masculine';
+
 class BeaVoiceEngine {
   private synth: SpeechSynthesis | null = null;
   private currentUtterance: SpeechSynthesisUtterance | null = null;
   private isSpeakingState = false;
   private listeners: ((speaking: boolean) => void)[] = [];
+  private selectedGender: VoiceGender = 'feminine';
 
   constructor() {
     if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
       this.synth = window.speechSynthesis;
+      try {
+        const saved = localStorage.getItem('andrea_voice_gender');
+        if (saved === 'masculine' || saved === 'feminine') {
+          this.selectedGender = saved;
+        }
+      } catch {}
     }
   }
 
   public isAvailable(): boolean {
     return this.synth !== null;
+  }
+
+  public setGender(gender: VoiceGender): void {
+    this.selectedGender = gender;
+    try {
+      localStorage.setItem('andrea_voice_gender', gender);
+    } catch {}
+  }
+
+  public getGender(): VoiceGender {
+    return this.selectedGender;
   }
 
   public subscribe(listener: (speaking: boolean) => void): () => void {
@@ -61,7 +81,7 @@ class BeaVoiceEngine {
   public speak(
     text: string, 
     onEnd?: () => void,
-    options?: { pitch?: number; rate?: number }
+    options?: { pitch?: number; rate?: number; gender?: VoiceGender }
   ): void {
     if (!this.synth) return;
 
@@ -72,21 +92,47 @@ class BeaVoiceEngine {
 
     const utterance = new SpeechSynthesisUtterance(clean);
     utterance.lang = 'fr-FR';
-    utterance.pitch = options?.pitch ?? 1.05; // Voix légèrement plus chaleureuse
-    utterance.rate = options?.rate ?? 1.0; // Rythme naturel
+    
+    const targetGender = options?.gender ?? this.selectedGender;
+    
+    // Calibrer la tonalité selon le genre
+    if (targetGender === 'masculine') {
+      utterance.pitch = options?.pitch ?? 0.85; // Tonalité masculine plus grave et posée
+      utterance.rate = options?.rate ?? 0.98;
+    } else {
+      utterance.pitch = options?.pitch ?? 1.15; // Tonalité féminine plus claire et dynamique
+      utterance.rate = options?.rate ?? 1.02;
+    }
 
-    // Choisit la meilleure voix française disponible
+    // Choisir la voix la plus adaptée disponible dans le système
     const frenchVoices = this.getFrenchVoices();
     if (frenchVoices.length > 0) {
-      // Préférer les voix neurales haute qualité si présentes
-      const preferred = frenchVoices.find(v => 
-        v.name.includes('Natural') || 
-        v.name.includes('Neural') || 
-        v.name.includes('Hortense') ||
-        v.name.includes('Thomas') ||
-        v.name.includes('Julie')
-      ) || frenchVoices[0];
-      utterance.voice = preferred;
+      if (targetGender === 'masculine') {
+        const maleVoice = frenchVoices.find(v => {
+          const name = v.name.toLowerCase();
+          return name.includes('thomas') || 
+                 name.includes('paul') || 
+                 name.includes('henri') || 
+                 name.includes('claude') || 
+                 name.includes('nicolas') || 
+                 name.includes('mathieu') || 
+                 name.includes('male');
+        });
+        if (maleVoice) utterance.voice = maleVoice;
+        else utterance.voice = frenchVoices[0];
+      } else {
+        const femaleVoice = frenchVoices.find(v => {
+          const name = v.name.toLowerCase();
+          return name.includes('hortense') || 
+                 name.includes('julie') || 
+                 name.includes('denise') || 
+                 name.includes('audrey') || 
+                 name.includes('celine') || 
+                 name.includes('female');
+        });
+        if (femaleVoice) utterance.voice = femaleVoice;
+        else utterance.voice = frenchVoices[0];
+      }
     }
 
     utterance.onstart = () => {
@@ -105,6 +151,16 @@ class BeaVoiceEngine {
 
     this.currentUtterance = utterance;
     this.synth.speak(utterance);
+  }
+
+  public testVoice(
+    gender: VoiceGender = this.selectedGender,
+    onEnd?: () => void
+  ): void {
+    const sample = gender === 'masculine'
+      ? "Bonjour, je suis Andrea avec ma voix masculine. Je vous accompagne dans votre stratégie et la création de vos projets."
+      : "Bonjour, je suis Andrea avec ma voix féminine. Je vous accompagne avec clarté pour transformer vos idées en actions concrètes.";
+    this.speak(sample, onEnd, { gender });
   }
 
   public stop(): void {

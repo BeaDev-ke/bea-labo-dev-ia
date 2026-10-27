@@ -9,14 +9,18 @@ import {
   Check, 
   Download, 
   Volume2, 
+  VolumeX,
   Globe, 
   Terminal, 
   Lock, 
   FileText,
   SlidersHorizontal,
   Info,
-  Cpu
+  Cpu,
+  Play,
+  Square
 } from 'lucide-react';
+import { andreaVoice, VoiceGender } from '../utils/speech';
 
 export interface AiSettings {
   // 1. Modèle & Inférence
@@ -47,7 +51,12 @@ export interface AiSettings {
   webSearchGrounding: boolean;
   longTermMemory: boolean;
   
-  // 5. Confidentialité
+  // 5. Paramètres Vocaux d'Andrea
+  voiceGender: 'feminine' | 'masculine';
+  voicePitch: number;
+  voiceRate: number;
+
+  // 6. Confidentialité
   saveHistory: boolean;
   trainingOptOut: boolean;
   secureLocalEncryption: boolean;
@@ -74,6 +83,9 @@ const DEFAULT_SETTINGS: AiSettings = {
   codeInterpreter: true,
   webSearchGrounding: true,
   longTermMemory: true,
+  voiceGender: 'feminine',
+  voicePitch: 1.1,
+  voiceRate: 1.0,
   saveHistory: true,
   trainingOptOut: true,
   secureLocalEncryption: true,
@@ -92,14 +104,22 @@ export const AiSettingsPanel: React.FC<AiSettingsPanelProps> = ({ onNotify }) =>
     return DEFAULT_SETTINGS;
   });
 
-  const [activeTab, setActiveTab] = useState<'inference' | 'persona' | 'tools' | 'privacy'>('inference');
+  const [activeTab, setActiveTab] = useState<'inference' | 'persona' | 'tools' | 'voice' | 'privacy'>('voice');
   const [savedToast, setSavedToast] = useState(false);
+  const [isTestingVoice, setIsTestingVoice] = useState(false);
+  const [testPhrase, setTestPhrase] = useState("Bonjour, je suis Andrea. Votre assistante comportementale et créative. Cette voix vous convient-elle ?");
 
+  // Sync voice engine gender whenever setting changes
   useEffect(() => {
-    try {
-      localStorage.setItem('andrea_ai_settings', JSON.stringify(settings));
-    } catch {}
-  }, [settings]);
+    andreaVoice.setGender(settings.voiceGender);
+  }, [settings.voiceGender]);
+
+  // Clean up voice on unmount
+  useEffect(() => {
+    return () => {
+      andreaVoice.stop();
+    };
+  }, []);
 
   const handleSave = () => {
     setSavedToast(true);
@@ -178,9 +198,10 @@ export const AiSettingsPanel: React.FC<AiSettingsPanelProps> = ({ onNotify }) =>
         {/* Tab switcher */}
         <div className="flex items-center gap-1.5 mt-6 border-b border-[#5A33FF33] pb-3 overflow-x-auto">
           {[
-            { id: 'inference', label: '⚡ Inférence & Hyperparamètres', icon: Zap },
-            { id: 'persona', label: '🧠 Personnalité & Instructions', icon: Brain },
-            { id: 'tools', label: '🛠️ Capacités & Outils Web', icon: Globe },
+            { id: 'voice', label: '🔊 Voix d\'Andrea (Féminine / Masculine)', icon: Volume2 },
+            { id: 'inference', label: '⚡ Inférence & Modèle', icon: Zap },
+            { id: 'persona', label: '🧠 Personnalité & Persona', icon: Brain },
+            { id: 'tools', label: '🛠️ Capacités Web', icon: Globe },
             { id: 'privacy', label: '🛡️ Données & Confidentialité', icon: Lock },
           ].map(tab => {
             const active = activeTab === tab.id;
@@ -610,6 +631,213 @@ export const AiSettingsPanel: React.FC<AiSettingsPanelProps> = ({ onNotify }) =>
                 onChange={e => setSettings({ ...settings, saveHistory: e.target.checked })}
                 className="w-4 h-4 rounded accent-[#5A33FF] cursor-pointer"
               />
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 5. VOIX D'ANDREA (MASCULINE / FÉMININE & TEST EN DIRECT) */}
+      {activeTab === 'voice' && (
+        <div className="bg-[#1A1930] border border-[#5A33FF33] rounded-3xl p-6 space-y-6 shadow-xl animate-in fade-in">
+          <div>
+            <div className="flex items-center justify-between">
+              <h3 className="text-sm font-bold text-white flex items-center gap-2">
+                <Volume2 className="w-4 h-4 text-[#8B70FF]" />
+                <span>Choix de la Voix & Synthèse Vocale d'Andrea</span>
+              </h3>
+              <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+                100% Gratuit & Illimité
+              </span>
+            </div>
+            <p className="text-xs text-[#A89CFF] mt-1">
+              Sélectionnez et testez en direct la voix masculine ou féminine utilisée par Andrea pour la lecture vocale.
+            </p>
+          </div>
+
+          {/* SÉLECTEUR VOIX FÉMININE VS VOIX MASCULINE */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {/* Voix Féminine */}
+            <div 
+              onClick={() => {
+                setSettings({ ...settings, voiceGender: 'feminine', voicePitch: 1.15 });
+                andreaVoice.setGender('feminine');
+              }}
+              className={`p-4 rounded-2xl border-2 transition cursor-pointer space-y-2 ${
+                settings.voiceGender === 'feminine'
+                  ? 'bg-gradient-to-br from-[#1E1B8C] to-[#5A33FF]/40 border-[#8B70FF] text-white shadow-xl scale-[1.01]'
+                  : 'bg-[#151428] border-[#5A33FF22] text-[#A89CFF] hover:bg-[#252245]'
+              }`}
+            >
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <span className="text-2xl">👩</span>
+                  <span className="font-extrabold text-sm text-white">Voix Féminine</span>
+                </div>
+                {settings.voiceGender === 'feminine' && (
+                  <span className="w-5 h-5 rounded-full bg-emerald-400 text-black flex items-center justify-center text-xs font-bold shadow">
+                    ✓
+                  </span>
+                )}
+              </div>
+              <p className="text-xs text-[#c4b5fd] leading-relaxed">
+                Tonalité chaleureuse, dynamique et bienveillante. Idéale pour le coaching comportemental et l'encouragement au passage à l'action.
+              </p>
+              <div className="text-[10px] font-mono text-purple-300">
+                Tonalité : 1.15x · Timbre naturel
+              </div>
+            </div>
+
+            {/* Voix Masculine */}
+            <div 
+              onClick={() => {
+                setSettings({ ...settings, voiceGender: 'masculine', voicePitch: 0.85 });
+                andreaVoice.setGender('masculine');
+              }}
+              className={`p-4 rounded-2xl border-2 transition cursor-pointer space-y-2 ${
+                settings.voiceGender === 'masculine'
+                  ? 'bg-gradient-to-br from-[#1E1B8C] to-[#5A33FF]/40 border-[#8B70FF] text-white shadow-xl scale-[1.01]'
+                  : 'bg-[#151428] border-[#5A33FF22] text-[#A89CFF] hover:bg-[#252245]'
+              }`}
+            >
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <span className="text-2xl">👨</span>
+                  <span className="font-extrabold text-sm text-white">Voix Masculine</span>
+                </div>
+                {settings.voiceGender === 'masculine' && (
+                  <span className="w-5 h-5 rounded-full bg-emerald-400 text-black flex items-center justify-center text-xs font-bold shadow">
+                    ✓
+                  </span>
+                )}
+              </div>
+              <p className="text-xs text-[#c4b5fd] leading-relaxed">
+                Tonalité posée, calme et stratégique. Idéale pour les analyses logiques approfondies, les revues de code et le travail concentré.
+              </p>
+              <div className="text-[10px] font-mono text-purple-300">
+                Tonalité : 0.85x · Timbre grave
+              </div>
+            </div>
+          </div>
+
+          {/* MODULE DE TEST AUDIO EN DIRECT */}
+          <div className="p-5 rounded-2xl bg-[#120f28] border border-[#5A33FF44] space-y-4 shadow-lg">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-bold text-white flex items-center gap-2">
+                <span>🎙️ Test d'Écoute en Direct</span>
+                <span className="text-[10px] text-purple-300 font-normal">
+                  (Cliquez ci-dessous pour écouter)
+                </span>
+              </span>
+
+              {/* Audio Wave Visualizer when speaking */}
+              {isTestingVoice && (
+                <div className="flex items-center gap-1">
+                  <span className="w-1 h-3 bg-emerald-400 rounded-full animate-bounce" />
+                  <span className="w-1 h-5 bg-emerald-300 rounded-full animate-bounce [animation-delay:100ms]" />
+                  <span className="w-1 h-4 bg-emerald-500 rounded-full animate-bounce [animation-delay:200ms]" />
+                  <span className="w-1 h-6 bg-emerald-400 rounded-full animate-bounce [animation-delay:300ms]" />
+                  <span className="text-[10px] text-emerald-300 font-bold ml-1">Lecture en cours...</span>
+                </div>
+              )}
+            </div>
+
+            {/* Test Sentence input */}
+            <div className="space-y-1.5">
+              <label className="text-[11px] text-[#A89CFF] font-medium">Phrase à faire prononcer à Andrea :</label>
+              <input 
+                type="text"
+                value={testPhrase}
+                onChange={e => setTestPhrase(e.target.value)}
+                className="w-full bg-[#181533] border border-[#5A33FF44] rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-[#8B70FF]"
+              />
+            </div>
+
+            {/* Test Action Buttons */}
+            <div className="flex flex-wrap items-center gap-3 pt-1">
+              <button
+                onClick={() => {
+                  if (isTestingVoice) {
+                    andreaVoice.stop();
+                    setIsTestingVoice(false);
+                  } else {
+                    setIsTestingVoice(true);
+                    andreaVoice.speak(
+                      testPhrase,
+                      () => setIsTestingVoice(false),
+                      { 
+                        gender: settings.voiceGender, 
+                        pitch: settings.voicePitch, 
+                        rate: settings.voiceRate 
+                      }
+                    );
+                  }
+                }}
+                className={`px-5 py-2.5 rounded-xl font-bold text-xs transition flex items-center gap-2 shadow-lg ${
+                  isTestingVoice 
+                    ? 'bg-rose-600 hover:bg-rose-500 text-white animate-pulse'
+                    : 'bg-gradient-to-r from-[#1E1B8C] to-[#5A33FF] hover:scale-105 text-white'
+                }`}
+              >
+                {isTestingVoice ? <Square className="w-3.5 h-3.5 fill-white" /> : <Play className="w-3.5 h-3.5 fill-white" />}
+                <span>
+                  {isTestingVoice ? 'Arrêter le test vocal' : `Tester la voix ${settings.voiceGender === 'masculine' ? 'masculine' : 'féminine'} d'Andrea`}
+                </span>
+              </button>
+
+              <button
+                onClick={() => {
+                  andreaVoice.testVoice(settings.voiceGender, () => setIsTestingVoice(false));
+                  setIsTestingVoice(true);
+                }}
+                className="px-4 py-2.5 rounded-xl bg-[#201844] hover:bg-[#2b215c] text-[#c4b5fd] hover:text-white border border-[#5A33FF44] text-xs font-semibold transition"
+              >
+                Message d'accueil officiel
+              </button>
+            </div>
+          </div>
+
+          {/* AJUSTEMENTS FINAUX (TONALITÉ & VITESSE) */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2 border-t border-[#5A33FF22]">
+            <div className="space-y-1.5">
+              <div className="flex justify-between items-center text-xs">
+                <span className="font-semibold text-white">Tonalité (Pitch)</span>
+                <span className="font-mono text-purple-300 font-bold">{settings.voicePitch.toFixed(2)}x</span>
+              </div>
+              <input 
+                type="range"
+                min="0.6"
+                max="1.5"
+                step="0.05"
+                value={settings.voicePitch}
+                onChange={e => setSettings({ ...settings, voicePitch: parseFloat(e.target.value) })}
+                className="w-full accent-[#5A33FF] bg-[#151428] rounded-lg cursor-pointer"
+              />
+              <div className="flex justify-between text-[10px] text-[#A89CFF]/60">
+                <span>Plus grave</span>
+                <span>Neutre (1.0)</span>
+                <span>Plus aiguë</span>
+              </div>
+            </div>
+
+            <div className="space-y-1.5">
+              <div className="flex justify-between items-center text-xs">
+                <span className="font-semibold text-white">Vitesse d'élocution (Speed)</span>
+                <span className="font-mono text-purple-300 font-bold">{settings.voiceRate.toFixed(2)}x</span>
+              </div>
+              <input 
+                type="range"
+                min="0.75"
+                max="1.4"
+                step="0.05"
+                value={settings.voiceRate}
+                onChange={e => setSettings({ ...settings, voiceRate: parseFloat(e.target.value) })}
+                className="w-full accent-[#5A33FF] bg-[#151428] rounded-lg cursor-pointer"
+              />
+              <div className="flex justify-between text-[10px] text-[#A89CFF]/60">
+                <span>0.75x (Lent)</span>
+                <span>1.0x (Naturel)</span>
+                <span>1.4x (Rapide)</span>
+              </div>
             </div>
           </div>
         </div>
