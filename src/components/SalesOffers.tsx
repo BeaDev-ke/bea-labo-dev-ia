@@ -100,22 +100,22 @@ export const SalesOffers: React.FC<SalesOffersProps> = ({
         </h1>
 
         <p className="text-sm sm:text-base text-[#c4b5fd] leading-relaxed">
-          Rejoignez plus de <strong>14 200 créateurs, étudiants et indépendants</strong> qui ont éliminé la procrastination, divisé leur temps de travail par 3 et franchi leurs objectifs.
+          Des formules claires, adaptées à votre profil et sans engagement pour libérer votre créativité et atteindre vos objectifs.
         </p>
 
-        {/* SOCIAL PROOF MICRO-BANNER */}
+        {/* FACTUAL TRANSPARENCY MICRO-BANNER */}
         <div className="flex flex-wrap items-center justify-center gap-6 pt-2 text-xs text-[#a78bfa]">
           <span className="flex items-center gap-1.5 font-bold text-white">
-            <Star className="w-4 h-4 fill-amber-400 text-amber-400" />
-            4.9/5 satisfaction (850+ avis)
+            <ShieldCheck className="w-4 h-4 text-emerald-400" />
+            Sans engagement · Résiliation en 1 clic
           </span>
-          <span className="flex items-center gap-1.5">
-            <Zap className="w-4 h-4 text-emerald-400" />
-            Rentabilisé dès la première heure d'usage
+          <span className="flex items-center gap-1.5 font-bold text-white">
+            <Zap className="w-4 h-4 text-purple-400" />
+            Accès instantané à tous les outils
           </span>
-          <span className="flex items-center gap-1.5">
+          <span className="flex items-center gap-1.5 font-bold text-white">
             <ShieldCheck className="w-4 h-4 text-cyan-400" />
-            Garantie sans engagement
+            Paiement 100% sécurisé par Stripe
           </span>
         </div>
       </div>

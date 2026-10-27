@@ -276,6 +276,45 @@ export const VisualDesignStudio: React.FC<VisualDesignStudioProps> = () => {
             </div>
           </div>
 
+          {/* LABO D'IA INTÉGRÉ DANS LE MONTAGE : ACCROCHES & HOOKS VIRAUX */}
+          <div className="space-y-2 pt-2 border-t border-[#7c3aed]/20">
+            <div className="flex items-center justify-between">
+              <label className="text-xs font-bold text-white flex items-center gap-1.5">
+                <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+                <span>Labo d'IA · Accroches & Angles Viraux :</span>
+              </label>
+              <span className="text-[10px] text-purple-300 font-bold bg-purple-950/60 px-2 py-0.5 rounded-full border border-purple-500/30">
+                1 Clic
+              </span>
+            </div>
+            <div className="grid grid-cols-1 gap-1.5 max-h-36 overflow-y-auto pr-1">
+              {[
+                { hook: "Personne ne vous dit ça sur...", sub: "La réalité que 99% ignorent.", badge: "🚨 VÉRITÉ" },
+                { hook: "Arrêtez de faire cette erreur en 2026 !", sub: "Ce détail vous fait perdre un temps précieux.", badge: "⚠️ ALERTE" },
+                { hook: "3 astuces méconnues qui changent tout", sub: "La méthode étape par étape pour passer à l'action.", badge: "⚡ MÉTHODE" },
+                { hook: "Voici exactement comment j'ai réussi à...", sub: "Retour d'expérience concret sans filtre.", badge: "🎯 RÉSULTAT" },
+                { hook: "Avant / Après résultat concret", sub: "Comparatif direct des performances obtenues.", badge: "🔥 PROUVE" },
+              ].map((item, idx) => (
+                <button
+                  key={idx}
+                  onClick={() => {
+                    setTitleText(item.hook);
+                    setSubtitleText(item.sub);
+                    setBadgeText(item.badge);
+                  }}
+                  className="p-2 rounded-xl bg-[#140e2d] hover:bg-[#201844] border border-[#7c3aed]/30 hover:border-[#a855f7] text-left transition flex items-center justify-between group"
+                >
+                  <span className="text-xs text-white group-hover:text-amber-300 truncate font-semibold">
+                    {item.hook}
+                  </span>
+                  <span className="text-[10px] text-purple-400 group-hover:text-purple-200 shrink-0 ml-2">
+                    Injecter
+                  </span>
+                </button>
+              ))}
+            </div>
+          </div>
+
           {/* Typography Selector */}
           <div className="space-y-3 pt-2 border-t border-[#7c3aed]/20">
             <label className="block text-xs font-bold text-white flex items-center gap-1.5">

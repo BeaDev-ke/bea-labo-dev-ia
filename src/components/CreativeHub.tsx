@@ -60,7 +60,7 @@ export const CreativeHub: React.FC<CreativeHubProps> = ({
       title: 'B.Duck 3D',
       badge: 'B.Duck',
       tag: 'Animation 3D',
-      views: '2.4M',
+      views: 'Format 9:16',
       prompt: 'Génère un personnage 3D jaune mignon style B.Duck dans un décor de prairie avec un effet d\'éclairage studio cinématique.',
       imageBg: 'from-amber-400 via-orange-500 to-yellow-600',
       aspect: '9:16'
@@ -70,9 +70,9 @@ export const CreativeHub: React.FC<CreativeHubProps> = ({
       title: "ORANGE DAD'S SECRET",
       badge: "01:24",
       duration: "01:24",
-      tag: 'Storytelling Viral',
-      views: '5.8M',
-      prompt: "Scénario et découpage d'une vidéo virale humoristique de 1m24 'Orange Dad\\'s Secret' avec hook puissant de 3 secondes et twist final.",
+      tag: 'Storytelling Visuel',
+      views: 'Format 9:16',
+      prompt: "Scénario et découpage d'une vidéo virale de 1m24 avec hook puissant de 3 secondes et twist final.",
       imageBg: 'from-orange-600 via-red-600 to-amber-700',
       aspect: '9:16'
     },
@@ -81,8 +81,8 @@ export const CreativeHub: React.FC<CreativeHubProps> = ({
       title: 'Clip Match & Célébration',
       badge: '00:16',
       duration: '00:16',
-      tag: 'Sport & Vidéo dynamique',
-      views: '1.9M',
+      tag: 'Sport & Dynamique',
+      views: 'Format 9:16',
       prompt: 'Montage dynamique de 16 secondes d\'un joueur en maillot de football avec ralenti sur la frappe et transition rythmée.',
       imageBg: 'from-blue-600 via-indigo-700 to-sky-800',
       aspect: '9:16'
@@ -92,8 +92,8 @@ export const CreativeHub: React.FC<CreativeHubProps> = ({
       title: 'Shooting Mode & Piscine',
       badge: '00:11',
       duration: '00:11',
-      tag: 'Lifestyle & Luxe',
-      views: '3.1M',
+      tag: 'Esthétique & Luxe',
+      views: 'Format 9:16',
       prompt: 'Shooting photo et vidéo esthétique de 11 secondes en bord de piscine avec reflet aquatique, lumière dorée et transitions fluides.',
       imageBg: 'from-pink-500 via-rose-600 to-purple-800',
       aspect: '9:16'
@@ -104,7 +104,7 @@ export const CreativeHub: React.FC<CreativeHubProps> = ({
       badge: '00:11',
       duration: '00:11',
       tag: 'Fantaisie & Effets',
-      views: '4.5M',
+      views: 'Format 9:16',
       prompt: 'Scène de cosplay urbaine de 11 secondes avec costume de sorcière moderne, balai magique et effets de particules lumineuses.',
       imageBg: 'from-purple-800 via-violet-900 to-indigo-950',
       aspect: '9:16'

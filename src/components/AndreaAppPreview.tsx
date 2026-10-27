@@ -349,122 +349,80 @@ if __name__ == "__main__":
   return (
     <div className="h-full w-full flex bg-[#181135] text-white font-sans overflow-hidden select-none">
       
-      {/* 1. LEFT SIDEBAR (AGRANDI ET ÉPURÉ) */}
-      <aside className="w-72 md:w-80 lg:w-[330px] bg-[#100b24] border-r border-[#5A33FF33] flex flex-col justify-between shrink-0 h-full overflow-y-auto z-20 shadow-2xl">
-        <div className="p-4 sm:p-5 space-y-4">
+      {/* 1. LEFT SIDEBAR : COMPACT, ÉPURÉ, ZÉRO SCROLL (TOUT EST VISIBLE D'UN COUP D'ŒIL) */}
+      <aside className="w-64 md:w-72 bg-[#100b24] border-r border-[#5A33FF33] flex flex-col justify-between shrink-0 h-full overflow-hidden z-20 shadow-2xl p-3">
+        <div className="space-y-2.5 overflow-hidden">
           
-          {/* Logo Andrea (logo_bea.png) */}
-          <div className="flex flex-col items-center justify-center text-center pt-1">
-            <div className="w-16 h-16 rounded-2xl bg-[#161033] border border-[#5A33FF55] p-1.5 shadow-xl mb-2 flex items-center justify-center overflow-hidden hover:scale-105 transition-transform">
-              <img 
-                src="/logo_bea.png" 
-                alt="Andrea Logo" 
-                className="w-full h-full object-contain"
-                onError={(e) => { e.currentTarget.src = "/logo_andrea.png"; }}
-              />
+          {/* Header Compact : Logo + Marque en 1 ligne */}
+          <div className="flex items-center justify-between px-1 pt-0.5">
+            <div className="flex items-center gap-2.5">
+              <div className="w-8 h-8 rounded-xl bg-[#161033] border border-[#5A33FF55] p-1 shadow flex items-center justify-center shrink-0">
+                <img 
+                  src="/logo_bea.png" 
+                  alt="Andrea Logo" 
+                  className="w-full h-full object-contain"
+                  onError={(e) => { e.currentTarget.src = "/logo_andrea.png"; }}
+                />
+              </div>
+              <div>
+                <div className="font-extrabold text-sm text-white tracking-tight leading-none">Andrea</div>
+                <div className="text-[9px] font-bold text-[#a78bfa] tracking-wider uppercase mt-0.5">BehaviorLab AI</div>
+              </div>
             </div>
-            <div className="font-extrabold text-lg text-white tracking-tight">Andrea</div>
-            <div className="text-[11px] font-bold text-[#a78bfa] tracking-widest uppercase">BehaviorLab AI</div>
+            <button
+              onClick={() => setCurrentPage('profil')}
+              className="text-[10px] font-bold px-2 py-0.5 rounded-lg bg-purple-500/20 text-purple-300 hover:bg-purple-500/30 transition shrink-0"
+              title="Modifier mon profil"
+            >
+              Profil
+            </button>
           </div>
 
-          {/* ACTIVE USER PROFILE CHIP (Agrandie et claire) */}
-          <button
-            onClick={() => setCurrentPage('profil')}
-            className="w-full bg-[#181135] hover:bg-[#231a4a] border border-[#5A33FF44] p-3 rounded-2xl text-left transition flex items-center justify-between shadow-inner group"
-            title="Gérer votre profil utilisateur"
-          >
-            <div className="flex items-center gap-2.5 overflow-hidden">
-              <span className="text-2xl shrink-0 group-hover:scale-110 transition-transform">
-                {PROFILE_METAS[userProfile.profileType]?.icon || '👤'}
+          {/* CARTE PROFIL COMPACTE : Nom, Appel & Formule en un coup d'œil */}
+          <div className="bg-[#181135] border border-[#5A33FF33] rounded-xl p-2.5 shadow-sm space-y-1.5">
+            <div className="flex items-center justify-between">
+              <div className="text-[11px] font-bold text-white truncate flex items-center gap-1.5">
+                <span>{PROFILE_METAS[userProfile.profileType]?.icon || '👤'}</span>
+                <span className="truncate">{userProfile.displayName}</span>
+              </div>
+              <span className="text-[9px] font-black px-1.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 shrink-0">
+                {userProfile.plan ? userProfile.plan.toUpperCase() : 'BASIQUE'}
               </span>
-              <div className="truncate">
-                <div className="text-sm font-bold text-white truncate">{userProfile.displayName}</div>
-                <div className="text-[11px] text-[#c4b5fd] truncate">{PROFILE_METAS[userProfile.profileType]?.label}</div>
-              </div>
             </div>
-            <span className="text-[10px] font-bold px-2 py-0.5 rounded-lg bg-purple-500/20 text-purple-300 shrink-0">
-              Éditer
-            </span>
-          </button>
-
-          {/* COMPTEUR DE SÉRIE & PROGRESSION */}
-          {hasStreak && (
-            <div className="bg-gradient-to-br from-[#1e143b] to-[#140e2b] border border-[#5A33FF44] rounded-2xl p-3 space-y-2 shadow-inner">
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-bold text-white flex items-center gap-1.5">
-                  <Flame className="w-4 h-4 text-amber-400 fill-amber-400" />
-                  <span>
-                    {useCase === 'scolaire' ? `Série révisions : ${userProfile.streakDays}j` : `Série publications : ${userProfile.streakDays}j`}
-                  </span>
+            
+            <div className="flex items-center justify-between text-[10px] text-[#c4b5fd] pt-1 border-t border-[#5A33FF22]">
+              <span className="truncate">Appel : <strong className="text-white">« {userProfile.preferredCallName || userProfile.displayName} »</strong></span>
+              {hasStreak && (
+                <span className="text-amber-400 font-extrabold flex items-center gap-0.5 shrink-0">
+                  <Flame className="w-3 h-3 fill-amber-400" />
+                  {userProfile.streakDays}j
                 </span>
-                <span className="text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-purple-500/30 text-purple-200 border border-purple-400/40">
-                  {userProfile.momentumPoints} pts
-                </span>
-              </div>
-              <div className="w-full h-2 bg-[#0a0718] rounded-full overflow-hidden">
-                <div className="h-full bg-gradient-to-r from-[#5A33FF] via-[#a855f7] to-[#ec4899] rounded-full transition-all duration-500 w-[80%]" />
-              </div>
+              )}
             </div>
-          )}
+          </div>
 
-          {/* New Chat Button (Plus grand et engageant) */}
+          {/* Bouton Nouvelle Discussion Compact */}
           <button
             onClick={() => {
               setMessages([]);
               setCurrentPage('chat');
             }}
-            className="w-full py-2.5 px-4 rounded-2xl bg-[#171131] hover:bg-[#231a4a] border border-[#5A33FF66] text-xs font-bold text-white transition flex items-center justify-center gap-2 shadow-md hover:border-[#8B70FF]"
+            className="w-full py-2 px-3 rounded-xl bg-[#171131] hover:bg-[#231a4a] border border-[#5A33FF66] text-xs font-bold text-white transition flex items-center justify-center gap-1.5 shadow hover:border-[#8B70FF]"
           >
-            <Plus className="w-4 h-4 text-purple-400" />
-            Nouvelle discussion
+            <Plus className="w-3.5 h-3.5 text-purple-400" />
+            <span>Nouvelle discussion</span>
           </button>
 
-          {/* ESPACE PERSONNEL + CAS D'USAGE DIRECTEMENT EN DESSOUS (Sans la grosse case 4 boutons) */}
-          <DidacticielWrapper stepId="espace_perso" placement="right">
-            <div className="bg-[#181135] border border-[#5A33FF33] rounded-2xl p-3.5 shadow-md space-y-2">
-              <div className="flex items-center justify-between">
-                <span className="text-[11px] font-bold text-[#c4b5fd] uppercase tracking-wider">
-                  Espace Personnel
-                </span>
-                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
-                  {userProfile.plan ? userProfile.plan.toUpperCase() : 'BASIQUE'}
-                </span>
-              </div>
-              <div className="flex items-center gap-2.5">
-                <span className="text-base">👋</span>
-                <div className="truncate">
-                  <span className="text-[10px] text-[#c4b5fd] block">Andrea vous appelle :</span>
-                  <span className="text-sm font-extrabold text-white truncate block">
-                    « {userProfile.preferredCallName || userProfile.displayName} »
-                  </span>
-                </div>
-              </div>
-
-              {/* MENTION DU CAS D'USAGE ACTIF EN DESSOUS D'ESPACE PERSONNEL */}
-              <div className="pt-2 border-t border-[#5A33FF22] flex items-center justify-between text-[11px]">
-                <span className="text-[#a78bfa] font-semibold">Cas d'usage :</span>
-                <span className="font-bold text-white bg-[#22184c] px-2.5 py-0.5 rounded-lg border border-[#5A33FF33] text-[11px]">
-                  {useCase === 'scolaire' ? '🎓 Scolaire (Défis + Série)' :
-                   useCase === 'contenu' ? '🎬 Contenu (Série active)' :
-                   useCase === 'clients' ? '💼 Clients (Sans streak)' :
-                   '✨ Général (Sans streak)'}
-                </span>
-              </div>
-            </div>
-          </DidacticielWrapper>
-
-          {/* Navigation Menu (AGRANDI : Textes plus grands, padding confortable, zéro doublon) */}
-          <nav className="space-y-1.5 pt-1">
+          {/* Menu de Navigation Épuré (7 items compacts, zéro doublon, Labo fusionné dans Montage) */}
+          <nav className="space-y-1 pt-0.5">
             {[
-              { id: 'chat', label: '💬 Discussion avec Andrea', stepId: 'chat' },
-              { id: 'app', label: '🌐 Création de Site Web', stepId: 'site', badge: 'Pro' },
-              { id: 'studio', label: '🎬 Montage Vidéo & Visuel', stepId: 'montage' },
-              { id: 'creative_hub', label: '✨ Labo d\'IA (Création)', stepId: 'creative_hub', badge: 'Viral' },
-              { id: 'profil', label: '👤 Mon Profil & Rôle' },
-              { id: 'compte', label: '💎 Offres & Abonnements', stepId: 'offres' },
+              { id: 'chat', label: '💬 Discussion', stepId: 'chat' },
+              { id: 'app', label: '🌐 Création de Site', stepId: 'site', badge: 'Bolt' },
+              { id: 'studio', label: '🎬 Montage & Labo', stepId: 'montage' },
               { id: 'code', label: '💻 Code & Débogage' },
-              { id: 'memoire', label: "🧠 Mémoire d'Andrea" },
-              { id: 'parametres', label: '⚙️ Paramètres IA' },
+              { id: 'compte', label: '💎 Offres & Tarifs', stepId: 'offres' },
+              { id: 'memoire', label: "🧠 Mémoire" },
+              { id: 'parametres', label: '⚙️ Paramètres' },
             ].map(item => {
               const active = currentPage === item.id;
               const buttonEl = (
@@ -477,15 +435,15 @@ if __name__ == "__main__":
                       setCurrentPage(item.id as PageView);
                     }
                   }}
-                  className={`w-full text-left px-3.5 sm:px-4 py-2.5 rounded-2xl text-[13.5px] font-bold transition flex items-center justify-between ${
+                  className={`w-full text-left px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center justify-between ${
                     active
-                      ? 'bg-gradient-to-r from-[#1E1B8C] to-[#5A33FF] text-white border border-[#5A33FF] shadow-md'
+                      ? 'bg-gradient-to-r from-[#1E1B8C] to-[#5A33FF] text-white border border-[#5A33FF] shadow-sm'
                       : 'text-[#c4b5fd] hover:bg-[#201844] hover:text-white'
                   }`}
                 >
                   <span className="truncate pr-1">{item.label}</span>
                   {item.badge && (
-                    <span className="text-[10px] font-black px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 shrink-0">
+                    <span className="text-[9px] font-black px-1.5 py-0.2 rounded-full bg-purple-500/30 text-purple-200 border border-purple-400/30 shrink-0">
                       {item.badge}
                     </span>
                   )}
@@ -506,16 +464,16 @@ if __name__ == "__main__":
 
         {/* Dev Lab Launcher : STRICTEMENT VISIBLE POUR saydoukebe31@gmail.com */}
         {isDevAdmin && (
-          <div className="p-3.5 border-t border-[#5A33FF22] bg-[#0c091d] space-y-1.5 shrink-0">
+          <div className="pt-2 border-t border-[#5A33FF22] space-y-1 shrink-0">
             <button
               onClick={onOpenLab}
-              className="w-full py-2.5 px-3 rounded-xl bg-purple-950/60 hover:bg-purple-900/80 border border-[#5A33FF66] text-xs font-bold text-white transition flex items-center justify-center gap-2 shadow"
+              className="w-full py-1.5 px-2.5 rounded-xl bg-purple-950/70 hover:bg-purple-900 border border-[#5A33FF66] text-xs font-bold text-white transition flex items-center justify-center gap-1.5 shadow"
             >
-              <Wand2 className="w-4 h-4 text-purple-300" />
-              🧪 Ouvrir le Labo Dev IA
+              <Wand2 className="w-3.5 h-3.5 text-purple-300" />
+              <span>Labo Dev Admin</span>
             </button>
-            <div className="text-[10px] text-purple-300 text-center font-mono truncate">
-              Admin Dev: {userProfile.email}
+            <div className="text-[9px] text-purple-300/80 text-center font-mono truncate">
+              {userProfile.email}
             </div>
           </div>
         )}
@@ -544,13 +502,12 @@ if __name__ == "__main__":
             </div>
           </div>
 
-          {/* Menus horizontaux agrandis avec défilement invisible élégant */}
-          <div className="flex items-center gap-1.5 sm:gap-2 overflow-x-auto min-w-0 flex-1 justify-center py-1 px-2 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
+          {/* Menus horizontaux : 7 onglets nets, aucun bouton coupé */}
+          <div className="flex items-center gap-1.5 sm:gap-2 overflow-x-auto min-w-0 flex-1 justify-start md:justify-center py-1 px-2 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
             {[
               { id: 'chat', label: '💬 Discussion', stepId: 'chat' },
               { id: 'app', label: '🌐 Création de Site', stepId: 'site' },
               { id: 'studio', label: '🎬 Montage', stepId: 'montage' },
-              { id: 'creative_hub', label: '✨ Labo d\'IA', stepId: 'creative_hub' },
               { id: 'code', label: '💻 Code' },
               { id: 'compte', label: '💎 Offres', stepId: 'offres' },
               { id: 'memoire', label: '🧠 Mémoire' },
@@ -567,7 +524,7 @@ if __name__ == "__main__":
                       setCurrentPage(tab.id as PageView);
                     }
                   }}
-                  className={`px-3.5 sm:px-4 py-2 rounded-2xl text-[13.5px] sm:text-sm font-bold whitespace-nowrap transition shrink-0 ${
+                  className={`px-3 sm:px-3.5 py-1.5 rounded-xl text-xs sm:text-sm font-bold whitespace-nowrap transition shrink-0 ${
                     isActive
                       ? 'bg-gradient-to-r from-[#1E1B8C] to-[#5A33FF] text-white shadow-md border border-[#5A33FF]'
                       : 'text-[#c4b5fd] hover:text-white hover:bg-[#201844]'
@@ -724,51 +681,11 @@ if __name__ == "__main__":
                         <span className="text-[10px] text-emerald-400 font-bold">({userProfile.plan ? userProfile.plan.toUpperCase() : 'BASIQUE'})</span>
                       </div>
                       <h3 className="text-xl sm:text-2xl font-extrabold text-white tracking-tight">
-                        Sur quoi souhaitez-vous avancer aujourd'hui ?
+                        Espace de Travail Stratégique
                       </h3>
                       <p className="text-xs text-[#c4b5fd] max-w-md mx-auto leading-relaxed">
-                        Posez votre question, partagez votre blocage ou cliquez sur une action rapide pour démarrer sans friction.
+                        Posez votre question directement ci-dessous pour démarrer votre session.
                       </p>
-                    </div>
-
-                    {/* Quick Starter Action Cards */}
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 w-full pt-2 text-left">
-                      {[
-                        {
-                          title: '⚡ Plan d\'action 15 minutes',
-                          desc: 'Débloquer une tâche sans remettre à plus tard',
-                          prompt: 'Donne-moi un plan d\'action concret en 3 étapes simples de 5 minutes pour passer à l\'action maintenant.',
-                        },
-                        {
-                          title: '🎬 Créer du contenu percutant',
-                          desc: 'Accroches et structure à fort impact visuel',
-                          prompt: 'Aide-moi à trouver 3 hooks percutants et une idée de visuel pour mon prochain sujet.',
-                        },
-                        {
-                          title: '🎓 Clarifier une notion complexe',
-                          desc: 'Explication limpide et méthode de mémorisation',
-                          prompt: 'Explique-moi ce concept simplement avec une métaphore du quotidien et un exemple pratique.',
-                        },
-                        {
-                          title: '💼 Diagnostic stratégique & offre',
-                          desc: 'Lever une objection et clarifier ma valeur',
-                          prompt: 'Comment formuler mon offre pour que la valeur saute aux yeux et supprime les objections de prix ?',
-                        },
-                      ].map((item, idx) => (
-                        <button
-                          key={idx}
-                          type="button"
-                          onClick={() => setInputMessage(item.prompt)}
-                          className="p-3.5 rounded-2xl bg-[#1b143c] hover:bg-[#231a4a] border border-[#5A33FF33] hover:border-[#8B70FF] transition text-left group shadow-sm hover:scale-[1.01]"
-                        >
-                          <div className="text-xs font-bold text-white group-hover:text-purple-300 transition">
-                            {item.title}
-                          </div>
-                          <div className="text-[11px] text-[#c4b5fd]/80 mt-0.5">
-                            {item.desc}
-                          </div>
-                        </button>
-                      ))}
                     </div>
                   </div>
                 )}
@@ -832,21 +749,6 @@ if __name__ == "__main__":
               </div>
             </div>
 
-            {/* Suggestions de prompts rapides au-dessus de la saisie */}
-            <div className="px-4 py-1.5 bg-[#140e2c] border-t border-[#5A33FF22] overflow-x-auto shrink-0">
-              <div className="max-w-4xl mx-auto w-full flex items-center gap-2">
-                <span className="text-[10px] font-bold text-[#8B70FF] shrink-0">Suggestions profil :</span>
-                {PROFILE_METAS[userProfile.profileType]?.starterPrompts.map((prompt, pIdx) => (
-                  <button
-                    key={pIdx}
-                    onClick={() => setInputMessage(prompt)}
-                    className="px-2.5 py-0.5 rounded-full bg-[#201844] hover:bg-[#2a2057] text-[11px] text-[#c4b5fd] hover:text-white border border-[#5A33FF33] whitespace-nowrap transition"
-                  >
-                    {prompt.length > 45 ? prompt.slice(0, 45) + '...' : prompt}
-                  </button>
-                ))}
-              </div>
-            </div>
 
             {/* CASE ENVOYER UN MESSAGE STRICTEMENT ANCRÉE EN BAS (STYLE WHATSAPP) */}
             <div className="p-3 md:p-4 bg-[#110d24] border-t border-[#5A33FF33] shrink-0 z-20 shadow-2xl">
@@ -992,18 +894,11 @@ if __name__ == "__main__":
           </div>
         )}
 
-        {/* 4. LABO D'IA (CRÉATION) */}
+        {/* 4. LABO D'IA INTÉGRÉ DANS LE MONTAGE */}
         {currentPage === 'creative_hub' && (
-          <CreativeHub
-            onSelectAction={(action, promptText) => {
-              if (promptText) {
-                setInputMessage(promptText);
-                setCurrentPage('chat');
-              }
-            }}
-            onNavigate={(page) => setCurrentPage(page)}
-            onOpenVoice={handleToggleVoiceRecording}
-          />
+          <div className="flex-1 overflow-y-auto">
+            <VisualDesignStudio />
+          </div>
         )}
 
         {/* 5. PROFIL MANAGER VIEW */}

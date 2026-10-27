@@ -165,8 +165,8 @@ const VIRAL_HOOKS = [
   "Arrêtez de faire cette erreur en 2026 !",
   "3 astuces méconnues qui changent tout :",
   "Voici exactement comment j'ai réussi à...",
-  "Le secret que 99% des créateurs ignorent :",
-  "Avant / Après en seulement 14 jours :"
+  "Le secret que la plupart ignorent :",
+  "Avant / Après résultat concret :"
 ];
 
 // Sticker options
@@ -174,7 +174,7 @@ const STICKER_PRESETS = [
   { label: '🔥 100% GRATUIT', color: 'from-amber-500 to-red-600' },
   { label: '⚡ NOUVEAU', color: 'from-blue-600 to-indigo-700' },
   { label: '👉 SWIPE ➔', color: 'from-purple-600 to-pink-600' },
-  { label: '⭐ 4.9/5 AVIS VÉRIFIÉS', color: 'from-emerald-600 to-teal-800' },
+  { label: '⭐ RECOMMANDÉ', color: 'from-emerald-600 to-teal-800' },
   { label: '🚨 OFFRE DU JOUR', color: 'from-rose-600 to-red-700' },
   { label: '🎧 ÉCOUTER L\'ÉPISODE', color: 'from-violet-600 to-purple-800' },
   { label: '💡 ASTUCE DU JOUR', color: 'from-cyan-600 to-blue-700' },

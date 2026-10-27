@@ -193,26 +193,6 @@ export const VisitorLanding: React.FC<VisitorLandingProps> = ({
     }, 500);
   };
 
-  // Guest instant access for testing
-  const handleGuestAccess = () => {
-    const guestUser: UserProfile = {
-      id: `usr-invite-${Date.now()}`,
-      displayName: 'Invité',
-      preferredCallName: 'Invité',
-      email: 'invite@andrea.ai',
-      profileType: 'createur',
-      useCase: 'contenu',
-      goal: 'Découvrir la méthode comportementale Andrea et créer des visuels.',
-      biggestChallenge: 'Passer à l\'action immédiatement.',
-      preferredStyle: 'expert',
-      plan: 'pro',
-      lastActive: 'À l\'instant',
-      streakDays: 1,
-      momentumPoints: 50,
-    };
-    onEnterApp(guestUser);
-  };
-
   return (
     <div className="min-h-[85vh] flex flex-col bg-[#140e2d] text-[#f5f3ff] rounded-3xl overflow-hidden border border-[#5A33FF33] shadow-2xl">
       {/* Top Banner Navigation */}
@@ -284,17 +264,10 @@ export const VisitorLanding: React.FC<VisitorLandingProps> = ({
                 Conçue par <strong>BehaviorLab AI</strong>, Andrea s'adapte à votre profil et vous appelle directement par votre prénom. Que vous soyez <strong>créateur de contenu</strong>, <strong>lycéen ou étudiant</strong>, <strong>freelance</strong> ou <strong>entrepreneur</strong>, découvrez des conseils clairs, un studio de création visuelle et un accompagnement sans stress.
               </p>
 
-              {/* Direct guest preview button */}
               <div className="pt-2 flex items-center gap-3 flex-wrap">
-                <button
-                  onClick={handleGuestAccess}
-                  className="px-4 py-2.5 rounded-xl bg-[#231a4a] hover:bg-[#2d2160] text-white border border-[#5A33FF55] text-xs font-bold transition flex items-center gap-2 shadow"
-                >
-                  <span>Tester sans inscription (Mode Invité)</span>
-                  <ArrowRight className="w-3.5 h-3.5" />
-                </button>
-
-
+                <span className="text-xs text-[#a78bfa] font-semibold flex items-center gap-2">
+                  <span>🔒 Accès sécurisé : connectez-vous ou créez votre compte ci-contre</span>
+                </span>
               </div>
             </div>
 
