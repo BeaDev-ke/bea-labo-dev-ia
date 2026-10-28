@@ -19,7 +19,7 @@ export const DIDACTICIEL_STEPS: Record<string, DidacticielStep> = {
   },
   chat: {
     id: 'chat',
-    title: 'Discussion avec Andrea (BehaviorLab AI)',
+    title: 'Discussion avec Andrea',
     description: 'Votre copilote stratégique comportemental. Andrea adapte ses conseils à votre profil et vous appelle par votre prénom.',
     advantage: 'Gagnez du temps en éliminant la procrastination, les blocages de montage et les hésitations stratégiques.',
     badge: 'Stratégie'

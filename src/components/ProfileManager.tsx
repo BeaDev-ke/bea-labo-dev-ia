@@ -214,7 +214,7 @@ export const ProfileManager: React.FC<ProfileManagerProps> = ({
               type="text"
               value={formData.displayName}
               onChange={e => setFormData({ ...formData, displayName: e.target.value })}
-              placeholder="Ex: Sarah, Alex, Professeur Thomas..."
+              placeholder="Ex: Sarah, Inès, Professeur Thomas..."
               className="w-full bg-[#100b24] border border-[#7c3aed]/50 rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-purple-400"
             />
           </div>

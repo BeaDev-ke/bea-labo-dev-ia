@@ -63,9 +63,10 @@ export interface AndreaAppPreviewProps {
 export type BeaAppPreviewProps = AndreaAppPreviewProps;
 
 const DEFAULT_PROFILE: UserProfile = {
-  id: 'usr-client',
+  id: 'usr-default',
   displayName: 'Mon Espace',
-  email: 'client@andrea.ai',
+  preferredCallName: 'vous',
+  email: 'contact@andrea.ai',
   profileType: 'createur',
   useCase: 'contenu',
   goal: 'Créer du contenu percutant et concrétiser mes projets.',
@@ -219,7 +220,7 @@ Veux-tu qu'on applique cette trame directement à ton prochain sujet ?`,
   const [codeContent, setCodeContent] = useState(`import streamlit as st
 
 def hello_andrea():
-    st.title("Bienvenue sur BehaviorLab AI")
+    st.title("Bienvenue sur Andrea")
     st.write("Analyse comportementale en temps réel avec protection active")
 
 if __name__ == "__main__":
@@ -398,21 +399,16 @@ if __name__ == "__main__":
       <aside className="w-64 md:w-72 bg-[#100b24] border-r border-[#5A33FF33] flex flex-col justify-between shrink-0 h-full overflow-hidden z-20 shadow-2xl p-3">
         <div className="space-y-2.5 overflow-hidden">
           
-          {/* Header Compact : Logo + Marque en 1 ligne */}
+          {/* Header Compact : Logo seul + Andrea */}
           <div className="flex items-center justify-between px-1 pt-0.5">
             <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-xl bg-[#161033] border border-[#5A33FF55] p-1 shadow flex items-center justify-center shrink-0">
-                <img 
-                  src="/logo_bea.png" 
-                  alt="Andrea Logo" 
-                  className="w-full h-full object-contain"
-                  onError={(e) => { e.currentTarget.src = "/logo_andrea.png"; }}
-                />
-              </div>
-              <div>
-                <div className="font-extrabold text-sm text-white tracking-tight leading-none">Andrea</div>
-                <div className="text-[9px] font-bold text-[#a78bfa] tracking-wider uppercase mt-0.5">BehaviorLab AI</div>
-              </div>
+              <img 
+                src="/logo_bea.png" 
+                alt="Andrea Logo" 
+                className="w-8 h-8 object-contain shrink-0"
+                onError={(e) => { e.currentTarget.src = "/logo_andrea.png"; }}
+              />
+              <span className="font-extrabold text-sm text-white tracking-tight leading-none">Andrea</span>
             </div>
             <button
               onClick={() => setCurrentPage('profil')}
@@ -460,15 +456,15 @@ if __name__ == "__main__":
 
           {/* Menu de Navigation Épuré (7 items compacts, zéro doublon, Labo fusionné dans Montage) */}
           <nav className="space-y-1 pt-0.5">
-            {[
+            {([
               { id: 'chat', label: '💬 Discussion', stepId: 'chat' },
-              { id: 'app', label: '🌐 Création de Site', stepId: 'site', badge: 'Bolt' },
+              { id: 'app', label: '🌐 Création de Site', stepId: 'site' },
               { id: 'studio', label: '🎬 Montage & Labo', stepId: 'montage' },
               { id: 'code', label: '💻 Code & Débogage' },
               { id: 'compte', label: '💎 Offres & Tarifs', stepId: 'offres' },
               { id: 'memoire', label: "🧠 Mémoire" },
               { id: 'parametres', label: '⚙️ Paramètres' },
-            ].map(item => {
+            ] as Array<{ id: string; label: string; stepId?: string; badge?: string }>).map(item => {
               const active = currentPage === item.id;
               const buttonEl = (
                 <button
@@ -527,67 +523,17 @@ if __name__ == "__main__":
       {/* 2. MAIN CONTENT AREA */}
       <div className="flex-1 flex flex-col h-full overflow-hidden bg-[#181135]">
         
-        {/* TOP NAVIGATION BAR : MENUS EN HAUT AGRANDIS & GAUGE DE TOKENS */}
+        {/* TOP NAVIGATION BAR : LOGO SEUL & GAUGE DE TOKENS (PAS DE MENUS EN DOUBLE) */}
         <header className="bg-[#130d2a] px-4 sm:px-6 py-3 border-b border-[#5A33FF33] flex items-center justify-between gap-3 shrink-0 z-10 shadow-md">
-          {/* Left identity */}
+          {/* Left identity : Logo seul sans carré décoratif */}
           <div className="flex items-center gap-3 shrink-0">
             <img 
               src="/logo_bea.png" 
               alt="Andrea Logo" 
-              className="w-8 h-8 object-contain rounded-xl border border-[#5A33FF44]"
+              className="w-8 h-8 object-contain shrink-0"
               onError={(e) => { e.currentTarget.src = "/logo_andrea.png"; }}
             />
-            <div>
-              <div className="flex items-center gap-2">
-                <span className="font-extrabold text-base text-white tracking-tight">Andrea</span>
-                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#201844] text-[#c4b5fd] border border-[#5A33FF33] hidden sm:inline">
-                  BehaviorLab AI
-                </span>
-              </div>
-            </div>
-          </div>
-
-          {/* Menus horizontaux : 7 onglets nets, aucun bouton coupé */}
-          <div className="flex items-center gap-1.5 sm:gap-2 overflow-x-auto min-w-0 flex-1 justify-start md:justify-center py-1 px-2 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
-            {[
-              { id: 'chat', label: '💬 Discussion', stepId: 'chat' },
-              { id: 'app', label: '🌐 Création de Site', stepId: 'site' },
-              { id: 'studio', label: '🎬 Montage', stepId: 'montage' },
-              { id: 'code', label: '💻 Code' },
-              { id: 'compte', label: '💎 Offres', stepId: 'offres' },
-              { id: 'memoire', label: '🧠 Mémoire' },
-              { id: 'parametres', label: '⚙️ Paramètres' },
-            ].map(tab => {
-              const isActive = currentPage === tab.id;
-              const tabButton = (
-                <button
-                  key={tab.id}
-                  onClick={() => {
-                    if (tab.id === 'studio') {
-                      handleOpenMontage();
-                    } else {
-                      setCurrentPage(tab.id as PageView);
-                    }
-                  }}
-                  className={`px-3 sm:px-3.5 py-1.5 rounded-xl text-xs sm:text-sm font-bold whitespace-nowrap transition shrink-0 ${
-                    isActive
-                      ? 'bg-gradient-to-r from-[#1E1B8C] to-[#5A33FF] text-white shadow-md border border-[#5A33FF]'
-                      : 'text-[#c4b5fd] hover:text-white hover:bg-[#201844]'
-                  }`}
-                >
-                  {tab.label}
-                </button>
-              );
-
-              if (tab.stepId) {
-                return (
-                  <DidacticielWrapper key={tab.id} stepId={tab.stepId as any} placement="bottom" className="shrink-0">
-                    {tabButton}
-                  </DidacticielWrapper>
-                );
-              }
-              return tabButton;
-            })}
+            <span className="font-extrabold text-base text-white tracking-tight">Andrea</span>
           </div>
 
           {/* Right section: GAUGE DE TOKENS ÉVOLUTIVE + SÉCURITÉ + PROFIL */}
@@ -747,7 +693,7 @@ if __name__ == "__main__":
                   >
                     <div className="flex items-center justify-between mb-2">
                       <span className="text-xs font-bold text-[#c4b5fd] flex items-center gap-1.5">
-                        {msg.role === 'user' ? `👤 ${userProfile.displayName}` : '🧠 Andrea (BehaviorLab AI)'}
+                        {msg.role === 'user' ? `👤 ${userProfile.displayName}` : '🧠 Andrea'}
                       </span>
                       <span className="text-[10px] text-[#c4b5fd]/60">{msg.timestamp}</span>
                     </div>
@@ -828,61 +774,10 @@ if __name__ == "__main__":
             </div>
 
 
-            {/* CASE ENVOYER UN MESSAGE STRICTEMENT ANCRÉE EN BAS (STYLE WHATSAPP) */}
-            <div className="p-3 md:p-4 bg-[#110d24] border-t border-[#5A33FF33] shrink-0 z-20 shadow-2xl space-y-2">
+            {/* CASE ENVOYER UN MESSAGE STRICTEMENT ANCRÉE EN BAS (STYLE WHATSAPP ÉPURÉ) */}
+            <div className="p-3 md:p-4 bg-[#100b24] border-t border-[#5A33FF22] shrink-0 z-20">
               <div className="max-w-4xl mx-auto w-full space-y-2">
                 
-                {/* PILIERS DE PROMPTS CLÉS DEMANDÉS */}
-                <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none text-[11px]">
-                  <span className="text-[#a78bfa] font-bold text-[10px] uppercase tracking-wider shrink-0 flex items-center gap-1">
-                    <Sparkles className="w-3 h-3 text-amber-400" />
-                    Prompts :
-                  </span>
-                  <button
-                    type="button"
-                    onClick={() => setInputMessage("Comment clarifier mon idée floue et la transformer en projet concret ?")}
-                    className="px-2.5 py-1 rounded-full bg-[#1b143c] hover:bg-[#2b2055] text-[#c4b5fd] hover:text-white border border-[#5A33FF44] transition shrink-0 flex items-center gap-1.5 shadow-sm"
-                  >
-                    <span>🎯 Idée floue → Projet concret</span>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setInputMessage("J'ai un blocage, aide-moi à débloquer ma situation grâce aux biais cognitifs avec un plan clair en 3 étapes :")}
-                    className="px-2.5 py-1 rounded-full bg-[#1b143c] hover:bg-[#2b2055] text-[#c4b5fd] hover:text-white border border-[#5A33FF44] transition shrink-0 flex items-center gap-1.5 shadow-sm"
-                  >
-                    <span>🧠 Biais cognitifs (Plan en 3 étapes)</span>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setInputMessage("Génère en un seul prompt un site web complet avec page de présentation, tarifs et code prêt à être déployé :")}
-                    className="px-2.5 py-1 rounded-full bg-[#1b143c] hover:bg-[#2b2055] text-[#c4b5fd] hover:text-white border border-[#5A33FF44] transition shrink-0 flex items-center gap-1.5 shadow-sm"
-                  >
-                    <span>🌐 1 Prompt : Site Web complet</span>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setInputMessage("Accompagnement scolaire : comment réviser efficacement et préparer mes examens sans stress ?")}
-                    className="px-2.5 py-1 rounded-full bg-[#1b143c] hover:bg-[#2b2055] text-[#c4b5fd] hover:text-white border border-[#5A33FF44] transition shrink-0 flex items-center gap-1.5 shadow-sm"
-                  >
-                    <span>🎓 Accompagnement scolaire</span>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setInputMessage("Accompagnement vidéo et visuel : donne-moi 3 hooks percutants et la structure 9:16 pour capter l'attention dès les 3 premières secondes :")}
-                    className="px-2.5 py-1 rounded-full bg-[#1b143c] hover:bg-[#2b2055] text-[#c4b5fd] hover:text-white border border-[#5A33FF44] transition shrink-0 flex items-center gap-1.5 shadow-sm"
-                  >
-                    <span>🎬 Vidéo & Visuel (9:16)</span>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setInputMessage("Fais une recherche sur le Web pour me donner les informations les plus récentes sur : ")}
-                    className="px-2.5 py-1 rounded-full bg-[#1b143c] hover:bg-[#2b2055] text-cyan-300 hover:text-white border border-cyan-500/40 transition shrink-0 flex items-center gap-1.5 shadow-sm"
-                  >
-                    <Globe className="w-3 h-3 text-cyan-400" />
-                    <span>🔍 Recherche Web en direct</span>
-                  </button>
-                </div>
-
                 {/* Invisible Honeypot field for bot trapping */}
                 <input 
                   type="text" 
@@ -895,7 +790,7 @@ if __name__ == "__main__":
                 />
 
                 {/* Saisie principale ergonomique */}
-                <div className="bg-[#1b143c] border border-[#5A33FF55] hover:border-[#5A33FF88] focus-within:border-[#8B70FF] rounded-[24px] p-2.5 shadow-xl transition-all duration-200">
+                <div className="bg-[#181135] border border-[#5A33FF44] hover:border-[#5A33FF77] focus-within:border-[#8B70FF] rounded-[24px] p-2.5 shadow-xl transition-all duration-200">
                   <div className="px-1.5 pt-0.5">
                     <textarea
                       rows={1}
@@ -911,7 +806,7 @@ if __name__ == "__main__":
                           handleSend();
                         }
                       }}
-                      placeholder={`Envoyer un message à Andrea (${PROFILE_METAS[userProfile.profileType]?.label})...`}
+                      placeholder={`Envoyer un message à Andrea...`}
                       className="w-full bg-transparent text-white text-[14px] placeholder-[#c4b5fd]/60 resize-none focus:outline-none min-h-[38px] max-h-[140px] leading-relaxed selection:bg-[#5A33FF]/40"
                     />
                   </div>
@@ -919,108 +814,14 @@ if __name__ == "__main__":
                   {/* Actions Bar */}
                   <div className="flex items-center justify-between pt-1 px-1">
                     <div className="flex items-center gap-1.5 flex-wrap">
-                      {/* Plus options popup */}
-                      <div className="relative">
-                        <button
-                          type="button"
-                          onClick={() => setShowPlusMenu(!showPlusMenu)}
-                          className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors ${
-                            showPlusMenu ? 'bg-[#5A33FF] text-white' : 'text-[#c4b5fd] hover:text-white hover:bg-white/10'
-                          }`}
-                          title="Options d'actions rapides"
-                        >
-                          <Plus className="w-4 h-4" />
-                        </button>
-
-                        {showPlusMenu && (
-                          <div className="absolute bottom-10 left-0 bg-[#161033] border border-[#5A33FF55] rounded-2xl shadow-2xl p-2 w-72 z-50 space-y-1 animate-in fade-in zoom-in-95">
-                            <button
-                              type="button"
-                              onClick={() => {
-                                setInputMessage("Comment clarifier mon idée floue et la transformer en projet concret ?");
-                                setShowPlusMenu(false);
-                              }}
-                              className="w-full text-left px-2.5 py-1.5 rounded-xl text-xs text-[#E2D6FF] hover:bg-[#252245] hover:text-white transition flex items-center gap-2"
-                            >
-                              <span>🎯 Clarifier une idée floue</span>
-                            </button>
-                            <button
-                              type="button"
-                              onClick={() => {
-                                setInputMessage("Donne-moi un plan clair en 3 étapes grâce aux biais cognitifs pour débloquer ma situation :");
-                                setShowPlusMenu(false);
-                              }}
-                              className="w-full text-left px-2.5 py-1.5 rounded-xl text-xs text-[#E2D6FF] hover:bg-[#252245] hover:text-white transition flex items-center gap-2"
-                            >
-                              <span>🧠 Débloquer avec les biais cognitifs</span>
-                            </button>
-                            <button
-                              type="button"
-                              onClick={() => {
-                                setInputMessage("Génère en un seul prompt un site web complet (page de présentation, tarifs, code prêt à déployer) pour :");
-                                setShowPlusMenu(false);
-                              }}
-                              className="w-full text-left px-2.5 py-1.5 rounded-xl text-xs text-[#E2D6FF] hover:bg-[#252245] hover:text-white transition flex items-center gap-2"
-                            >
-                              <span>🌐 Générer un site web en 1 prompt</span>
-                            </button>
-                            <button
-                              type="button"
-                              onClick={() => {
-                                setInputMessage("Accompagnement scolaire : aide-moi à réviser et préparer mon examen sur le sujet :");
-                                setShowPlusMenu(false);
-                              }}
-                              className="w-full text-left px-2.5 py-1.5 rounded-xl text-xs text-[#E2D6FF] hover:bg-[#252245] hover:text-white transition flex items-center gap-2"
-                            >
-                              <span>🎓 Accompagnement scolaire</span>
-                            </button>
-                            <button
-                              type="button"
-                              onClick={() => {
-                                setInputMessage("Accompagnement vidéo & visuel : hooks percutants et cadre 9:16 pour mon sujet :");
-                                setShowPlusMenu(false);
-                              }}
-                              className="w-full text-left px-2.5 py-1.5 rounded-xl text-xs text-[#E2D6FF] hover:bg-[#252245] hover:text-white transition flex items-center gap-2"
-                            >
-                              <span>🎬 Vidéo & Visuel 9:16</span>
-                            </button>
-                            <button
-                              type="button"
-                              onClick={() => {
-                                setInputMessage("Fais une recherche sur Internet et donne-moi les dernières informations sur :");
-                                setShowPlusMenu(false);
-                              }}
-                              className="w-full text-left px-2.5 py-1.5 rounded-xl text-xs text-cyan-300 hover:bg-[#252245] hover:text-white transition flex items-center gap-2"
-                            >
-                              <span>🔍 Recherche Web en direct</span>
-                            </button>
-                          </div>
-                        )}
-                      </div>
-
                       {/* Model speed selector */}
                       <button
                         type="button"
                         onClick={() => setModelChoice(m => m === 'rapide' ? 'puissant' : 'rapide')}
-                        className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-[#201844] text-[#c4b5fd] hover:text-white border border-[#5A33FF33] transition"
+                        className="text-[10px] font-semibold px-2.5 py-1 rounded-full bg-[#201844] text-[#c4b5fd] hover:text-white border border-[#5A33FF33] transition"
                         title="Basculer entre modèle instantané et approfondi"
                       >
                         {modelChoice === 'rapide' ? '⚡ Instant' : '🧠 Approfondi'}
-                      </button>
-
-                      {/* Web Search Skill Toggle */}
-                      <button
-                        type="button"
-                        onClick={() => setEnableWebSearch(!enableWebSearch)}
-                        className={`text-[10px] font-bold px-2 py-0.5 rounded-full border transition flex items-center gap-1 ${
-                          enableWebSearch
-                            ? 'bg-cyan-950/60 text-cyan-300 border-cyan-500/50 shadow-sm'
-                            : 'bg-[#201844] text-zinc-400 border-zinc-700'
-                        }`}
-                        title="Activer ou désactiver la recherche Web en direct (Accès Internet d'Andrea)"
-                      >
-                        <Globe className={`w-3 h-3 ${enableWebSearch ? 'text-cyan-400 animate-pulse' : 'text-zinc-500'}`} />
-                        <span>{enableWebSearch ? 'Web : Actif' : 'Web : Inactif'}</span>
                       </button>
                     </div>
 
@@ -1056,8 +857,8 @@ if __name__ == "__main__":
                   </div>
                 </div>
 
-                <div className="text-center text-[10px] text-[#c4b5fd]/60 pt-1.5">
-                  Andrea BehaviorLab AI · Réponses personnalisées pour {userProfile.displayName}
+                <div className="text-center text-[10px] text-[#c4b5fd]/60 pt-1">
+                  Andrea · Réponses personnalisées pour {userProfile.displayName}
                 </div>
               </div>
             </div>

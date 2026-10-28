@@ -17,11 +17,13 @@ import {
   HelpCircle,
   Clock,
   Compass,
-  Smile
+  Smile,
+  Mail,
+  Globe
 } from 'lucide-react';
 import { UserProfile, ProfileType, UseCaseType } from '../types/bea';
 import { SALES_PLANS } from '../data/profilesData';
-import { AndreaShowcaseVideo } from './AndreaShowcaseVideo';
+import { generateAndreaVerificationEmail, syncProfileToSupabase, VerificationEmailInfo } from '../utils/supabase';
 
 interface VisitorLandingProps {
   onEnterApp: (user?: UserProfile) => void;
@@ -57,6 +59,12 @@ export const VisitorLanding: React.FC<VisitorLandingProps> = ({
   const [cardExpiry, setCardExpiry] = useState('12/28');
   const [cardCvc, setCardCvc] = useState('123');
   const [isProcessingPayment, setIsProcessingPayment] = useState(false);
+
+  // Supabase Email Verification Modal State
+  const [supabaseVerificationInfo, setSupabaseVerificationInfo] = useState<VerificationEmailInfo | null>(null);
+  const [showVerificationModal, setShowVerificationModal] = useState(false);
+  const [showEmailTemplatePreview, setShowEmailTemplatePreview] = useState(false);
+  const [pendingNewUser, setPendingNewUser] = useState<UserProfile | null>(null);
 
   // Active view tab in landing (defaults to 'home')
   const [landingSection, setLandingSection] = useState<'home' | 'offers' | 'about'>('home');
@@ -187,11 +195,17 @@ export const VisitorLanding: React.FC<VisitorLandingProps> = ({
       localStorage.setItem('andrea_user_profile_secure', JSON.stringify(newUser));
     } catch {}
 
+    // Synchronisation avec la table profiles de Supabase
+    syncProfileToSupabase(newUser);
+
+    // Génération du modèle d'email de vérification avec le nom Andrea AI
+    const emailInfo = generateAndreaVerificationEmail(cleanEmail, cleanCallName);
+    setSupabaseVerificationInfo(emailInfo);
+    setPendingNewUser(newUser);
+
     setShowPaymentModal(false);
-    setAuthSuccess(`Bienvenue ${cleanCallName} ! Votre espace Andrea est prêt.`);
-    setTimeout(() => {
-      onEnterApp(newUser);
-    }, 500);
+    setShowVerificationModal(true);
+    setAuthSuccess(`Compte créé pour ${cleanCallName} ! Veuillez confirmer votre email.`);
   };
 
   return (
@@ -199,16 +213,14 @@ export const VisitorLanding: React.FC<VisitorLandingProps> = ({
       {/* Top Banner Navigation */}
       <div className="bg-[#100b24] px-4 sm:px-8 py-3.5 border-b border-[#5A33FF33] flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-2xl bg-[#201844] border border-[#5A33FF55] flex items-center justify-center text-xl shadow-md">
-            🧠
-          </div>
+          <img 
+            src="/logo_bea.png" 
+            alt="Andrea Logo" 
+            className="w-10 h-10 object-contain shrink-0"
+            onError={(e) => { e.currentTarget.src = "/logo_andrea.png"; }}
+          />
           <div>
-            <div className="flex items-center gap-2">
-              <span className="font-extrabold text-base text-white tracking-tight">Andrea</span>
-              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#201844] text-[#c4b5fd] border border-[#5A33FF44]">
-                BehaviorLab AI
-              </span>
-            </div>
+            <span className="font-extrabold text-base text-white tracking-tight">Andrea</span>
             <p className="text-[11px] text-[#c4b5fd]">
               Intelligence Stratégique & Créative
             </p>
@@ -406,7 +418,7 @@ export const VisitorLanding: React.FC<VisitorLandingProps> = ({
                           setPreferredCallName(e.target.value);
                           if (!fullName) setFullName(e.target.value);
                         }}
-                        placeholder="Ex : Marie, Thomas, Alex..."
+                        placeholder="Ex : Marie, Thomas, Inès..."
                         className="w-full bg-[#120d28] border border-[#5A33FF66] rounded-xl px-3.5 py-2 text-xs text-white placeholder-[#c4b5fd]/40 focus:outline-none focus:border-[#8B70FF]"
                       />
                     </div>
@@ -578,23 +590,101 @@ export const VisitorLanding: React.FC<VisitorLandingProps> = ({
           </div>
         )}
 
-        {/* VIDÉO OFFICIELLE DE DÉMONSTRATION ANDREA & BEHAVIORLAB AI */}
+        {/* DESCRIPTIONS CLÉS D'ANDREA (EN REMPLACEMENT DE LA DÉMO VIDÉO) */}
         {landingSection === 'home' && (
-          <div id="demo-video-section" className="pt-4 space-y-4">
+          <div className="pt-6 space-y-6">
             <div className="text-center space-y-2">
               <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-gradient-to-r from-purple-900/60 to-indigo-900/60 border border-purple-500/40 text-purple-200 text-xs font-bold shadow">
                 <Sparkles className="w-3.5 h-3.5 text-amber-400" />
-                <span>Vidéo de Démonstration Officielle</span>
+                <span>Ce que fait Andrea · La méthode en action</span>
               </div>
               <h2 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
-                Découvrez Andrea en action : Dialogue, Création de Site, Montage & Signature
+                Clarifier, débloquer et concrétiser vos projets en un temps record
               </h2>
               <p className="text-xs sm:text-sm text-[#c4b5fd] max-w-2xl mx-auto leading-relaxed">
-                Visualisez la méthode en 4 chapitres avec narration vocale réelle par Andrea.
+                Voici les piliers fondamentaux intégrés directement dans chaque conversation avec Andrea :
               </p>
             </div>
 
-            <AndreaShowcaseVideo />
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+              {/* Pilier 1 */}
+              <div className="bg-[#1b143c] border border-[#5A33FF44] hover:border-[#8B70FF] transition-all rounded-3xl p-5 space-y-3 shadow-lg">
+                <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-[#1E1B8C] to-[#5A33FF] flex items-center justify-center text-lg text-white shadow">
+                  🎯
+                </div>
+                <h3 className="font-extrabold text-white text-base">
+                  Clarifier une idée floue
+                </h3>
+                <p className="text-xs text-[#c4b5fd] leading-relaxed">
+                  Transformez une réflexion vague ou éparse en un projet concret et actionnable. Andrea filtre le bruit mental et isole les 20% d'actions qui apportent 80% des résultats.
+                </p>
+              </div>
+
+              {/* Pilier 2 */}
+              <div className="bg-[#1b143c] border border-[#5A33FF44] hover:border-[#8B70FF] transition-all rounded-3xl p-5 space-y-3 shadow-lg">
+                <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-purple-600 to-pink-600 flex items-center justify-center text-lg text-white shadow">
+                  🧠
+                </div>
+                <h3 className="font-extrabold text-white text-base">
+                  Biais cognitifs & Plan en 3 étapes
+                </h3>
+                <p className="text-xs text-[#c4b5fd] leading-relaxed">
+                  Débloquez vos situations d'hésitation ou de blocage grâce aux leviers de psychologie comportementale, articulés dans un plan clair en 3 étapes pour avancer sans se perdre.
+                </p>
+              </div>
+
+              {/* Pilier 3 */}
+              <div className="bg-[#1b143c] border border-[#5A33FF44] hover:border-[#8B70FF] transition-all rounded-3xl p-5 space-y-3 shadow-lg">
+                <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-blue-600 to-indigo-600 flex items-center justify-center text-lg text-white shadow">
+                  🌐
+                </div>
+                <h3 className="font-extrabold text-white text-base">
+                  Site web complet en 1 seul prompt
+                </h3>
+                <p className="text-xs text-[#c4b5fd] leading-relaxed">
+                  Générez instantanément une landing page complète avec présentation, grille tarifaire, formulaire et code prêt à être exporté ou déployé sur Vercel.
+                </p>
+              </div>
+
+              {/* Pilier 4 */}
+              <div className="bg-[#1b143c] border border-[#5A33FF44] hover:border-[#8B70FF] transition-all rounded-3xl p-5 space-y-3 shadow-lg">
+                <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-emerald-600 to-teal-600 flex items-center justify-center text-lg text-white shadow">
+                  🎓
+                </div>
+                <h3 className="font-extrabold text-white text-base">
+                  Accompagnement scolaire sur-mesure
+                </h3>
+                <p className="text-xs text-[#c4b5fd] leading-relaxed">
+                  Du collège aux grandes écoles et universités : compréhension des théorèmes, rituels de devoirs sans stress, questions d'entraînement et méthodologie d'examen.
+                </p>
+              </div>
+
+              {/* Pilier 5 */}
+              <div className="bg-[#1b143c] border border-[#5A33FF44] hover:border-[#8B70FF] transition-all rounded-3xl p-5 space-y-3 shadow-lg">
+                <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-rose-600 to-amber-600 flex items-center justify-center text-lg text-white shadow">
+                  🎬
+                </div>
+                <h3 className="font-extrabold text-white text-base">
+                  Création de vidéo & visuel (9:16)
+                </h3>
+                <p className="text-xs text-[#c4b5fd] leading-relaxed">
+                  Hooks psychologiques pour retenir l'attention dès les 3 premières secondes, découpage de scripts en 3 couches (Hook, Cœur, Sortie) et studio de montage intégré.
+                </p>
+              </div>
+
+              {/* Pilier 6 */}
+              <div className="bg-[#1b143c] border border-[#5A33FF44] hover:border-[#8B70FF] transition-all rounded-3xl p-5 space-y-3 shadow-lg">
+                <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-cyan-600 to-blue-600 flex items-center justify-center text-lg text-white shadow">
+                  🔍
+                </div>
+                <h3 className="font-extrabold text-white text-base">
+                  Recherche Web & Voix fluide
+                </h3>
+                <p className="text-xs text-[#c4b5fd] leading-relaxed">
+                  Andrea dispose d'un accès direct à Internet pour enrichir ses réponses en temps réel, couplé à une synthèse vocale française naturelle, fluide et sans robotisation.
+                </p>
+              </div>
+            </div>
           </div>
         )}
 
@@ -805,6 +895,86 @@ export const VisitorLanding: React.FC<VisitorLandingProps> = ({
                 className="w-full py-2 rounded-xl bg-transparent hover:bg-[#201844] text-[#c4b5fd] hover:text-white text-xs font-medium transition"
               >
                 Ou activer en mode découverte sans payer maintenant
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL EMAIL DE VÉRIFICATION SUPABASE AVEC LE NOM ANDREA AI */}
+      {showVerificationModal && supabaseVerificationInfo && (
+        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in">
+          <div className="bg-[#181135] border-2 border-[#8B70FF] rounded-3xl max-w-lg w-full p-6 sm:p-7 space-y-5 shadow-2xl relative">
+            <div className="text-center space-y-2">
+              <div className="w-14 h-14 rounded-2xl bg-[#231a4a] border border-[#5A33FF66] flex items-center justify-center text-3xl mx-auto shadow-lg">
+                ✉️
+              </div>
+              <div className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 text-[11px] font-bold border border-emerald-500/30">
+                <CheckCircle2 className="w-3.5 h-3.5" />
+                <span>Supabase Auth & Database · Profil Synchronisé</span>
+              </div>
+              <h3 className="text-xl font-black text-white tracking-tight">
+                Vérification d'email Supabase — Andrea AI
+              </h3>
+              <p className="text-xs text-[#c4b5fd] leading-relaxed max-w-sm mx-auto">
+                Un email officiel avec le nom <strong>Andrea AI</strong> a été généré pour valider votre compte et activer votre formule.
+              </p>
+            </div>
+
+            {/* Email Meta Card */}
+            <div className="bg-[#110d24] border border-[#5A33FF44] rounded-2xl p-4 space-y-2 text-xs">
+              <div className="flex items-center justify-between border-b border-[#5A33FF22] pb-2">
+                <span className="text-[#a78bfa] font-semibold">Expéditeur :</span>
+                <span className="font-mono text-white font-bold">{supabaseVerificationInfo.senderName}</span>
+              </div>
+              <div className="flex items-center justify-between border-b border-[#5A33FF22] pb-2">
+                <span className="text-[#a78bfa] font-semibold">Destinataire :</span>
+                <span className="font-mono text-purple-200">{supabaseVerificationInfo.toEmail}</span>
+              </div>
+              <div className="flex items-center justify-between border-b border-[#5A33FF22] pb-2">
+                <span className="text-[#a78bfa] font-semibold">Objet :</span>
+                <span className="text-white font-semibold">{supabaseVerificationInfo.subject}</span>
+              </div>
+              <div className="flex items-center justify-between pt-1">
+                <span className="text-[#a78bfa] font-semibold">Table Supabase :</span>
+                <span className="font-mono text-emerald-300 font-bold">public.profiles (user_id & plan)</span>
+              </div>
+            </div>
+
+            {/* Toggle Preview Template */}
+            <div>
+              <button
+                type="button"
+                onClick={() => setShowEmailTemplatePreview(!showEmailTemplatePreview)}
+                className="text-xs text-[#c4b5fd] hover:text-white underline flex items-center gap-1 mx-auto"
+              >
+                <Eye className="w-3.5 h-3.5" />
+                <span>{showEmailTemplatePreview ? "Masquer le modèle d'email" : "Voir l'aperçu de l'email Andrea AI"}</span>
+              </button>
+
+              {showEmailTemplatePreview && (
+                <div className="mt-3 p-3 bg-[#0d091a] border border-[#5A33FF33] rounded-2xl max-h-60 overflow-y-auto text-left text-xs">
+                  <div dangerouslySetInnerHTML={{ __html: supabaseVerificationInfo.htmlTemplate }} />
+                </div>
+              )}
+            </div>
+
+            {/* Confirmation Actions */}
+            <div className="space-y-2 pt-1">
+              <button
+                type="button"
+                onClick={() => {
+                  setShowVerificationModal(false);
+                  if (pendingNewUser) {
+                    onEnterApp(pendingNewUser);
+                  } else {
+                    onEnterApp();
+                  }
+                }}
+                className="w-full py-3 rounded-2xl bg-gradient-to-r from-[#1E1B8C] to-[#5A33FF] hover:from-[#2a24bf] hover:to-[#7048ff] text-white font-bold text-xs transition shadow-lg flex items-center justify-center gap-2 hover:scale-[1.01]"
+              >
+                <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                <span>Confirmer mon compte Andrea AI & Ouvrir l'application</span>
               </button>
             </div>
           </div>
