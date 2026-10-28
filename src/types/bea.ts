@@ -99,6 +99,10 @@ export interface UserProfile {
   lastActive: string;
   streakDays: number;
   momentumPoints: number;
+  theme?: 'dark' | 'light' | 'system';
+  fontSize?: 'normal' | 'compact' | 'comfortable';
+  soundEffects?: boolean;
+  language?: SupportedLanguageCode;
 }
 
 export type PageView = 
@@ -131,7 +135,7 @@ export type SupportedLanguageCode =
   | 'ru' 
   | 'hi' 
   | 'tr' 
-  | 'wo';
+  | 'pl';
 
 export interface LanguageMeta {
   code: SupportedLanguageCode;
@@ -139,22 +143,23 @@ export interface LanguageMeta {
   nativeName: string;
   flag: string;
   tag: string;
+  voiceCode: string;
 }
 
 export const SUPPORTED_LANGUAGES: LanguageMeta[] = [
-  { code: 'fr', name: 'Français', nativeName: 'Français', flag: '🇫🇷', tag: 'Langue par défaut' },
-  { code: 'en', name: 'Anglais', nativeName: 'English (US/UK)', flag: '🇬🇧', tag: 'Global' },
-  { code: 'es', name: 'Espagnol', nativeName: 'Español', flag: '🇪🇸', tag: 'Mondial' },
-  { code: 'de', name: 'Allemand', nativeName: 'Deutsch', flag: '🇩🇪', tag: 'Europe' },
-  { code: 'pt', name: 'Portugais', nativeName: 'Português', flag: '🇧🇷', tag: 'Amérique / Europe' },
-  { code: 'it', name: 'Italien', nativeName: 'Italiano', flag: '🇮🇹', tag: 'Europe' },
-  { code: 'nl', name: 'Néerlandais', nativeName: 'Nederlands', flag: '🇳🇱', tag: 'Europe' },
-  { code: 'ar', name: 'Arabe', nativeName: 'العربية', flag: '🇸🇦', tag: 'Moyen-Orient / Afrique' },
-  { code: 'zh', name: 'Chinois', nativeName: '中文 (Mandarin)', flag: '🇨🇳', tag: 'Asie' },
-  { code: 'ja', name: 'Japonais', nativeName: '日本語', flag: '🇯🇵', tag: 'Asie' },
-  { code: 'ko', name: 'Coréen', nativeName: '한국어', flag: '🇰🇷', tag: 'Asie' },
-  { code: 'ru', name: 'Russe', nativeName: 'Русский', flag: '🇷🇺', tag: 'Eurasie' },
-  { code: 'hi', name: 'Hindi', nativeName: 'हिन्दी', flag: '🇮🇳', tag: 'Asie du Sud' },
-  { code: 'tr', name: 'Turc', nativeName: 'Türkçe', flag: '🇹🇷', tag: 'Eurasie' },
-  { code: 'wo', name: 'Wolof', nativeName: 'Wolof', flag: '🇸🇳', tag: 'Afrique de l\'Ouest' },
+  { code: 'fr', name: 'Français', nativeName: 'Français', flag: '🇫🇷', tag: 'Par défaut', voiceCode: 'fr-FR' },
+  { code: 'en', name: 'Anglais', nativeName: 'English (US/UK)', flag: '🇬🇧', tag: 'Global', voiceCode: 'en-US' },
+  { code: 'es', name: 'Espagnol', nativeName: 'Español', flag: '🇪🇸', tag: 'Mondial', voiceCode: 'es-ES' },
+  { code: 'de', name: 'Allemand', nativeName: 'Deutsch', flag: '🇩🇪', tag: 'Europe', voiceCode: 'de-DE' },
+  { code: 'pt', name: 'Portugais', nativeName: 'Português', flag: '🇧🇷', tag: 'Amérique / Europe', voiceCode: 'pt-BR' },
+  { code: 'it', name: 'Italien', nativeName: 'Italiano', flag: '🇮🇹', tag: 'Europe', voiceCode: 'it-IT' },
+  { code: 'nl', name: 'Néerlandais', nativeName: 'Nederlands', flag: '🇳🇱', tag: 'Europe', voiceCode: 'nl-NL' },
+  { code: 'ar', name: 'Arabe', nativeName: 'العربية', flag: '🇸🇦', tag: 'Moyen-Orient', voiceCode: 'ar-SA' },
+  { code: 'zh', name: 'Chinois', nativeName: '中文 (Mandarin)', flag: '🇨🇳', tag: 'Asie', voiceCode: 'zh-CN' },
+  { code: 'ja', name: 'Japonais', nativeName: '日本語', flag: '🇯🇵', tag: 'Asie', voiceCode: 'ja-JP' },
+  { code: 'ko', name: 'Coréen', nativeName: '한국어', flag: '🇰🇷', tag: 'Asie', voiceCode: 'ko-KR' },
+  { code: 'ru', name: 'Russe', nativeName: 'Русский', flag: '🇷🇺', tag: 'Eurasie', voiceCode: 'ru-RU' },
+  { code: 'hi', name: 'Hindi', nativeName: 'हिन्दी', flag: '🇮🇳', tag: 'Asie du Sud', voiceCode: 'hi-IN' },
+  { code: 'tr', name: 'Turc', nativeName: 'Türkçe', flag: '🇹🇷', tag: 'Eurasie', voiceCode: 'tr-TR' },
+  { code: 'pl', name: 'Polonais', nativeName: 'Polski', flag: '🇵🇱', tag: 'Europe', voiceCode: 'pl-PL' },
 ];

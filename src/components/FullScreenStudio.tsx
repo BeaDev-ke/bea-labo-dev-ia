@@ -36,8 +36,10 @@ import {
   Copy,
   Eye,
   Sun,
-  Wand2
+  Wand2,
+  Music
 } from 'lucide-react';
+import { MusicStudioReels } from './MusicStudioReels';
 
 interface FullScreenStudioProps {
   onBackToApp: () => void;
@@ -182,6 +184,9 @@ const STICKER_PRESETS = [
 ];
 
 export const FullScreenStudio: React.FC<FullScreenStudioProps> = ({ onBackToApp }) => {
+  // Mode de studio : Studio Musical & Réels (DAW) ou Compositeur Graphique
+  const [studioMode, setStudioMode] = useState<'daw_reels' | 'frame_composer'>('daw_reels');
+
   // Navigation & Fullscreen state
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [activeTab, setActiveTab] = useState<'frames' | 'captions' | 'filters' | 'stickers' | 'audio' | 'text' | 'media' | 'background'>('frames');
@@ -563,6 +568,12 @@ export const FullScreenStudio: React.FC<FullScreenStudioProps> = ({ onBackToApp 
         ctx.fillText(badge, badgeX + 18, badgeY + 4);
       }
 
+      // Watermark CapCut style en bas à droite : "made with Andrea AI"
+      ctx.font = `bold ${Math.round(width * 0.024)}px system-ui, sans-serif`;
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.55)';
+      ctx.textAlign = 'right';
+      ctx.fillText('made with Andrea AI', width * 0.94, height * 0.96);
+
       const dataUrl = canvas.toDataURL('image/png');
       const link = document.createElement('a');
       link.download = `andrea-creation-${activeFrame}-${Date.now()}.png`;
@@ -574,20 +585,54 @@ export const FullScreenStudio: React.FC<FullScreenStudioProps> = ({ onBackToApp 
     }
   };
 
+  if (studioMode === 'daw_reels') {
+    return (
+      <div className="fixed inset-0 z-50 flex flex-col bg-[#090714]">
+        {/* Top bar with switch to frame composer */}
+        <div className="h-10 bg-[#100b24] border-b border-[#5A33FF33] px-4 flex items-center justify-between text-xs shrink-0">
+          <div className="flex items-center gap-2">
+            <span className="text-amber-400 font-extrabold flex items-center gap-1.5">
+              <span>🎹</span> Studio Musical & Réels Viraux
+            </span>
+            <span className="text-zinc-600">|</span>
+            <span className="text-[#c4b5fd] hidden sm:inline">DAW Multipiste avec sons & mots colorés</span>
+          </div>
+          <button
+            onClick={() => setStudioMode('frame_composer')}
+            className="px-3 py-1 rounded-xl bg-[#201844] hover:bg-[#2b215c] border border-[#5A33FF44] text-[#c4b5fd] hover:text-white transition text-xs font-semibold flex items-center gap-1.5"
+          >
+            <span>🎨 Mode Composition Visuelle →</span>
+          </button>
+        </div>
+        <div className="flex-1 overflow-hidden">
+          <MusicStudioReels onBack={onBackToApp} />
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="fixed inset-0 z-50 bg-[#090714] text-white flex flex-col font-sans select-none overflow-hidden">
       
       {/* 1. TOP HEADER TOOLBAR: TYPOGRAPHY & CONTROLS */}
       <header className="h-16 bg-[#110d24] border-b border-[#5A33FF33] px-3 sm:px-6 flex items-center justify-between gap-2 z-30 shrink-0 shadow-lg">
         {/* Left: Back & Title */}
-        <div className="flex items-center gap-3 shrink-0">
+        <div className="flex items-center gap-2 sm:gap-3 shrink-0">
           <button
             onClick={onBackToApp}
             className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[#201844] hover:bg-[#2e2363] text-[#c4b5fd] hover:text-white transition text-xs font-semibold"
             title="Revenir sur l'application Andrea"
           >
             <ArrowLeft className="w-4 h-4" />
-            <span className="hidden sm:inline">Quitter Studio</span>
+            <span className="hidden sm:inline">Quitter</span>
+          </button>
+          
+          <button
+            onClick={() => setStudioMode('daw_reels')}
+            className="px-3 py-1.5 rounded-xl bg-gradient-to-r from-orange-600 to-amber-500 text-black font-extrabold text-xs shadow hover:brightness-110 transition flex items-center gap-1.5"
+          >
+            <Music className="w-3.5 h-3.5" />
+            <span>Studio DAW & Réels</span>
           </button>
           
           <div className="h-6 w-px bg-white/10 hidden sm:block" />

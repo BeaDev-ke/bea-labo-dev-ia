@@ -266,7 +266,7 @@ export const VisitorLanding: React.FC<VisitorLandingProps> = ({
             <div className="lg:col-span-7 space-y-5">
               <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#201844] border border-[#5A33FF55] text-[#c4b5fd] text-xs font-semibold">
                 <Sparkles className="w-3.5 h-3.5 text-purple-400" />
-                <span>Plateforme officielle Andrea · Version 2026</span>
+                <span>Intelligence Stratégique & Créative · v2.5</span>
               </div>
 
               <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black text-white tracking-tight leading-[1.15]">
@@ -681,7 +681,7 @@ export const VisitorLanding: React.FC<VisitorLandingProps> = ({
                   Recherche Web & Voix fluide
                 </h3>
                 <p className="text-xs text-[#c4b5fd] leading-relaxed">
-                  Andrea dispose d'un accès direct à Internet pour enrichir ses réponses en temps réel, couplé à une synthèse vocale française naturelle, fluide et sans robotisation.
+                  Andrea dispose d'un accès direct à Internet pour enrichir ses réponses en temps réel, couplé à une synthèse vocale multilingue naturelle, fluide et sans robotisation.
                 </p>
               </div>
             </div>

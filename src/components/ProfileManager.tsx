@@ -11,11 +11,17 @@ import {
   RotateCcw,
   BookOpen,
   Compass,
-  ArrowRight
+  ArrowRight,
+  Sun,
+  Moon,
+  Type,
+  Globe,
+  Volume2
 } from 'lucide-react';
-import { UserProfile, ProfileType, UseCaseType } from '../types/bea';
+import { UserProfile, ProfileType, UseCaseType, SUPPORTED_LANGUAGES } from '../types/bea';
 import { PROFILE_METAS, STUDY_COUNTRIES, STUDY_LEVELS } from '../data/profilesData';
 import { sanitizeXSS, signData, verifyData } from '../utils/security';
+import { andreaVoice } from '../utils/speech';
 
 interface ProfileManagerProps {
   userProfile: UserProfile;
@@ -303,6 +309,115 @@ export const ProfileManager: React.FC<ProfileManagerProps> = ({
             placeholder="Ex: Avoir mon Bac avec mention, publier 1 vidéo par jour sans blocage, signer 3 nouveaux clients ce mois-ci..."
             className="w-full bg-[#100b24] border border-[#7c3aed]/50 rounded-xl p-3 text-xs text-white focus:outline-none focus:border-purple-400"
           />
+        </div>
+      </div>
+
+      {/* STEP 3 : PARAMÈTRES DE BASE (CLAIR / SOMBRE, TAILLE DU TEXTE, LANGUE & SONS) */}
+      <div className="bg-[#15112a] border border-[#7c3aed]/50 rounded-3xl p-6 space-y-5 shadow-lg">
+        <h3 className="text-sm font-bold text-white flex items-center gap-2">
+          <Sun className="w-4 h-4 text-amber-400" />
+          3. Paramètres de base (Apparence & Confort)
+        </h3>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-xs">
+          {/* 1. Mode Clair / Sombre */}
+          <div>
+            <label className="block font-bold text-[#c4b5fd] mb-1.5 flex items-center gap-1.5">
+              <Moon className="w-3.5 h-3.5 text-purple-400" />
+              <span>Thème de l'interface</span>
+            </label>
+            <div className="grid grid-cols-3 gap-1 bg-[#100b24] p-1 rounded-xl border border-[#7c3aed]/50">
+              {[
+                { id: 'dark', label: '🌙 Sombre' },
+                { id: 'light', label: '☀️ Clair' },
+                { id: 'system', label: '💻 Auto' },
+              ].map(themeItem => (
+                <button
+                  key={themeItem.id}
+                  type="button"
+                  onClick={() => setFormData({ ...formData, theme: themeItem.id as any })}
+                  className={`py-1.5 rounded-lg text-center font-bold text-[11px] transition ${
+                    (formData.theme || 'dark') === themeItem.id
+                      ? 'bg-purple-600 text-white shadow'
+                      : 'text-[#c4b5fd] hover:text-white'
+                  }`}
+                >
+                  {themeItem.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* 2. Taille du texte */}
+          <div>
+            <label className="block font-bold text-[#c4b5fd] mb-1.5 flex items-center gap-1.5">
+              <Type className="w-3.5 h-3.5 text-purple-400" />
+              <span>Taille du texte</span>
+            </label>
+            <div className="grid grid-cols-3 gap-1 bg-[#100b24] p-1 rounded-xl border border-[#7c3aed]/50">
+              {[
+                { id: 'compact', label: 'Compact' },
+                { id: 'normal', label: 'Normal' },
+                { id: 'comfortable', label: 'Grand' },
+              ].map(f => (
+                <button
+                  key={f.id}
+                  type="button"
+                  onClick={() => setFormData({ ...formData, fontSize: f.id as any })}
+                  className={`py-1.5 rounded-lg text-center font-bold text-[11px] transition ${
+                    (formData.fontSize || 'normal') === f.id
+                      ? 'bg-purple-600 text-white shadow'
+                      : 'text-[#c4b5fd] hover:text-white'
+                  }`}
+                >
+                  {f.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* 3. Langue d'Andrea & Voix */}
+          <div>
+            <label className="block font-bold text-[#c4b5fd] mb-1.5 flex items-center gap-1.5">
+              <Globe className="w-3.5 h-3.5 text-purple-400" />
+              <span>Langue vocale & texte</span>
+            </label>
+            <select
+              value={formData.language || 'fr'}
+              onChange={e => {
+                const code = e.target.value as any;
+                setFormData({ ...formData, language: code });
+                andreaVoice.setLanguage(code);
+              }}
+              className="w-full bg-[#100b24] border border-[#7c3aed]/50 rounded-xl p-2.5 text-xs text-white"
+            >
+              {SUPPORTED_LANGUAGES.map(lang => (
+                <option key={lang.code} value={lang.code}>
+                  {lang.flag} {lang.name} ({lang.nativeName})
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* 4. Effets Sonores */}
+          <div>
+            <label className="block font-bold text-[#c4b5fd] mb-1.5 flex items-center gap-1.5">
+              <Volume2 className="w-3.5 h-3.5 text-purple-400" />
+              <span>Effets sonores</span>
+            </label>
+            <button
+              type="button"
+              onClick={() => setFormData({ ...formData, soundEffects: formData.soundEffects === false ? true : false })}
+              className={`w-full py-2.5 px-3 rounded-xl border font-bold text-xs flex items-center justify-between transition ${
+                formData.soundEffects !== false
+                  ? 'bg-emerald-950/40 border-emerald-500/50 text-emerald-300'
+                  : 'bg-[#100b24] border-[#7c3aed]/50 text-zinc-400'
+              }`}
+            >
+              <span>{formData.soundEffects !== false ? '🔊 Activés' : '🔇 Muet'}</span>
+              <span className="text-[10px] font-mono">{formData.soundEffects !== false ? 'ON' : 'OFF'}</span>
+            </button>
+          </div>
         </div>
       </div>
 

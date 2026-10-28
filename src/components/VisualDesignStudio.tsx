@@ -31,7 +31,7 @@ const FONTS = [
 ];
 
 const THEMES = [
-  { id: 'neon', name: 'Violet BehaviorLab', bg: '#0f0a1e', gradient: 'linear-gradient(135deg, #1d4ed8 0%, #7c3aed 55%, #db2777 100%)', text: '#ffffff', accent: '#a855f7' },
+  { id: 'neon', name: 'Violet Andrea', bg: '#0f0a1e', gradient: 'linear-gradient(135deg, #1d4ed8 0%, #7c3aed 55%, #db2777 100%)', text: '#ffffff', accent: '#a855f7' },
   { id: 'cyber', name: 'Cyberpunk Bleu', bg: '#080d1a', gradient: 'linear-gradient(135deg, #0284c7 0%, #3b82f6 50%, #6366f1 100%)', text: '#ffffff', accent: '#38bdf8' },
   { id: 'sunset', name: 'Soleil Couchant', bg: '#1c0d1b', gradient: 'linear-gradient(135deg, #f43f5e 0%, #fb923c 50%, #facc15 100%)', text: '#ffffff', accent: '#fb7185' },
   { id: 'emerald', name: 'Croissance Émeraude', bg: '#061612', gradient: 'linear-gradient(135deg, #059669 0%, #10b981 50%, #14b8a6 100%)', text: '#ffffff', accent: '#34d399' },
@@ -181,6 +181,13 @@ export const VisualDesignStudio: React.FC<VisualDesignStudioProps> = () => {
       ctx.textAlign = 'center';
       ctx.fillText(ctaText, centerX, btnY + btnH * 0.62);
     }
+
+    // Watermark style CapCut en bas à droite : "made with Andrea AI"
+    const wmText = "made with Andrea AI";
+    ctx.font = `bold ${Math.round(canvas.width * 0.022)}px system-ui, sans-serif`;
+    ctx.textAlign = 'right';
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.55)';
+    ctx.fillText(wmText, canvas.width - pad * 1.5, canvas.height - pad * 1.2);
 
     return canvas.toDataURL('image/png');
   };
@@ -546,6 +553,13 @@ export const VisualDesignStudio: React.FC<VisualDesignStudioProps> = () => {
                   {ctaText}
                 </button>
               )}
+            </div>
+
+            {/* Watermark CapCut style en bas à droite */}
+            <div className="absolute bottom-2.5 right-3.5 z-20 pointer-events-none select-none">
+              <span className="text-[10px] font-bold tracking-wider text-white/60 px-2 py-0.5 rounded bg-black/40 border border-white/10 font-sans backdrop-blur-xs">
+                made with Andrea AI
+              </span>
             </div>
           </div>
 

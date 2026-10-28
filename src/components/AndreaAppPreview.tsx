@@ -29,10 +29,14 @@ import {
   Sliders,
   LogOut,
   ExternalLink,
-  HelpCircle
+  HelpCircle,
+  Menu,
+  X
 } from 'lucide-react';
 import { ChatMessage, PageView, UserProfile, ProfileType, UseCaseType } from '../types/bea';
 import { andreaVoice } from '../utils/speech';
+import { andreaEngine } from '../utils/andreaRequestEngine';
+import { MusicStudioReels } from './MusicStudioReels';
 import { VisualDesignStudio } from './VisualDesignStudio';
 import { SiteBuilder } from './SiteBuilder';
 import { ProfileManager } from './ProfileManager';
@@ -140,6 +144,9 @@ export const AndreaAppPreview: React.FC<AndreaAppPreviewProps> = ({
       setIsRecordingVoice(false);
     }
   };
+
+  // Mobile drawer state
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   // Profile State
   const [userProfile, setUserProfile] = useState<UserProfile>(() => {
@@ -345,11 +352,30 @@ if __name__ == "__main__":
       }
 
       if (!replyText) {
-        replyText = generateHumanAndreaResponse(sanitizedText, userProfile);
+        try {
+          const engineRes = await andreaEngine.sendQuery(sanitizedText, {
+            context: {
+              userName: userProfile.preferredCallName || userProfile.displayName,
+              preferredStyle: userProfile.preferredStyle,
+              useCase: userProfile.useCase,
+              plan: userProfile.plan,
+            }
+          });
+          replyText = engineRes.text;
+          if (enableWebSearch && engineRes.sources) {
+            webSources = engineRes.sources;
+            usedWebSearch = true;
+          }
+        } catch {
+          replyText = generateHumanAndreaResponse(sanitizedText, userProfile);
+        }
+        if (!replyText) {
+          replyText = generateHumanAndreaResponse(sanitizedText, userProfile);
+        }
         if (enableWebSearch && (sanitizedText.toLowerCase().includes('recherche') || sanitizedText.toLowerCase().includes('web') || sanitizedText.toLowerCase().includes('internet'))) {
           usedWebSearch = true;
           webSources = [
-            { title: "BehaviorLab AI Knowledge Index", uri: "https://behaviorlab.ai" }
+            { title: "Index de Connaissances Andrea", uri: "https://andrea.ai" }
           ];
         }
       }
@@ -393,13 +419,25 @@ if __name__ == "__main__":
   };
 
   return (
-    <div className="h-full w-full flex bg-[#181135] text-white font-sans overflow-hidden select-none">
+    <div className="h-full w-full flex bg-[#181135] text-white font-sans overflow-hidden select-none relative">
       
-      {/* 1. LEFT SIDEBAR : COMPACT, ÉPURÉ, ZÉRO SCROLL (TOUT EST VISIBLE D'UN COUP D'ŒIL) */}
-      <aside className="w-64 md:w-72 bg-[#100b24] border-r border-[#5A33FF33] flex flex-col justify-between shrink-0 h-full overflow-hidden z-20 shadow-2xl p-3">
+      {/* Mobile Drawer Backdrop */}
+      {isMobileMenuOpen && (
+        <div 
+          className="fixed inset-0 bg-black/70 backdrop-blur-xs z-40 md:hidden"
+          onClick={() => setIsMobileMenuOpen(false)}
+        />
+      )}
+
+      {/* 1. LEFT SIDEBAR : COMPACT, ÉPURÉ, ZÉRO SCROLL (RESPONSIVE SMARTPHONE/TABLETTE/DESKTOP) */}
+      <aside className={`w-64 md:w-72 bg-[#100b24] border-r border-[#5A33FF33] flex flex-col justify-between shrink-0 h-full overflow-hidden z-50 shadow-2xl p-3 transition-transform duration-200 ${
+        isMobileMenuOpen 
+          ? 'fixed inset-y-0 left-0 translate-x-0' 
+          : 'hidden md:flex'
+      }`}>
         <div className="space-y-2.5 overflow-hidden">
           
-          {/* Header Compact : Logo seul + Andrea */}
+          {/* Header Compact : Logo seul + Andrea + Fermer sur mobile */}
           <div className="flex items-center justify-between px-1 pt-0.5">
             <div className="flex items-center gap-2.5">
               <img 
@@ -410,13 +448,27 @@ if __name__ == "__main__":
               />
               <span className="font-extrabold text-sm text-white tracking-tight leading-none">Andrea</span>
             </div>
-            <button
-              onClick={() => setCurrentPage('profil')}
-              className="text-[10px] font-bold px-2 py-0.5 rounded-lg bg-purple-500/20 text-purple-300 hover:bg-purple-500/30 transition shrink-0"
-              title="Modifier mon profil"
-            >
-              Profil
-            </button>
+            <div className="flex items-center gap-1">
+              <button
+                onClick={() => {
+                  setCurrentPage('profil');
+                  setIsMobileMenuOpen(false);
+                }}
+                className="text-[10px] font-bold px-2 py-0.5 rounded-lg bg-purple-500/20 text-purple-300 hover:bg-purple-500/30 transition shrink-0"
+                title="Modifier mon profil"
+              >
+                Profil
+              </button>
+              {isMobileMenuOpen && (
+                <button
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="md:hidden p-1 rounded-lg bg-white/10 text-white hover:bg-white/20 transition"
+                  title="Fermer"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              )}
+            </div>
           </div>
 
           {/* CARTE PROFIL COMPACTE : Nom, Appel & Formule en un coup d'œil */}
@@ -475,6 +527,7 @@ if __name__ == "__main__":
                     } else {
                       setCurrentPage(item.id as PageView);
                     }
+                    setIsMobileMenuOpen(false);
                   }}
                   className={`w-full text-left px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center justify-between ${
                     active
@@ -507,7 +560,10 @@ if __name__ == "__main__":
         {isDevAdmin && (
           <div className="pt-2 border-t border-[#5A33FF22] space-y-1 shrink-0">
             <button
-              onClick={onOpenLab}
+              onClick={() => {
+                onOpenLab();
+                setIsMobileMenuOpen(false);
+              }}
               className="w-full py-1.5 px-2.5 rounded-xl bg-purple-950/70 hover:bg-purple-900 border border-[#5A33FF66] text-xs font-bold text-white transition flex items-center justify-center gap-1.5 shadow"
             >
               <Wand2 className="w-3.5 h-3.5 text-purple-300" />
@@ -521,19 +577,26 @@ if __name__ == "__main__":
       </aside>
 
       {/* 2. MAIN CONTENT AREA */}
-      <div className="flex-1 flex flex-col h-full overflow-hidden bg-[#181135]">
+      <div className="flex-1 flex flex-col h-full overflow-hidden bg-[#181135] pb-14 md:pb-0">
         
         {/* TOP NAVIGATION BAR : LOGO SEUL & GAUGE DE TOKENS (PAS DE MENUS EN DOUBLE) */}
-        <header className="bg-[#130d2a] px-4 sm:px-6 py-3 border-b border-[#5A33FF33] flex items-center justify-between gap-3 shrink-0 z-10 shadow-md">
-          {/* Left identity : Logo seul sans carré décoratif */}
-          <div className="flex items-center gap-3 shrink-0">
+        <header className="bg-[#130d2a] px-3 sm:px-6 py-2.5 sm:py-3 border-b border-[#5A33FF33] flex items-center justify-between gap-2 sm:gap-3 shrink-0 z-10 shadow-md">
+          {/* Left identity : Hamburger sur mobile + Logo seul sans carré décoratif */}
+          <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+            <button
+              onClick={() => setIsMobileMenuOpen(true)}
+              className="md:hidden p-1.5 rounded-xl bg-[#201844] hover:bg-[#2e2363] border border-[#5A33FF44] text-[#c4b5fd] hover:text-white transition"
+              title="Ouvrir le menu"
+            >
+              <Menu className="w-4 h-4" />
+            </button>
             <img 
               src="/logo_bea.png" 
               alt="Andrea Logo" 
-              className="w-8 h-8 object-contain shrink-0"
+              className="w-7 h-7 sm:w-8 sm:h-8 object-contain shrink-0"
               onError={(e) => { e.currentTarget.src = "/logo_andrea.png"; }}
             />
-            <span className="font-extrabold text-base text-white tracking-tight">Andrea</span>
+            <span className="font-extrabold text-sm sm:text-base text-white tracking-tight">Andrea</span>
           </div>
 
           {/* Right section: GAUGE DE TOKENS ÉVOLUTIVE + SÉCURITÉ + PROFIL */}
@@ -872,17 +935,17 @@ if __name__ == "__main__":
           </div>
         )}
 
-        {/* 3. MONTAGE VIDÉO & VISUEL */}
+        {/* 3. MONTAGE VIDÉO & VISUEL (STUDIO MUSICAL DAW & RÉELS VIRAUX) */}
         {currentPage === 'studio' && (
-          <div className="flex-1 overflow-y-auto">
-            <VisualDesignStudio />
+          <div className="flex-1 overflow-hidden flex flex-col">
+            <MusicStudioReels onBack={() => setCurrentPage('chat')} />
           </div>
         )}
 
         {/* 4. LABO D'IA INTÉGRÉ DANS LE MONTAGE */}
         {currentPage === 'creative_hub' && (
-          <div className="flex-1 overflow-y-auto">
-            <VisualDesignStudio />
+          <div className="flex-1 overflow-hidden flex flex-col">
+            <MusicStudioReels onBack={() => setCurrentPage('chat')} />
           </div>
         )}
 
@@ -987,6 +1050,42 @@ if __name__ == "__main__":
             <SecurityShield />
           </div>
         )}
+
+        {/* BARRE DE NAVIGATION INFÉRIEURE MOBILE (SMARTPHONE & TABLETTE TACTILE) */}
+        <nav 
+          aria-label="Navigation mobile"
+          className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-[#100b24]/95 backdrop-blur-lg border-t border-[#5A33FF44] flex items-center justify-around py-2 px-1 shadow-2xl"
+        >
+          {[
+            { id: 'chat', label: 'Discussion', icon: '💬' },
+            { id: 'studio', label: 'Montage', icon: '🎬' },
+            { id: 'app', label: 'Site Web', icon: '🌐' },
+            { id: 'compte', label: 'Offres', icon: '💎' },
+            { id: 'profil', label: 'Mon Profil', icon: '👤' },
+          ].map(tab => {
+            const active = currentPage === tab.id;
+            return (
+              <button
+                key={tab.id}
+                onClick={() => {
+                  if (tab.id === 'studio') {
+                    handleOpenMontage();
+                  } else {
+                    setCurrentPage(tab.id as PageView);
+                  }
+                }}
+                className={`flex flex-col items-center justify-center flex-1 py-1 rounded-xl transition ${
+                  active
+                    ? 'text-white font-extrabold bg-[#5A33FF]/30 border border-[#5A33FF]/60 shadow-sm'
+                    : 'text-[#c4b5fd]/80 hover:text-white'
+                }`}
+              >
+                <span className="text-base leading-none">{tab.icon}</span>
+                <span className="text-[10px] mt-0.5 leading-none">{tab.label}</span>
+              </button>
+            );
+          })}
+        </nav>
 
       </div>
     </div>
