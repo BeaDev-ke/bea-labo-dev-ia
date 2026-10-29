@@ -142,11 +142,55 @@ export const SalesOffers: React.FC<SalesOffersProps> = ({
         </div>
       )}
 
+      {/* HEADER SECTION TARIFS CLAIRS & SANS SURPRISE MATCHING PHOTO 3 */}
+      <div className="text-center space-y-3 pt-2">
+        <h2 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
+          Tarifs Clairs & Sans Surprise
+        </h2>
+        <p className="text-xs sm:text-sm text-[#c4b5fd]">
+          Basculez entre facturation mensuelle et annuelle pour économiser 20%.
+        </p>
+
+        {/* COMMUTATEUR MENSUEL / ANNUEL (-20%) */}
+        <div className="inline-flex items-center p-1 rounded-2xl bg-[#140e2b] border border-[#5A33FF44] shadow-md mt-2">
+          <button
+            type="button"
+            onClick={() => setSelectedBilling('monthly')}
+            className={`px-4 py-2 rounded-xl text-xs font-bold transition ${
+              selectedBilling === 'monthly'
+                ? 'bg-gradient-to-r from-[#1E1B8C] to-[#5A33FF] text-white shadow'
+                : 'text-[#c4b5fd] hover:text-white'
+            }`}
+          >
+            Facturation Mensuelle
+          </button>
+          <button
+            type="button"
+            onClick={() => setSelectedBilling('annual')}
+            className={`px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-1.5 ${
+              selectedBilling === 'annual'
+                ? 'bg-gradient-to-r from-[#1E1B8C] to-[#5A33FF] text-white shadow'
+                : 'text-[#c4b5fd] hover:text-white'
+            }`}
+          >
+            <span>Annuel</span>
+            <span className="px-1.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 text-[10px] font-black">
+              -20%
+            </span>
+          </button>
+        </div>
+      </div>
+
       {/* CARDS GRILLE DES 3 OFFRES */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-stretch">
         {SALES_PLANS.map((plan) => {
           const isPro = plan.id === 'pro';
           const isAbo = plan.id === 'ultra' || plan.id === 'abo';
+
+          // Calcul réduction 20% en annuel
+          const displayedPrice = selectedBilling === 'annual'
+            ? (plan.priceMonthly * 0.8).toLocaleString('fr-FR', { minimumFractionDigits: plan.priceMonthly === 14.9 ? 2 : 2, maximumFractionDigits: 2 }) + ' €'
+            : plan.priceFormatted;
 
           return (
             <div
@@ -183,9 +227,11 @@ export const SalesOffers: React.FC<SalesOffersProps> = ({
                 <div className="my-5 pb-5 border-b border-[#7c3aed]/30">
                   <div className="flex items-baseline gap-1.5">
                     <span className="text-3xl sm:text-4xl font-black text-white tracking-tight">
-                      {plan.priceFormatted}
+                      {displayedPrice}
                     </span>
-                    <span className="text-xs text-[#a78bfa] font-medium">{plan.period}</span>
+                    <span className="text-xs text-[#a78bfa] font-medium">
+                      / mois {selectedBilling === 'annual' && '(facturé annuellement)'}
+                    </span>
                   </div>
                   <div className="text-[11px] text-emerald-400 font-semibold mt-1 flex items-center gap-1">
                     <Check className="w-3 h-3" />
