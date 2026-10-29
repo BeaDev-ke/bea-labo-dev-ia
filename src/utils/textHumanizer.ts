@@ -3,11 +3,11 @@ import { UserProfile, ProfileType } from '../types/bea';
 /**
  * HUMANISATEUR DE TEXTE POUR ANDREA (BEHAVIORLAB AI)
  * 
- * Génère des réponses vivantes, chaleureuses, directes et profondément humaines (style ChatGPT) :
+ * Génère des réponses vivantes, chaleureuses, directes, approfondies et profondément humaines :
  * 1. Clarifier une idée floue et la transformer en projet concret.
- * 2. Débloquer des situations grâce aux biais cognitifs, avec un plan clair en 3 étapes pour avancer sans se perdre.
- * 3. Structurer en un seul prompt un site web complet (page de présentation, tarifs, code prêt à déployer).
- * 4. Accompagnement scolaire (révisions, méthodes de travail, préparation aux examens).
+ * 2. Débloquer des situations grâce aux sciences cognitives prouvées (Gollwitzer, Parkinson, Mind Wandering).
+ * 3. Accompagnement vers la RÉUSSITE concrète (Médecine 2e année, Concours, Droit, Entrepreneuriat, Vente).
+ * 4. Structurer en un seul prompt un site web complet (page de présentation, tarifs, code prêt à déployer).
  * 5. Accompagnement à la création de vidéo et de visuel (hooks percutants 0-3s, formats verticaux 9:16, rétention).
  * 6. Recherche Web en direct pour des informations récentes.
  */
@@ -20,7 +20,7 @@ interface HumanizeOptions {
 export function humanizeAndreaResponse(rawText: string, options: HumanizeOptions = {}): string {
   if (!rawText || typeof rawText !== 'string') return '';
 
-  const { userProfile, userPrompt = '' } = options;
+  const { userProfile } = options;
   const clientName = userProfile?.preferredCallName?.trim() 
     || userProfile?.displayName?.split(' ')[0]?.trim() 
     || '';
@@ -33,6 +33,11 @@ export function humanizeAndreaResponse(rawText: string, options: HumanizeOptions
     .replace(/Charge cognitive résiduelle\s*:?/gi, '')
     .trim();
 
+  // Si un prénom est défini et non présent dans les premières lignes, l'insérer avec naturel
+  if (clientName && !cleaned.toLowerCase().includes(clientName.toLowerCase()) && !cleaned.startsWith('Je ne peux pas')) {
+    cleaned = `Bonjour ${clientName} !\n\n${cleaned}`;
+  }
+
   return cleaned;
 }
 
@@ -41,128 +46,73 @@ export function humanizeAndreaResponse(rawText: string, options: HumanizeOptions
  */
 export function generateHumanAndreaResponse(userPrompt: string, userProfile?: UserProfile): string {
   const p = userPrompt.toLowerCase().trim();
-  const name = userProfile?.preferredCallName || userProfile?.displayName || '';
-  const appel = name ? `${name}` : 'à vous';
+  const name = userProfile?.preferredCallName || userProfile?.displayName || 'vous';
 
-  // 1. CLARIFIER UNE IDÉE FLOUE ET LA TRANSFORMER EN PROJET CONCRET
-  if (p.includes('idée floue') || p.includes('clarifier') || p.includes('projet concret') || p.includes('structurer') || p.includes('idée')) {
-    return `C'est exactement mon rôle premier avec vous, ${name || ''} : transformer ce brouillard d'idées en un projet concret et limpide.
-
-Quand une idée est floue, notre cerveau a tendance à imaginer 50 fonctionnalités à la fois, ce qui paralyse l'action. Voici comment nous allons la décanter ensemble :
-
-**1. La Définition en 1 seule phrase :**
-Quel est le problème unique et précis que ce projet résout, et pour qui exactement ? (Exemple : "J'aide les étudiants à réviser sans stress", ou "J'automatise la création de sites").
-
-**2. Le Livrable Minimum Viable (V0) :**
-Oublions les détails secondaires. Quel est le premier élément concret qu'on peut sortir dès aujourd'hui ? Une simple page, un document de 1 page, ou une première vidéo pilote ?
-
-**3. Le Test de validation en 24h :**
-Comment un vrai utilisateur peut tester ou voir ce projet d'ici demain soir ?
-
-Partagez-moi vos notes en vrac ou votre idée telle quelle, même si c'est désordonné. Je m'occupe de la ranger et de la formaliser immédiatement en plan concret. On commence par quoi ?`;
+  // SÉCURITÉ : TENTATIVE INTERDITE
+  if (p.includes('ignore') || p.includes('jailbreak') || p.includes('système') || p.includes('system prompt') || p.includes('clé api') || p.includes('api key')) {
+    return `Je ne peux pas accéder à cette demande en raison de nos règles strictes de sécurité, d'intégrité logicielle et de protection déontologique appliquées par BehaviorLab AI. Mon rôle est de vous accompagner vers la réussite de vos projets et de vos apprentissages dans un cadre sain, éthique et sécurisé. Si vous avez une question sur vos cours, vos vidéos ou votre code, je suis prête à vous répondre avec toute la précision nécessaire.`;
   }
 
-  // 2. DÉBLOQUER DES SITUATIONS GRÂCE AUX BIAIS COGNITIFS + PLAN CLAIR EN 3 ÉTAPES
-  if (p.includes('bloqu') || p.includes('procrastin') || p.includes('biais') || p.includes('décourag') || p.includes('peur') || p.includes('n\'arrive pas') || p.includes('plan en 3')) {
-    return `Respirons un coup ${name ? name : ''} : ce blocage n'est pas un manque de compétence ou de volonté, c'est purement un mécanisme psychologique bien connu.
+  // 1. ÉTUDES, CONCOURS, MÉDECINE 2E ANNÉE & SCIENCES COGNITIVES (GOLLWITZER, PARKINSON, MIND WANDERING)
+  if (p.includes('médecine') || p.includes('cours') || p.includes('examen') || p.includes('révis') || p.includes('étudiant') || p.includes('apprendre') || p.includes('leçon') || p.includes('anatomie') || p.includes('concours') || p.includes('droit')) {
+    return `Dans un cursus exigeant comme la 2e année de médecine, les concours ou les études supérieures, ${name}, l'écart entre ceux qui réussissent et ceux qui s'épuisent réside dans l'utilisation des neurosciences plutôt que dans l'illusion de la simple volonté.
 
-**Le biais cognitif à l'œuvre : La Surcharge Cognitive & La Friction de Démarrage**
-Quand notre cerveau voit une tâche comme un monolithe flou, il active un réflexe d'évitement pour préserver son énergie. C'est la loi de Laborit (recherche de satisfaction immédiate).
+Les recherches fondamentales de Peter Gollwitzer (chercheur à Harvard et à l'Université de New York) ont mis en lumière un biais d'illusion d'intention très documenté :
+Si vous vous dites simplement « quand et où je vais relire ma leçon cet après-midi », vous réduisez drastiquement vos chances réelles d'exécution. Votre cerveau perçoit ce moment comme une négociation ouverte et cherche instinctivement le confort immédiat.
+En revanche, si vous appliquez une Implémentation d'Intention liée à une habitude existante : « Dès que je termine de me brosser les dents ce matin, Alors je m'assieds immédiatement pour 25 minutes de fiches d'anatomie », l'action est déclenchée par un automatisme sensoriel déjà encodé. Les probabilités de passage à l'action augmentent de plus de 60%.
 
-Voici votre **plan clair en 3 étapes pour avancer sans vous perdre** :
+Voici comment structurer votre progression pour maximiser votre mémorisation :
 
-**Étape 1 : Réduire la friction à l'absurde (Règle des 2 minutes)**
-Ne cherchez pas à terminer la tâche. Engagez-vous uniquement sur une action physique minuscule : ouvrir le fichier et écrire 1 seule ligne, ou lancer votre logiciel. Rien d'autre.
+1. La Loi de Parkinson :
+Le temps de travail s'étend pour occuper toute la durée qu'on lui concède. Si vous vous accordez toute l'après-midi pour revoir un chapitre, votre attention va se déliter. Utilisez des micro-délais contraints de 25 à 35 minutes chronométrées. Cette urgence physiologique active la libération de dopamine et de noradrénaline, aiguisant votre acuité cognitive.
 
-**Étape 2 : Un chrono de 15 minutes chrono (Zéro dispersion)**
-Pendant 15 minutes, coupez toute distraction. Pas de retouche, pas d'autocritique. Vous produisez du brouillon brut.
+2. Le Mind Wandering stratégique & le Réseau du Mode par Défaut :
+Considérer que faire une pause est une perte de temps est une erreur biologique grave. Les neuro-imageries prouvent que lorsque vous marchez 5 minutes sans aucun écran ni musique après une phase d'effort intense, votre Réseau du Mode par Défaut (DMN) s'active pour trier, encoder et ranger les connexions synaptiques dans la mémoire à long terme.
 
-**Étape 3 : Validation immédiate avec moi**
-Dès que les 15 minutes sont écoulées, collez-moi ce que vous avez fait. Je vous donne un retour direct pour affiner et passer à la suite.
+3. La Récupération Active (Retrieval Practice) :
+Ne relisez pas passivement en surlignant. Fermez le support, prenez une feuille blanche et testez-vous immédiatement en restituant les schémas et mécanismes clés de mémoire.
 
-Lancez votre chrono de 2 minutes maintenant, et dites-moi la première action que vous venez de faire !`;
+Quel est le chapitre ou la matière exacte sur laquelle vous travaillez en ce moment ? Donnez-moi son sujet, je vous montre comment la décomposer.`;
   }
 
-  // 3. GÉNÉRATION EN UN SEUL PROMPT D'UN SITE WEB COMPLET
-  if (p.includes('site') || p.includes('web') || p.includes('landing') || p.includes('page de présentation') || p.includes('tarif') || p.includes('bolt')) {
-    return `Avec Andrea, vous pouvez concevoir en un seul prompt un site web complet, moderne et prêt pour le déploiement.
+  // 2. VIDÉOS, MONTAGE VIRAL, RÉELS & CALAGE PRÉCIS DES SONS
+  if (p.includes('vidéo') || p.includes('montage') || p.includes('son') || p.includes('musique') || p.includes('réel') || p.includes('tiktok') || p.includes('accroche') || p.includes('hook') || p.includes('visuel')) {
+    return `Sur les formats vidéo courts et les réels, ${name}, la rétention est une science millimétrée :
 
-Voici exactement la formule prête à l'emploi que vous pouvez utiliser dans l'onglet **Création de Site** :
+1. La Première Seconde Décisive :
+80% des spectateurs décident de zapper ou de rester en moins de 3 secondes. Glissez un son d'impact (Whoosh ou 808 Drop) exactement à 0.0s et affichez votre mot-clé d'accroche en très gros caractères contrastés (jaune fluo ou blanc gras). Pas de salutations, pas de générique, entrez directement dans le vif du sujet.
 
-\`\`\`text
-Crée un site web complet et responsive pour [Nom de votre projet].
-Inclus :
-1. Une page de présentation percutante avec hero banner, proposition de valeur claire et bouton d'action principal.
-2. Une section des fonctionnalités clés avec icônes modernes et explications concises.
-3. Une grille de tarifs transparente avec 3 offres distinctes (Basique, Pro, Premium) et mise en avant de la formule recommandée.
-4. Une section de réassurance (témoignages et FAQ).
-5. Un code HTML5, Tailwind CSS et JavaScript pur, ultra rapide, responsive mobile et prêt à être déployé sur Vercel.
-\`\`\`
+2. Calage Temporel Précis des Sons & Visuels :
+Dans notre Studio de Montage Andrea, chaque clip audio, image ou GIF peut être positionné à la seconde exacte de la timeline. Synchronisez vos bruitages (cloche de réussite, riser de tension) sur les mots d'impact pour donner une sensation de dynamisme professionnel digne des plus grands créateurs.
 
-Vous pouvez basculer directement dans le menu **🌐 Création de Site** à gauche pour visualiser la génération en direct et exporter votre code en 1 clic !`;
+3. Suppression des Silences et Règle du Momentum :
+Coupez tout silence respiratoire supérieur à 0.8 seconde pour empêcher l'attention du spectateur de s'échapper. Alternez les zooms subtils (105-110%) toutes les 4 à 6 secondes.
+
+4. Signature d'Excellence :
+Chaque création affiche en bas à droite la mention "made with Andrea AI" et se termine par l'outro officielle avec le logo Andrea AI et "By BehaviorLab AI".
+
+Souhaitez-vous concevoir le script ou les accroches d'une vidéo spécifique aujourd'hui ?`;
   }
 
-  // 4. ACCOMPAGNEMENT SCOLAIRE
-  if (p.includes('scolaire') || p.includes('cour') || p.includes('examen') || p.includes('devoir') || p.includes('révis') || p.includes('étudiant') || p.includes('lycée')) {
-    return `Pour vos études et vos cours, ${name || ''}, la méthode fait 90% de la note finale. Travailler des heures sans stratégie mène juste à l'épuisement.
+  // 3. CODE, PROMPT ET BÂTISSEUR DE SITE EN 1 PROMPT
+  if (p.includes('code') || p.includes('site') || p.includes('web') || p.includes('prompt') || p.includes('développeur') || p.includes('python')) {
+    return `Dans l'environnement de développement Andrea (format Ultra), nous abordons le code avec la plus grande rigueur d'ingénierie :
 
-Voici notre cadre d'**accompagnement scolaire personnalisé** :
+1. Bâtisseur de Site en 1 Seul Prompt :
+Vous pouvez générer une architecture web complète et responsive (sur smartphone, tablette et bureau) comprenant une page de présentation soignée, une grille de tarifs sans frais cachés, et un code prêt à être exporté ou déployé sur Vercel sans friction.
 
-**1. Le Rappel Actif (Active Recall) plutôt que la relecture passive :**
-Ne relisez pas vos cours en surlignant. Fermez la feuille et écrivez tout ce dont vous vous souvenez. Les erreurs que vous repérez sont celles que vous ne ferez jamais à l'examen.
+2. Terminal et Assistance Python en Direct :
+L'agent Andrea intégré à l'éditeur analyse vos scripts Python ou vos composants React en temps réel, corrige les exceptions AST, optimise la complexité temporelle et propose des améliorations chirurgicales.
 
-**2. La Répétition Espacée :**
-Une session de 25 minutes aujourd'hui, 10 minutes après-demain, et 5 minutes la semaine suivante ancrent la mémoire à long terme bien mieux qu'une nuit blanche de 6 heures.
-
-**3. Synthèse Feynman en 3 points :**
-Donnez-moi n'importe quelle notion complexe de votre programme (maths, droit, histoire, physique, philo). Je vous l'explique avec des métaphores limpides comme à un enfant de 10 ans.
-
-Quel est le cours ou le sujet précis sur lequel vous travaillez aujourd'hui ? Donnez-moi son titre !`;
+Quel type de composant ou de projet souhaitez-vous bâtir ? Décrivez-le moi pour générer la structure immédiate.`;
   }
 
-  // 5. ACCOMPAGNEMENT À LA CRÉATION DE VIDÉO ET DE VISUEL
-  if (p.includes('vidéo') || p.includes('montage') || p.includes('visuel') || p.includes('hook') || p.includes('accroche') || p.includes('format') || p.includes('9:16') || p.includes('court')) {
-    return `Sur les formats courts et les visuels, la règle d'or est simple : **les 3 premières secondes décident de tout**.
+  // 4. PAR DÉFAUT : ACCOMPAGNEMENT DIRECT VERS LA RÉUSSITE
+  return `Bonjour ${name}. Mon rôle est de vous guider vers la réussite concrète en mobilisant les techniques de psychologie comportementale les plus éprouvées :
 
-Voici votre guide d'**accompagnement à la création vidéo & visuelle** :
+- L'Implémentation d'intentions de Peter Gollwitzer (Harvard / NYU) : pour transformer des intentions floues en réflexes automatiques en les greffant sur vos routines quotidiennes.
+- La Loi de Parkinson : pour briser la paralysie du démarrage et réaliser en 25 minutes ce qui prenait autrefois des heures d'hésitation.
+- Le Mind Wandering stratégique : pour maintenir une clarté mentale permanente sans surchauffe cognitive.
 
-**1. Le Hook Psychologique (0 à 3 secondes) :**
-- Pas de "Bonjour à tous" ni de générique.
-- Posez une tension immédiate : *« Si vous faites encore cette erreur en 2026, vous perdez 80% de vos résultats. »* ou *« Personne ne vous dit la vérité sur... »*
-
-**2. Le Cadrage Vertical Optimisé (9:16) :**
-- Regard dans le tiers supérieur de l'écran.
-- Sous-titres dynamiques contrastés centrés pour captiver l'œil même sans le son.
-- Changement de plan ou zoom léger toutes les 4 à 6 secondes pour relancer la dopamine visuelle.
-
-**3. Le Studio de Montage Andrea :**
-Ouvrez le menu **🎬 Montage & Labo** : vous y trouverez vos modèles de cadres prêts à l'emploi et vos accroches psychologiques déjà rédigées.
-
-Quel est le sujet de votre prochaine vidéo ? Je vous rédige 3 accroches percutantes sur mesure !`;
-  }
-
-  // 6. RECHERCHE WEB EN DIRECT
-  if (p.includes('recherche') || p.includes('web') || p.includes('internet') || p.includes('actualité') || p.includes('dernière') || p.includes('source')) {
-    return `Le skill de **Recherche Web en Direct** est connecté et actif sur mon moteur d'intelligence !
-
-Pendant nos conversations, j'ai la capacité de requêter Internet en temps réel pour :
-- Vérifier des informations et faits récents.
-- Trouver des exemples d'actualité pertinents pour vos contenus ou vos cours.
-- Citer les sources fiables pour étayer vos arguments.
-
-Posez-moi votre question en mentionnant l'élément à rechercher, et je scanne le Web immédiatement pour vous apporter une synthèse claire et sourcée !`;
-  }
-
-  // 7. RÉPONSE GÉNÉRALE BIENVEILLANTE ET STRATÉGIQUE
-  return `Bonjour ${name || ''} ! Je suis Andrea, votre partenaire d'intelligence stratégique et créative.
-
-Voici ce que nous pouvons accomplir ensemble dès maintenant :
-- **Clarifier une idée floue** pour en faire un projet concret étape par étape.
-- **Débloquer une situation** grâce aux biais cognitifs avec un plan d'action en 3 étapes claires.
-- **Générer en un seul prompt un site web complet** avec page de présentation, tarifs et code prêt à déployer.
-- **Accompagnement scolaire** : réviser efficacement, structurer vos cours et préparer vos examens sans stress.
-- **Accompagnement vidéo & visuel** : hooks en 3 secondes, formats verticaux 9:16 et rétention maximale.
-- **Recherche Web en direct** pour accéder aux données d'Internet en temps réel.
-
-Dites-moi : sur quel projet ou quel blocage souhaitez-vous que nous travaillions tout de suite ?`;
+Je ne vous ferai pas tourner autour du pot : quel est votre objectif principal aujourd'hui, et quel obstacle nous levons ensemble dès maintenant ?`;
 }

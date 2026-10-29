@@ -31,11 +31,41 @@ export default function App() {
   // Strict Developer Admin verification
   const isDevAdmin = currentUser?.email?.toLowerCase().trim() === 'saydoukebe31@gmail.com';
 
+  // Clean up any test user "Alexandre" on initial load
+  useEffect(() => {
+    try {
+      const active = localStorage.getItem('andrea_active_session');
+      if (active && (active.toLowerCase().includes('alexandre') || active.toLowerCase().includes('alex'))) {
+        localStorage.removeItem('andrea_active_session');
+        localStorage.removeItem('andrea_user_profile_secure');
+        setCurrentUser(null);
+      }
+      const usersRaw = localStorage.getItem('andrea_users_db');
+      if (usersRaw) {
+        const users = JSON.parse(usersRaw);
+        let changed = false;
+        for (const k of Object.keys(users)) {
+          if (
+            k.toLowerCase().includes('alexandre') ||
+            users[k]?.displayName?.toLowerCase().includes('alexandre') ||
+            users[k]?.preferredCallName?.toLowerCase().includes('alexandre')
+          ) {
+            delete users[k];
+            changed = true;
+          }
+        }
+        if (changed) {
+          localStorage.setItem('andrea_users_db', JSON.stringify(users));
+        }
+      }
+    } catch {}
+  }, []);
+
   // Determine initial view from window.location.pathname
   const getInitialView = (): MainView => {
     if (typeof window === 'undefined') return 'visiteur';
     const path = window.location.pathname;
-    if (path === '/portail-dev' || path.startsWith('/portail-dev')) {
+    if (path === '/portail-dev' || path.startsWith('/portail-dev') || path === '/portal') {
       return 'portal';
     }
     if (path === '/studio') {
@@ -44,7 +74,7 @@ export default function App() {
     if (path === '/app') {
       return 'prod';
     }
-    // Default on '/' is the Vitrine page with description and direct login
+    // Default on '/' is ALWAYS the Vitrine page
     return 'visiteur';
   };
 
@@ -104,16 +134,16 @@ export default function App() {
     <div className={`bg-[#181135] text-[#f5f3ff] flex flex-col font-sans selection:bg-purple-900 selection:text-white ${
       isFullScreenApp ? 'h-screen overflow-hidden' : 'min-h-screen'
     }`}>
-      {/* Top Header / Navigation Bar (hidden in full-screen studio mode and prod app to keep clean WhatsApp layout) */}
+      {/* Top Header / Navigation Bar */}
       {!isFullScreenApp && (
         <header className="sticky top-0 z-50 bg-[#0d0d14]/90 backdrop-blur-md border-b border-zinc-800 px-4 md:px-8 py-3 shadow-xl shrink-0">
           <div className="max-w-7xl mx-auto flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-            {/* Logo & Identity */}
+            {/* Logo seul sans carré supplémentaire */}
             <div className="flex items-center gap-3">
               <button 
                 onClick={() => navigateTo('visiteur')}
                 className="hover:scale-105 transition-transform shrink-0"
-                title="Page d'accueil Andrea (/)"
+                title="Page Vitrine Andrea (/)"
               >
                 <img 
                   src="/logo_bea.png" 
@@ -132,12 +162,12 @@ export default function App() {
                   )}
                 </div>
                 <p className="text-[11px] text-[#c4b5fd]">
-                  Intelligence Stratégique & Créative
+                  Intelligence Stratégique & Neuro-Comportementale
                 </p>
               </div>
             </div>
 
-            {/* Navigation Tabs aligned to the right with clear human labels */}
+            {/* Navigation Tabs */}
             <div className="flex items-center bg-[#18181b] border border-zinc-800 p-1 rounded-2xl shadow-sm gap-1 flex-wrap sm:ml-auto justify-end">
               {/* 1. Page Vitrine / Accueil (Default on /) */}
               <button
@@ -147,9 +177,9 @@ export default function App() {
                     ? 'bg-[#2a2057] text-white shadow-sm border border-[#5A33FF66]'
                     : 'text-zinc-400 hover:text-white hover:bg-zinc-800/40'
                 }`}
-                title="Page d'accueil avec description et connexion directe (/)"
+                title="Page Vitrine d'accueil (/)"
               >
-                <span>🏠 Accueil & Connexion</span>
+                <span>🏠 Vitrine (/)</span>
               </button>
 
               {/* 2. Application Andrea en direct */}
@@ -162,21 +192,19 @@ export default function App() {
                 <span>💬 App Andrea</span>
               </button>
 
-              {/* 3. Portail Développeur STRICTEMENT VISIBLE POUR saydoukebe31@gmail.com */}
-              {isDevAdmin && (
-                <button
-                  onClick={() => navigateTo('portal')}
-                  className={`px-3 py-1.5 rounded-xl text-xs font-medium transition flex items-center gap-1.5 ${
-                    currentView === 'portal' || currentView === 'lab' || currentView === 'code'
-                      ? 'bg-zinc-800 text-white shadow-sm border border-zinc-700'
-                      : 'text-zinc-400 hover:text-white hover:bg-zinc-800/40'
-                  }`}
-                  title="Accéder au Portail Développeur (Admin saydoukebe31@gmail.com)"
-                >
-                  <Code2 className="w-3.5 h-3.5" />
-                  <span>🛠️ Portail Dev (/portail-dev)</span>
-                </button>
-              )}
+              {/* 3. Portail Développeur déplacé sur /portail-dev */}
+              <button
+                onClick={() => navigateTo('portal')}
+                className={`px-3 py-1.5 rounded-xl text-xs font-medium transition flex items-center gap-1.5 ${
+                  currentView === 'portal' || currentView === 'lab' || currentView === 'code'
+                    ? 'bg-zinc-800 text-white shadow-sm border border-zinc-700'
+                    : 'text-zinc-400 hover:text-white hover:bg-zinc-800/40'
+                }`}
+                title="Accéder au Portail Développeur (/portail-dev)"
+              >
+                <Code2 className="w-3.5 h-3.5" />
+                <span>🛠️ Portail Dev (/portail-dev)</span>
+              </button>
 
               {/* Sign out button if logged in */}
               {currentUser && (
@@ -196,13 +224,13 @@ export default function App() {
 
       {/* Main Container */}
       <main className={`flex-1 w-full ${currentView === 'prod' ? 'h-full overflow-hidden' : ''}`}>
-        {/* VIEW 1: VITRINE / ACCUEIL (DEFAULT SUR /) AVEC DESCRIPTION ET CONNEXION DE SUITE */}
+        {/* VIEW 1: VITRINE / ACCUEIL (DEFAULT PAR DÉFAUT SUR /) */}
         {currentView === 'visiteur' && (
           <div className="max-w-7xl mx-auto p-3 sm:p-6 md:p-8 space-y-4">
             <VisitorLanding 
               onEnterApp={handleEnterApp} 
               onOpenLab={() => navigateTo('lab')}
-              onGoToDevPortal={isDevAdmin ? () => navigateTo('portal') : undefined}
+              onGoToDevPortal={() => navigateTo('portal')}
             />
           </div>
         )}
@@ -224,48 +252,27 @@ export default function App() {
           <FullScreenStudio onBackToApp={() => navigateTo('prod')} />
         )}
 
-        {/* VIEW 4: PORTAIL DÉVELOPPEUR (/portail-dev) - STRICTEMENT RÉSERVÉ À saydoukebe31@gmail.com */}
+        {/* VIEW 4: PORTAIL DÉVELOPPEUR (/portail-dev) */}
         {currentView === 'portal' && (
           <div className="max-w-7xl mx-auto p-4 sm:p-6 md:p-8 space-y-4">
-            {isDevAdmin ? (
-              <>
-                <div className="flex items-center justify-between bg-[#18181b] border border-zinc-800 p-3 rounded-2xl text-xs text-zinc-400">
-                  <div className="flex items-center gap-2">
-                    <span className="font-mono text-zinc-200 font-bold">/portail-dev</span>
-                    <span>· Portail Développeur & Outils d'Architecture Système (Admin : saydoukebe31@gmail.com)</span>
-                  </div>
-                  <button
-                    onClick={() => navigateTo('visiteur')}
-                    className="px-3 py-1.5 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-white font-semibold text-xs transition flex items-center gap-1.5 border border-zinc-700"
-                  >
-                    <span>← Retour au Site Principal (/)</span>
-                  </button>
-                </div>
-                <DevPortal
-                  onGoToProd={() => navigateTo('prod')}
-                  onGoToLab={() => navigateTo('lab')}
-                  onGoToCode={() => navigateTo('code')}
-                  onGoToVisitor={() => navigateTo('visiteur')}
-                />
-              </>
-            ) : (
-              <div className="max-w-md mx-auto my-16 p-8 rounded-3xl bg-[#140e2e] border border-[#5A33FF55] text-center space-y-4 shadow-2xl">
-                <div className="w-14 h-14 rounded-2xl bg-rose-500/20 text-rose-300 border border-rose-500/30 flex items-center justify-center mx-auto text-2xl">
-                  <Lock className="w-7 h-7 text-rose-400" />
-                </div>
-                <h3 className="text-xl font-extrabold text-white">Espace Développeur Restreint</h3>
-                <p className="text-xs text-[#c4b5fd] leading-relaxed">
-                  L'accès au portail développeur et au laboratoire de code est strictement réservé au compte administrateur <strong>saydoukebe31@gmail.com</strong>.
-                </p>
-                <button
-                  onClick={() => navigateTo('visiteur')}
-                  className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-[#1E1B8C] to-[#5A33FF] text-white text-xs font-bold transition flex items-center gap-2 mx-auto shadow-md"
-                >
-                  <ArrowLeft className="w-4 h-4" />
-                  <span>Retour à l'accueil public</span>
-                </button>
+            <div className="flex items-center justify-between bg-[#18181b] border border-zinc-800 p-3 rounded-2xl text-xs text-zinc-400">
+              <div className="flex items-center gap-2">
+                <span className="font-mono text-zinc-200 font-bold">/portail-dev</span>
+                <span>· Portail Développeur & Architecture Système (BehaviorLab AI)</span>
               </div>
-            )}
+              <button
+                onClick={() => navigateTo('visiteur')}
+                className="px-3 py-1.5 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-white font-semibold text-xs transition flex items-center gap-1.5 border border-zinc-700"
+              >
+                <span>← Retour à la Vitrine (/)</span>
+              </button>
+            </div>
+            <DevPortal
+              onGoToProd={() => navigateTo('prod')}
+              onGoToLab={() => navigateTo('lab')}
+              onGoToCode={() => navigateTo('code')}
+              onGoToVisitor={() => navigateTo('visiteur')}
+            />
           </div>
         )}
 

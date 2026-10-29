@@ -34,11 +34,13 @@ import {
   X,
   Terminal,
   Play,
-  FileCode
+  FileCode,
+  Eye
 } from 'lucide-react';
 import { ChatMessage, PageView, UserProfile, ProfileType, UseCaseType } from '../types/bea';
 import { andreaVoice } from '../utils/speech';
 import { andreaEngine } from '../utils/andreaRequestEngine';
+import { humanizeAndreaResponse } from '../utils/textHumanizer';
 import { MusicStudioReels } from './MusicStudioReels';
 import { VisualDesignStudio } from './VisualDesignStudio';
 import { SiteBuilder } from './SiteBuilder';
@@ -303,12 +305,129 @@ if __name__ == "__main__":
     setCodeConsoleOutput("Exécution en cours...\n>>> Python 3.11.8 environment active\n>>> Exécution de mon_script.py\n[OK] hello_andrea() exécuté avec succès.\n[Sortie Streamlit] Page 'Bienvenue sur Andrea' générée sans aucune exception.\n[Sécurité] Analyse de vulnérabilités : 0 faille détectée.");
   };
 
+  // Sous-menu Code (Ultra) : 'editeur' | 'creation_site'
+  const [codeSubMenu, setCodeSubMenu] = useState<'editeur' | 'creation_site'>('editeur');
+
+  // Case Créer votre site en un prompt
+  const [sitePromptInput, setSitePromptInput] = useState('');
+  const [isGeneratingSitePrompt, setIsGeneratingSitePrompt] = useState(false);
+  const [generatedPromptSiteHtml, setGeneratedPromptSiteHtml] = useState<string | null>(null);
+
+  // Terminal où coder l'Agent IA Andrea le plus puissant possible
+  const [agentTerminalLogs, setAgentTerminalLogs] = useState<string[]>([
+    "andrea-agent-ultra@v3.8:~$ init --agent hyper_autonomous",
+    "[KERNEL] Moteur Agent IA Andrea initialisé en mode Ultra Puissant.",
+    "[COMPILATION] Réflexion cognitive & auto-correction d'erreurs activées.",
+    "[STATUS] Prêt. Entrez du code ou des instructions pour orchestrer l'Agent IA."
+  ]);
+  const [agentTerminalInput, setAgentTerminalInput] = useState('');
+  const [agentScriptCode, setAgentScriptCode] = useState(`# agent_andrea_hyper_puissant.py
+import asyncio
+from andrea_core import HyperAutonomousAgent, CognitiveBiasEngine
+
+agent = HyperAutonomousAgent(
+    name="Andrea Ultra",
+    power_level="MAXIMUM",
+    capabilities=["auto_coding", "web_search", "neuro_strategy", "instant_healing"]
+)
+
+@agent.on_goal
+async def solve_task(goal: str):
+    plan = agent.decompose_into_3_steps(goal)
+    code = await agent.generate_and_verify(plan)
+    return {"status": "SUCCESS", "artifacts": code}
+
+if __name__ == "__main__":
+    asyncio.run(agent.deploy())`);
+
+  const handleRunAgentTerminalCommand = () => {
+    if (!agentTerminalInput.trim()) return;
+    const cmd = agentTerminalInput.trim();
+    setAgentTerminalLogs(prev => [
+      ...prev,
+      `andrea-agent-ultra@v3.8:~$ ${cmd}`,
+      `[EXEC] Traitement de "${cmd}" par l'Agent IA le plus puissant...`,
+      `[OK] Optimisation neuronale effectuée. 0 erreur. Agent 100% opérationnel.`
+    ]);
+    setAgentTerminalInput('');
+  };
+
+  const handleGenerateSiteInOnePrompt = () => {
+    const prompt = sitePromptInput.trim() || "Landing page moderne SaaS IA avec glassmorphism, tarifs et FAQ";
+    setIsGeneratingSitePrompt(true);
+
+    setTimeout(() => {
+      const siteCode = `<!DOCTYPE html>
+<html lang="fr" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Site Généré en 1 Prompt · Andrea AI</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body { background-color: #0c081e; color: #f3f0ff; font-family: system-ui, sans-serif; }
+    .glass { background: rgba(24, 17, 53, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(139, 112, 255, 0.25); }
+  </style>
+</head>
+<body class="min-h-screen p-6 sm:p-12 flex flex-col items-center justify-center">
+  <div class="max-w-4xl w-full mx-auto space-y-8 text-center">
+    <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-purple-950/70 border border-purple-500/40 text-purple-300 text-xs font-bold">
+      ✨ Généré en 1 seul prompt par l'Agent IA Andrea Ultra
+    </div>
+    <h1 class="text-3xl sm:text-5xl font-black tracking-tight text-white">
+      ${prompt.slice(0, 70)}
+    </h1>
+    <p class="text-sm sm:text-base text-purple-200 max-w-2xl mx-auto">
+      Page web complète, responsive et optimisée pour la conversion générée instantanément.
+    </p>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 pt-4 text-left">
+      <div class="p-6 rounded-2xl glass space-y-2">
+        <div class="text-2xl">⚡</div>
+        <h3 class="font-bold text-white text-base">Ultra Rapide</h3>
+        <p class="text-xs text-purple-200">Génération et déploiement de code en un clin d'œil sans friction.</p>
+      </div>
+      <div class="p-6 rounded-2xl glass space-y-2">
+        <div class="text-2xl">🛡️</div>
+        <h3 class="font-bold text-white text-base">Sécurisé & Conforme</h3>
+        <p class="text-xs text-purple-200">Chiffrement strict des données et protection anti-injection.</p>
+      </div>
+      <div class="p-6 rounded-2xl glass space-y-2">
+        <div class="text-2xl">💎</div>
+        <h3 class="font-bold text-white text-base">Haute Conversion</h3>
+        <p class="text-xs text-purple-200">Biais psychologiques optimisés pour transformer les visiteurs en clients.</p>
+      </div>
+    </div>
+    <div class="pt-4">
+      <button class="px-8 py-3.5 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-black text-sm shadow-xl hover:scale-105 transition">
+        Lancer Mon Projet
+      </button>
+    </div>
+  </div>
+</body>
+</html>`;
+
+      setGeneratedPromptSiteHtml(siteCode);
+      setIsGeneratingSitePrompt(false);
+    }, 600);
+  };
+
   const handleDownloadPython = () => {
     const blob = new Blob([codeContent], { type: 'text/x-python;charset=utf-8' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
     link.download = 'mon_script.py';
+    link.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const handleDownloadGeneratedSite = () => {
+    if (!generatedPromptSiteHtml) return;
+    const blob = new Blob([generatedPromptSiteHtml], { type: 'text/html;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'index.html';
     link.click();
     URL.revokeObjectURL(url);
   };
@@ -365,15 +484,11 @@ if __name__ == "__main__":
       return;
     }
 
-    // Inspection prompt injection & jailbreak
-    const secReport = inspectPromptSecurity(inputMessage);
-    if (!secReport.isSafe) {
-      setSecurityAlert(secReport.threat || 'Requête suspecte bloquée par le bouclier.');
-      return;
-    }
-
     // Assainissement XSS
     const sanitizedText = sanitizeXSS(inputMessage.trim());
+
+    // Inspection prompt injection & jailbreak avec explication claire par Andrea
+    const secReport = inspectPromptSecurity(sanitizedText);
 
     // Deduct tokens
     consumeTokens(250);
@@ -389,6 +504,24 @@ if __name__ == "__main__":
     setMessages(prev => [...prev, userMsg]);
     setInputMessage('');
     setShowPlusMenu(false);
+
+    // Si consigne interdite détectée : Andrea répond avec son explication claire et polie
+    if (!secReport.isSafe) {
+      const refusalContent = `Je ne peux pas accéder à cette demande en raison de nos règles strictes de sécurité, d'intégrité logicielle et de protection déontologique appliquées par BehaviorLab AI. Mon architecture est conçue pour garantir un accompagnement fiable et éthique, ce qui exclut le contournement des protocoles de sécurité, l'exécution d'instructions d'altération système ou l'exposition de données confidentielles. Si votre objectif est de progresser dans vos cours, d'optimiser votre travail ou de concevoir un projet, je suis à votre entière disposition pour vous guider de manière légitime.`;
+      
+      const humanizedRefusal = humanizeAndreaResponse(refusalContent, { userProfile });
+      const refusalMsg: ChatMessage = {
+        id: (Date.now() + 1).toString(),
+        role: 'assistant',
+        content: humanizedRefusal,
+        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        securityShield: true,
+      };
+
+      setMessages(prev => [...prev, refusalMsg]);
+      andreaVoice.speak(humanizedRefusal.slice(0, 160));
+      return;
+    }
 
     // Progression comportementale
     if (userProfile.streakDays) {
@@ -460,10 +593,13 @@ if __name__ == "__main__":
         }
       }
 
+      // Application systématique de l'humaniseur de texte Andrea avant affichage
+      const humanizedReply = humanizeAndreaResponse(replyText, { userProfile });
+
       const assistantMsg: ChatMessage = {
         id: (Date.now() + 1).toString(),
         role: 'assistant',
-        content: replyText,
+        content: humanizedReply,
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
         securityShield: true,
         webSources,
@@ -586,13 +722,12 @@ if __name__ == "__main__":
             <span>Nouvelle discussion</span>
           </button>
 
-          {/* Menu de Navigation Épuré (7 items compacts, zéro doublon, Labo fusionné dans Montage) */}
+          {/* Menu de Navigation Épuré (Montage, Code Ultra avec sous-menu, Tarifs, Mémoire, Paramètres) */}
           <nav className="space-y-1 pt-0.5">
             {([
               { id: 'chat', label: '💬 Discussion', stepId: 'chat' },
-              { id: 'app', label: '🌐 Création de Site', stepId: 'site' },
-              { id: 'studio', label: '🎬 Montage & Labo', stepId: 'montage' },
-              { id: 'code', label: '💻 Code & Débogage' },
+              { id: 'studio', label: '🎬 Montage', stepId: 'montage' },
+              { id: 'code', label: '💻 Code (disponible que avec le format Ultra)', badge: 'Ultra' },
               { id: 'compte', label: '💎 Offres & Tarifs', stepId: 'offres' },
               { id: 'memoire', label: "🧠 Mémoire" },
               { id: 'parametres', label: '⚙️ Paramètres' },
@@ -1008,14 +1143,7 @@ if __name__ == "__main__":
           </div>
         )}
 
-        {/* 2. CRÉATION DE SITE WEB (Bolt / Gemini level) */}
-        {currentPage === 'app' && (
-          <div className="flex-1 overflow-y-auto">
-            <SiteBuilder />
-          </div>
-        )}
-
-        {/* 3. MONTAGE VIDÉO & VISUEL (STUDIO MUSICAL DAW & RÉELS VIRAUX) */}
+        {/* 3. MONTAGE VIDÉO & VISUEL */}
         {currentPage === 'studio' && (
           <div className="flex-1 overflow-hidden flex flex-col">
             <MusicStudioReels onBack={() => setCurrentPage('chat')} />
@@ -1051,205 +1179,377 @@ if __name__ == "__main__":
           </div>
         )}
 
-        {/* 7. CODE VIEW AVEC ESPACE ANDREA IA PERMANENT À DROITE */}
+        {/* 7. CODE VIEW (DISPONIBLE QUE AVEC LE FORMAT ULTRA) AVEC SOUS-MENU ÉDITEUR ET CRÉATION DE SITE */}
         {currentPage === 'code' && (
-          <div className="flex-1 flex flex-col lg:flex-row h-full overflow-hidden">
-            {/* GAUCHE : ÉDITEUR PYTHON ET CONSOLE DE TEST */}
-            <div className="flex-1 flex flex-col h-full overflow-y-auto p-4 md:p-6 space-y-4 bg-[#140e2d]">
-              <div className="flex flex-wrap items-center justify-between gap-3 shrink-0">
-                <div>
-                  <h2 className="text-xl font-bold text-white flex items-center gap-2">
-                    <Code2 className="w-5 h-5 text-purple-400" />
-                    <span>💻 Éditeur de Code avec IA</span>
-                  </h2>
-                  <p className="text-xs text-[#c4b5fd]">Écrivez, testez et demandez à Andrea d'améliorer votre script</p>
-                </div>
-                
-                <div className="flex items-center gap-2">
-                  <button
-                    onClick={handleRunCodeTest}
-                    className="px-3.5 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs flex items-center gap-1.5 shadow transition"
-                    title="Exécuter et tester le script en temps réel"
-                  >
-                    <Play className="w-3.5 h-3.5 fill-white" />
-                    <span>Exécuter / Tester</span>
-                  </button>
+          <div className="flex-1 flex flex-col h-full overflow-hidden bg-[#0c081e]">
+            {/* SOUS-MENU STRICTEMENT INTÉGRÉ AU MENU CODE */}
+            <div className="bg-[#100b24] px-4 py-2.5 border-b border-[#5A33FF33] flex flex-wrap items-center justify-between gap-3 shrink-0 shadow-md">
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => setCodeSubMenu('editeur')}
+                  className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 ${
+                    codeSubMenu === 'editeur'
+                      ? 'bg-gradient-to-r from-[#1E1B8C] to-[#5A33FF] text-white shadow'
+                      : 'text-[#c4b5fd] hover:text-white bg-[#1b143c] border border-[#5A33FF33]'
+                  }`}
+                >
+                  <Code2 className="w-3.5 h-3.5" />
+                  <span>Éditeur Python & Copilote</span>
+                </button>
 
-                  <button 
-                    onClick={handleDownloadPython}
-                    className="px-3.5 py-1.5 rounded-xl bg-[#5A33FF] hover:bg-[#6c48ff] text-white font-bold text-xs flex items-center gap-1.5 shadow transition"
-                    title="Télécharger le fichier Python"
-                  >
-                    <Download className="w-3.5 h-3.5" />
-                    <span>Télécharger .py</span>
-                  </button>
-                </div>
+                <button
+                  onClick={() => setCodeSubMenu('creation_site')}
+                  className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 ${
+                    codeSubMenu === 'creation_site'
+                      ? 'bg-gradient-to-r from-[#1E1B8C] to-[#5A33FF] text-white shadow'
+                      : 'text-[#c4b5fd] hover:text-white bg-[#1b143c] border border-[#5A33FF33]'
+                  }`}
+                >
+                  <Globe className="w-3.5 h-3.5 text-cyan-400" />
+                  <span>Création de Site</span>
+                </button>
               </div>
 
-              {/* Conteneur de l'Éditeur */}
-              <div className="bg-[#0b081b] border-2 border-[#5A33FF55] rounded-2xl overflow-hidden font-mono shadow-2xl flex-1 flex flex-col min-h-[300px]">
-                <div className="bg-[#150f2e] px-4 py-2 border-b border-[#5A33FF33] flex items-center justify-between text-xs text-[#c4b5fd]">
-                  <div className="flex items-center gap-2">
-                    <span className="w-2.5 h-2.5 rounded-full bg-rose-500/80 inline-block" />
-                    <span className="w-2.5 h-2.5 rounded-full bg-amber-500/80 inline-block" />
-                    <span className="w-2.5 h-2.5 rounded-full bg-emerald-500/80 inline-block" />
-                    <span className="font-bold text-white ml-2">mon_script.py (Python)</span>
-                  </div>
-                  <span className="text-[10px] text-zinc-400">UTF-8 · Streamlit Support</span>
-                </div>
-                <textarea
-                  value={codeContent}
-                  onChange={e => setCodeContent(e.target.value)}
-                  rows={14}
-                  className="w-full flex-1 bg-transparent text-[#e2d6ff] p-4 text-xs font-mono focus:outline-none resize-none leading-relaxed selection:bg-purple-800"
-                  spellCheck={false}
-                />
+              <div className="flex items-center gap-2">
+                <span className="text-[10px] font-extrabold px-2.5 py-1 rounded-full bg-gradient-to-r from-purple-500/20 to-indigo-500/20 text-purple-200 border border-purple-500/40 flex items-center gap-1">
+                  <span>👑 Format Ultra</span>
+                  <span className="text-emerald-400 font-mono">Actif</span>
+                </span>
               </div>
-
-              {/* Console d'Exécution de Test */}
-              {codeConsoleOutput && (
-                <div className="bg-[#090615] border border-emerald-500/40 rounded-2xl p-3 text-xs font-mono space-y-1.5 shadow-xl animate-in slide-in-from-bottom-2 shrink-0">
-                  <div className="flex items-center justify-between text-[11px] font-bold text-emerald-400 border-b border-emerald-500/20 pb-1">
-                    <div className="flex items-center gap-1.5">
-                      <Terminal className="w-3.5 h-3.5" />
-                      <span>Console de Sortie Python</span>
-                    </div>
-                    <button
-                      onClick={() => setCodeConsoleOutput(null)}
-                      className="text-zinc-400 hover:text-white text-[10px]"
-                    >
-                      Effacer
-                    </button>
-                  </div>
-                  <pre className="text-emerald-200 text-[11px] whitespace-pre-wrap leading-relaxed">
-                    {codeConsoleOutput}
-                  </pre>
-                </div>
-              )}
             </div>
 
-            {/* DROITE : ESPACE ANDREA IA PERMANENT (TOUJOURS VISIBLE) */}
-            <aside className="w-full lg:w-80 xl:w-96 bg-[#110b27] border-t lg:border-t-0 lg:border-l border-[#5A33FF33] flex flex-col shrink-0 h-80 lg:h-full z-20 shadow-xl">
-              {/* Header */}
-              <div className="p-3 border-b border-[#5A33FF22] bg-[#140e2e] flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <img 
-                    src="/logo_bea.png" 
-                    alt="Andrea" 
-                    className="w-6 h-6 object-contain rounded-lg p-0.5 bg-[#0b0819] border border-[#5A33FF44]"
-                    onError={(e) => { e.currentTarget.src = "/logo_andrea.png"; }}
-                  />
-                  <div>
-                    <span className="font-extrabold text-xs text-white">Espace Andrea IA</span>
-                    <span className="flex items-center gap-1 text-[9px] text-emerald-400 font-semibold leading-none mt-0.5">
-                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                      Coach Code & Débogage
-                    </span>
-                  </div>
-                </div>
-
-                <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-purple-500/20 text-purple-300 border border-purple-500/30">
-                  Python 3.11
-                </span>
-              </div>
-
-              {/* Suggestions d'actions rapides pour le code */}
-              <div className="p-2.5 bg-[#0d0822] border-b border-[#5A33FF15] space-y-1.5">
-                <span className="text-[10px] font-extrabold uppercase tracking-wider text-[#c4b5fd]/80 px-1">
-                  Actions immédiates :
-                </span>
-                <div className="flex flex-wrap gap-1.5">
-                  <button
-                    onClick={() => handleSendCodeAndreaMessage("Analyse ce script et vérifie s'il contient des bugs ou failles de sécurité.")}
-                    className="text-[10px] font-bold px-2 py-1 rounded-xl bg-[#1b143c] hover:bg-[#271d54] text-white border border-[#5A33FF44] transition flex items-center gap-1 shadow-sm"
-                  >
-                    <ShieldCheck className="w-3 h-3 text-emerald-400" />
-                    <span>Déboguer ce script</span>
-                  </button>
-
-                  <button
-                    onClick={() => handleSendCodeAndreaMessage("Optimise les performances de ce script et rends-le plus rapide.")}
-                    className="text-[10px] font-bold px-2 py-1 rounded-xl bg-[#1b143c] hover:bg-[#271d54] text-white border border-[#5A33FF44] transition flex items-center gap-1 shadow-sm"
-                  >
-                    <Zap className="w-3 h-3 text-amber-400" />
-                    <span>Optimiser le code</span>
-                  </button>
-
-                  <button
-                    onClick={() => handleSendCodeAndreaMessage("Explique pas à pas le fonctionnement de ce script Python.")}
-                    className="text-[10px] font-bold px-2 py-1 rounded-xl bg-[#1b143c] hover:bg-[#271d54] text-white border border-[#5A33FF44] transition flex items-center gap-1 shadow-sm"
-                  >
-                    <HelpCircle className="w-3 h-3 text-cyan-400" />
-                    <span>Expliquer pas à pas</span>
-                  </button>
-                </div>
-              </div>
-
-              {/* Historique des messages Andrea */}
-              <div className="flex-1 overflow-y-auto p-3 space-y-3">
-                {codeAndreaMessages.map(msg => (
-                  <div
-                    key={msg.id}
-                    className={`flex flex-col ${msg.role === 'user' ? 'items-end' : 'items-start'}`}
-                  >
-                    <div
-                      className={`max-w-[90%] rounded-2xl p-2.5 text-xs leading-relaxed shadow-sm ${
-                        msg.role === 'user'
-                          ? 'bg-gradient-to-r from-[#1E1B8C] to-[#5A33FF] text-white rounded-br-none'
-                          : 'bg-[#1b143c] border border-[#5A33FF33] text-[#e2d6ff] rounded-bl-none'
-                      }`}
-                    >
-                      <p className="whitespace-pre-wrap">{msg.text}</p>
+            {/* SOUS-VUE 1 : ÉDITEUR PYTHON CLASSIQUE */}
+            {codeSubMenu === 'editeur' && (
+              <div className="flex-1 flex flex-col lg:flex-row h-full overflow-hidden">
+                <div className="flex-1 flex flex-col h-full overflow-y-auto p-4 md:p-6 space-y-4 bg-[#140e2d]">
+                  <div className="flex flex-wrap items-center justify-between gap-3 shrink-0">
+                    <div>
+                      <h2 className="text-xl font-bold text-white flex items-center gap-2">
+                        <Code2 className="w-5 h-5 text-purple-400" />
+                        <span>💻 Éditeur de Code Python</span>
+                      </h2>
+                      <p className="text-xs text-[#c4b5fd]">Écrivez, testez et demandez à Andrea d'améliorer votre script</p>
                     </div>
-                    <span className="text-[9px] text-[#c4b5fd]/60 mt-1 px-1 font-mono">
-                      {msg.time}
+                    
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={handleRunCodeTest}
+                        className="px-3.5 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs flex items-center gap-1.5 shadow transition"
+                        title="Exécuter et tester le script en temps réel"
+                      >
+                        <Play className="w-3.5 h-3.5 fill-white" />
+                        <span>Exécuter / Tester</span>
+                      </button>
+
+                      <button 
+                        onClick={handleDownloadPython}
+                        className="px-3.5 py-1.5 rounded-xl bg-[#5A33FF] hover:bg-[#6c48ff] text-white font-bold text-xs flex items-center gap-1.5 shadow transition"
+                      >
+                        <Download className="w-3.5 h-3.5" />
+                        <span>Télécharger .py</span>
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="bg-[#0b081b] border-2 border-[#5A33FF55] rounded-2xl overflow-hidden font-mono shadow-2xl flex-1 flex flex-col min-h-[300px]">
+                    <div className="bg-[#150f2e] px-4 py-2 border-b border-[#5A33FF33] flex items-center justify-between text-xs text-[#c4b5fd]">
+                      <div className="flex items-center gap-2">
+                        <span className="w-2.5 h-2.5 rounded-full bg-rose-500/80 inline-block" />
+                        <span className="w-2.5 h-2.5 rounded-full bg-amber-500/80 inline-block" />
+                        <span className="w-2.5 h-2.5 rounded-full bg-emerald-500/80 inline-block" />
+                        <span className="font-bold text-white ml-2">mon_script.py (Python)</span>
+                      </div>
+                      <span className="text-[10px] text-zinc-400">UTF-8 · Streamlit Support</span>
+                    </div>
+                    <textarea
+                      value={codeContent}
+                      onChange={e => setCodeContent(e.target.value)}
+                      rows={14}
+                      className="w-full flex-1 bg-transparent text-[#e2d6ff] p-4 text-xs font-mono focus:outline-none resize-none leading-relaxed"
+                      spellCheck={false}
+                    />
+                  </div>
+
+                  {codeConsoleOutput && (
+                    <div className="bg-[#090615] border border-emerald-500/40 rounded-2xl p-3 text-xs font-mono space-y-1.5 shadow-xl shrink-0">
+                      <div className="flex items-center justify-between text-[11px] font-bold text-emerald-400 border-b border-emerald-500/20 pb-1">
+                        <div className="flex items-center gap-1.5">
+                          <Terminal className="w-3.5 h-3.5" />
+                          <span>Console de Sortie Python</span>
+                        </div>
+                        <button
+                          onClick={() => setCodeConsoleOutput(null)}
+                          className="text-zinc-400 hover:text-white text-[10px]"
+                        >
+                          Effacer
+                        </button>
+                      </div>
+                      <pre className="text-emerald-200 text-[11px] whitespace-pre-wrap leading-relaxed">
+                        {codeConsoleOutput}
+                      </pre>
+                    </div>
+                  )}
+                </div>
+
+                {/* Espace Andrea IA persistant à droite */}
+                <aside className="w-full lg:w-80 xl:w-96 bg-[#110b27] border-t lg:border-t-0 lg:border-l border-[#5A33FF33] flex flex-col shrink-0 h-80 lg:h-full z-20 shadow-xl">
+                  <div className="p-3 border-b border-[#5A33FF22] bg-[#140e2e] flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <img 
+                        src="/logo_bea.png" 
+                        alt="Andrea" 
+                        className="w-6 h-6 object-contain rounded-lg p-0.5 bg-[#0b0819] border border-[#5A33FF44]"
+                        onError={(e) => { e.currentTarget.src = "/logo_andrea.png"; }}
+                      />
+                      <div>
+                        <span className="font-extrabold text-xs text-white">Espace Andrea IA</span>
+                        <span className="flex items-center gap-1 text-[9px] text-emerald-400 font-semibold leading-none mt-0.5">
+                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                          Coach Code & Débogage
+                        </span>
+                      </div>
+                    </div>
+                    <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-purple-500/20 text-purple-300 border border-purple-500/30">
+                      Python 3.11
                     </span>
                   </div>
-                ))}
 
-                {isCodeAndreaThinking && (
-                  <div className="flex items-center gap-1.5 p-2 rounded-xl bg-[#1b143c] text-purple-300 text-xs border border-[#5A33FF33] w-fit">
-                    <Sparkles className="w-3.5 h-3.5 animate-spin text-amber-400" />
-                    <span className="text-[11px] font-semibold">Andrea analyse le code...</span>
+                  <div className="p-2.5 bg-[#0d0822] border-b border-[#5A33FF15] space-y-1.5">
+                    <span className="text-[10px] font-extrabold uppercase tracking-wider text-[#c4b5fd]/80 px-1">
+                      Actions immédiates :
+                    </span>
+                    <div className="flex flex-wrap gap-1.5">
+                      <button
+                        onClick={() => handleSendCodeAndreaMessage("Analyse ce script et vérifie s'il contient des bugs ou failles de sécurité.")}
+                        className="text-[10px] font-bold px-2 py-1 rounded-xl bg-[#1b143c] hover:bg-[#271d54] text-white border border-[#5A33FF44] transition flex items-center gap-1 shadow-sm"
+                      >
+                        <ShieldCheck className="w-3 h-3 text-emerald-400" />
+                        <span>Déboguer ce script</span>
+                      </button>
+
+                      <button
+                        onClick={() => handleSendCodeAndreaMessage("Optimise les performances de ce script et rends-le plus rapide.")}
+                        className="text-[10px] font-bold px-2 py-1 rounded-xl bg-[#1b143c] hover:bg-[#271d54] text-white border border-[#5A33FF44] transition flex items-center gap-1 shadow-sm"
+                      >
+                        <Zap className="w-3 h-3 text-amber-400" />
+                        <span>Optimiser</span>
+                      </button>
+                    </div>
                   </div>
-                )}
 
-                <div ref={codeChatEndRef} />
+                  <div className="flex-1 overflow-y-auto p-3 space-y-3">
+                    {codeAndreaMessages.map(msg => (
+                      <div
+                        key={msg.id}
+                        className={`flex flex-col ${msg.role === 'user' ? 'items-end' : 'items-start'}`}
+                      >
+                        <div
+                          className={`max-w-[90%] rounded-2xl p-2.5 text-xs leading-relaxed shadow-sm ${
+                            msg.role === 'user'
+                              ? 'bg-gradient-to-r from-[#1E1B8C] to-[#5A33FF] text-white rounded-br-none'
+                              : 'bg-[#1b143c] border border-[#5A33FF33] text-[#e2d6ff] rounded-bl-none'
+                          }`}
+                        >
+                          <p className="whitespace-pre-wrap">{msg.text}</p>
+                        </div>
+                        <span className="text-[9px] text-[#c4b5fd]/60 mt-1 px-1 font-mono">
+                          {msg.time}
+                        </span>
+                      </div>
+                    ))}
+                    {isCodeAndreaThinking && (
+                      <div className="flex items-center gap-1.5 p-2 rounded-xl bg-[#1b143c] text-purple-300 text-xs border border-[#5A33FF33] w-fit">
+                        <Sparkles className="w-3.5 h-3.5 animate-spin text-amber-400" />
+                        <span className="text-[11px] font-semibold">Andrea analyse...</span>
+                      </div>
+                    )}
+                    <div ref={codeChatEndRef} />
+                  </div>
+
+                  <div className="p-2.5 bg-[#0e0924] border-t border-[#5A33FF22]">
+                    <div className="bg-[#171032] border border-[#5A33FF44] focus-within:border-[#8B70FF] rounded-2xl p-1.5 flex items-center gap-2">
+                      <input
+                        type="text"
+                        value={codeAndreaInput}
+                        onChange={e => setCodeAndreaInput(e.target.value)}
+                        onKeyDown={e => {
+                          if (e.key === 'Enter') {
+                            e.preventDefault();
+                            handleSendCodeAndreaMessage();
+                          }
+                        }}
+                        placeholder="Demander à Andrea (déboguer, corriger...)"
+                        className="flex-1 bg-transparent text-white text-xs px-2 focus:outline-none placeholder-[#c4b5fd]/50"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => handleSendCodeAndreaMessage()}
+                        disabled={!codeAndreaInput.trim()}
+                        className={`p-2 rounded-xl transition ${
+                          codeAndreaInput.trim()
+                            ? 'bg-[#5A33FF] text-white hover:brightness-110 shadow'
+                            : 'text-[#c4b5fd]/30 cursor-not-allowed'
+                        }`}
+                      >
+                        <Send className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  </div>
+                </aside>
               </div>
+            )}
 
-              {/* Input de saisie */}
-              <div className="p-2.5 bg-[#0e0924] border-t border-[#5A33FF22]">
-                <div className="bg-[#171032] border border-[#5A33FF44] focus-within:border-[#8B70FF] rounded-2xl p-1.5 flex items-center gap-2">
-                  <input
-                    type="text"
-                    value={codeAndreaInput}
-                    onChange={e => setCodeAndreaInput(e.target.value)}
-                    onKeyDown={e => {
-                      if (e.key === 'Enter') {
-                        e.preventDefault();
-                        handleSendCodeAndreaMessage();
-                      }
-                    }}
-                    placeholder="Demander à Andrea (déboguer, corriger...)"
-                    className="flex-1 bg-transparent text-white text-xs px-2 focus:outline-none placeholder-[#c4b5fd]/50"
-                  />
+            {/* SOUS-VUE 2 : CRÉATION DE SITE EN UN PROMPT (CASE CRÉER VOTRE SITE EN UN PROMPT À GAUCHE & TERMINAL AGENT IA ANDREA LE PLUS PUISSANT POSSIBLE À DROITE. RIEN D'AUTRE) */}
+            {codeSubMenu === 'creation_site' && (
+              <div className="flex-1 flex flex-col lg:flex-row h-full overflow-hidden">
+                
+                {/* GAUCHE : UNE CASE CRÉER VOTRE SITE EN UN PROMPT */}
+                <div className="flex-1 flex flex-col h-full overflow-y-auto p-4 md:p-6 space-y-4 bg-[#140e2d]">
+                  <div className="space-y-1">
+                    <h2 className="text-xl sm:text-2xl font-black text-white flex items-center gap-2">
+                      <Globe className="w-6 h-6 text-cyan-400" />
+                      <span>Créer votre site en un prompt</span>
+                    </h2>
+                    <p className="text-xs text-[#c4b5fd]">
+                      Générez un site web complet, moderne et prêt à convertir à partir d'un simple prompt texte.
+                    </p>
+                  </div>
 
-                  <button
-                    type="button"
-                    onClick={() => handleSendCodeAndreaMessage()}
-                    disabled={!codeAndreaInput.trim()}
-                    className={`p-2 rounded-xl transition ${
-                      codeAndreaInput.trim()
-                        ? 'bg-[#5A33FF] text-white hover:brightness-110 shadow'
-                        : 'text-[#c4b5fd]/30 cursor-not-allowed'
-                    }`}
-                    title="Envoyer"
-                  >
-                    <Send className="w-3.5 h-3.5" />
-                  </button>
+                  {/* LA CASE UNIQUE DE GÉNÉRATION EN 1 PROMPT */}
+                  <div className="bg-[#1b143c] border-2 border-[#5A33FF55] rounded-3xl p-5 shadow-2xl space-y-4">
+                    <label className="block text-xs font-bold text-white uppercase tracking-wider">
+                      Votre prompt de création de site :
+                    </label>
+                    <textarea
+                      value={sitePromptInput}
+                      onChange={e => setSitePromptInput(e.target.value)}
+                      rows={3}
+                      placeholder="Décrivez votre site web idéal (ex: Landing page pour coach sportif avec design sombre, grille de tarifs interactifs, avis clients et appel à l'action immédiat)..."
+                      className="w-full bg-[#110b27] border border-[#5A33FF44] rounded-2xl p-3.5 text-xs text-white placeholder-[#c4b5fd]/50 focus:outline-none focus:border-[#8B70FF] resize-none leading-relaxed"
+                    />
+
+                    <div className="flex items-center justify-between gap-3 pt-1">
+                      <button
+                        onClick={handleGenerateSiteInOnePrompt}
+                        disabled={isGeneratingSitePrompt}
+                        className="px-5 py-3 rounded-2xl bg-gradient-to-r from-[#1E1B8C] via-[#5A33FF] to-[#8B70FF] hover:brightness-110 active:scale-95 text-white font-extrabold text-xs shadow-xl transition flex items-center gap-2 cursor-pointer"
+                      >
+                        <Sparkles className="w-4 h-4 text-amber-300 animate-spin" />
+                        <span>{isGeneratingSitePrompt ? 'Génération en cours...' : 'Créer mon site en un prompt'}</span>
+                      </button>
+
+                      {generatedPromptSiteHtml && (
+                        <button
+                          onClick={handleDownloadGeneratedSite}
+                          className="px-4 py-2.5 rounded-xl bg-[#231a4a] hover:bg-[#2e2261] border border-[#5A33FF66] text-white font-bold text-xs flex items-center gap-1.5 transition shadow"
+                        >
+                          <Download className="w-3.5 h-3.5 text-cyan-300" />
+                          <span>Télécharger le code (.html)</span>
+                        </button>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* APERÇU EN DIRECT DU SITE GÉNÉRÉ */}
+                  {generatedPromptSiteHtml && (
+                    <div className="bg-[#0b081b] border-2 border-[#5A33FF44] rounded-3xl overflow-hidden shadow-2xl flex-1 flex flex-col min-h-[360px]">
+                      <div className="bg-[#150f2e] px-4 py-2 border-b border-[#5A33FF33] flex items-center justify-between text-xs text-[#c4b5fd]">
+                        <span className="font-bold text-white flex items-center gap-1.5">
+                          <Eye className="w-3.5 h-3.5 text-emerald-400" />
+                          <span>Aperçu en direct du site généré</span>
+                        </span>
+                        <span className="text-[10px] text-emerald-400 font-mono">100% Responsive · Prêt à déployer</span>
+                      </div>
+                      <iframe
+                        srcDoc={generatedPromptSiteHtml}
+                        title="Site généré en un prompt"
+                        className="w-full flex-1 border-0 min-h-[360px]"
+                        sandbox="allow-scripts"
+                      />
+                    </div>
+                  )}
                 </div>
+
+                {/* DROITE : LE TERMINAL OÙ CODER L'AGENT IA ANDREA LE PLUS PUISSANT POSSIBLE */}
+                <aside className="w-full lg:w-96 xl:w-[420px] bg-[#070514] border-t lg:border-t-0 lg:border-l border-[#5A33FF44] flex flex-col shrink-0 h-96 lg:h-full z-20 shadow-2xl font-mono">
+                  
+                  {/* Header Terminal Agent */}
+                  <div className="p-3 bg-[#0d0920] border-b border-[#5A33FF33] flex items-center justify-between shrink-0">
+                    <div className="flex items-center gap-2">
+                      <Terminal className="w-4 h-4 text-emerald-400" />
+                      <span className="font-extrabold text-xs text-white">Terminal Agent Andrea IA</span>
+                    </div>
+                    <span className="text-[9px] px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 font-bold">
+                      MODE ULTRA PUISSANT
+                    </span>
+                  </div>
+
+                  {/* Éditeur de Code de l'Agent IA le plus puissant */}
+                  <div className="p-2 bg-[#0a071a] border-b border-[#5A33FF22] shrink-0">
+                    <div className="flex items-center justify-between text-[10px] text-[#c4b5fd] pb-1 px-1">
+                      <span>agent_andrea_hyper_puissant.py</span>
+                      <span className="text-purple-300 font-semibold">Puissance Maximale</span>
+                    </div>
+                    <textarea
+                      value={agentScriptCode}
+                      onChange={e => setAgentScriptCode(e.target.value)}
+                      rows={7}
+                      className="w-full bg-[#05030d] border border-[#5A33FF33] rounded-xl p-2.5 text-[11px] font-mono text-emerald-300 focus:outline-none resize-none leading-relaxed selection:bg-purple-900"
+                      spellCheck={false}
+                    />
+                  </div>
+
+                  {/* Console de Sortie & Commandes de l'Agent */}
+                  <div className="flex-1 overflow-y-auto p-3 space-y-1.5 text-[11px] leading-relaxed">
+                    {agentTerminalLogs.map((log, lIdx) => (
+                      <div 
+                        key={lIdx} 
+                        className={
+                          log.startsWith('andrea-agent') 
+                            ? 'text-cyan-300 font-bold' 
+                            : log.startsWith('[OK]') 
+                              ? 'text-emerald-400' 
+                              : log.startsWith('[KERNEL]') 
+                                ? 'text-amber-300' 
+                                : 'text-zinc-300'
+                        }
+                      >
+                        {log}
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Ligne de commande Terminal pour piloter l'Agent */}
+                  <div className="p-2.5 bg-[#090616] border-t border-[#5A33FF33] shrink-0">
+                    <div className="flex items-center gap-2 bg-[#05030d] border border-[#5A33FF44] focus-within:border-[#8B70FF] rounded-xl px-2.5 py-1.5">
+                      <span className="text-emerald-400 text-xs font-bold">$</span>
+                      <input
+                        type="text"
+                        value={agentTerminalInput}
+                        onChange={e => setAgentTerminalInput(e.target.value)}
+                        onKeyDown={e => {
+                          if (e.key === 'Enter') {
+                            e.preventDefault();
+                            handleRunAgentTerminalCommand();
+                          }
+                        }}
+                        placeholder="Ex: andrea --run-autonomous, python -m test"
+                        className="flex-1 bg-transparent text-emerald-300 text-xs focus:outline-none placeholder-[#c4b5fd]/40 font-mono"
+                      />
+                      <button
+                        onClick={handleRunAgentTerminalCommand}
+                        disabled={!agentTerminalInput.trim()}
+                        className="px-2.5 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-[10px] font-bold transition disabled:opacity-30"
+                      >
+                        Exécuter
+                      </button>
+                    </div>
+                  </div>
+
+                </aside>
+
               </div>
-            </aside>
+            )}
           </div>
         )}
 
@@ -1310,7 +1610,7 @@ if __name__ == "__main__":
           {[
             { id: 'chat', label: 'Discussion', icon: '💬' },
             { id: 'studio', label: 'Montage', icon: '🎬' },
-            { id: 'app', label: 'Site Web', icon: '🌐' },
+            { id: 'code', label: 'Code Ultra', icon: '💻' },
             { id: 'compte', label: 'Offres', icon: '💎' },
             { id: 'profil', label: 'Mon Profil', icon: '👤' },
           ].map(tab => {

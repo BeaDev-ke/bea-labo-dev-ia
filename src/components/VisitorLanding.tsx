@@ -266,34 +266,34 @@ export const VisitorLanding: React.FC<VisitorLandingProps> = ({
             <div className="lg:col-span-7 space-y-5">
               <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#201844] border border-[#5A33FF55] text-[#c4b5fd] text-xs font-semibold">
                 <Sparkles className="w-3.5 h-3.5 text-purple-400" />
-                <span>Intelligence Stratégique & Créative · v2.5</span>
+                <span>Intelligence Stratégique & Neuro-Comportementale · BehaviorLab AI</span>
               </div>
 
               <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black text-white tracking-tight leading-[1.15]">
-                Clarifier une idée floue et la transformer en <span className="bg-gradient-to-r from-[#8B70FF] to-[#c4b5fd] bg-clip-text text-transparent">projet concret</span>.
+                L'IA comportementale qui vous propulse vers la <span className="bg-gradient-to-r from-[#8B70FF] to-[#c4b5fd] bg-clip-text text-transparent">réussite concrète</span>.
               </h1>
 
               <p className="text-sm sm:text-base text-[#c4b5fd] leading-relaxed max-w-xl">
-                Débloquez vos situations grâce aux <strong>biais cognitifs</strong> avec un <strong>plan clair en 3 étapes</strong> pour avancer sans se perdre. Générez en un seul prompt un <strong>site web complet</strong> (présentation, tarifs, code prêt à déployer), profitez d'un <strong>accompagnement scolaire</strong> et d'un <strong>accompagnement à la création de vidéo et visuel</strong> (9:16), avec <strong>recherche Web en direct</strong>.
+                Que vous soyez <strong>étudiant en 2e année de médecine</strong>, candidat aux <strong>concours</strong>, <strong>créateur de vidéo</strong>, <strong>indépendant</strong> ou <strong>ingénieur code</strong> : Andrea mobilise les découvertes des plus grands scientifiques (Harvard, NYU, Stanford) pour débloquer votre passage à l'action. Fini les théories floues : appliquez l'<strong>implémentation d'intentions de Gollwitzer</strong>, la <strong>loi de Parkinson</strong> et le <strong>mind wandering stratégique</strong> pour exceller durablement.
               </p>
 
               <div className="pt-2 flex items-center gap-2 flex-wrap">
                 <span className="text-[11px] px-2.5 py-1 rounded-full bg-[#1b143c] text-purple-300 border border-purple-500/40 font-semibold">
-                  🎯 Idée floue → Projet concret
+                  🏆 Réussite prouvée scientifiquement
                 </span>
                 <span className="text-[11px] px-2.5 py-1 rounded-full bg-[#1b143c] text-purple-300 border border-purple-500/40 font-semibold">
-                  🧠 Plan en 3 étapes
+                  🧬 Implémentation d'intentions (Gollwitzer)
                 </span>
                 <span className="text-[11px] px-2.5 py-1 rounded-full bg-[#1b143c] text-purple-300 border border-purple-500/40 font-semibold">
-                  🌐 Site Web en 1 prompt
+                  ⏱️ Loi de Parkinson & Micro-délais
                 </span>
                 <span className="text-[11px] px-2.5 py-1 rounded-full bg-[#1b143c] text-cyan-300 border border-cyan-500/40 font-semibold">
-                  🔍 Recherche Web en direct
+                  🧠 Mind Wandering & Réseau par Défaut
                 </span>
               </div>
             </div>
 
-            {/* Right Column: Direct Login / Register Box (PAS CACHÉ, PRÉSENT DE SUITE !) */}
+            {/* Right Column: Direct Login / Register Box */}
             <div className="lg:col-span-5">
               <div className="bg-[#1b143c] border border-[#5A33FF55] rounded-3xl p-6 sm:p-7 shadow-2xl space-y-4">
                 {/* Tabs switcher: Se connecter / Créer un compte */}
@@ -472,49 +472,49 @@ export const VisitorLanding: React.FC<VisitorLandingProps> = ({
                         onChange={e => setSelectedRole(e.target.value as ProfileType)}
                         className="w-full bg-[#120d28] border border-[#5A33FF44] rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-[#8B70FF]"
                       >
-                        <option value="createur">🎬 Créateur de Contenu & Vidéaste</option>
-                        <option value="etudiant">🎓 Lycéen ou Étudiant (Devoirs & Révisions)</option>
-                        <option value="independant">💼 Indépendant, Freelance ou Coach</option>
-                        <option value="entreprise">🏢 Entrepreneur ou Dirigeant</option>
+                        <option value="etudiant">🎓 Étudiant Médecine (2e année), Droit & Concours</option>
+                        <option value="createur">🎬 Créateur de Contenu, Vidéaste & Réels</option>
+                        <option value="independant">💼 Indépendant, Vente & Négociation</option>
                         <option value="developpeur">💻 Développeur & Tech Builder</option>
+                        <option value="entreprise">🏢 Entrepreneur & Dirigeant</option>
                         <option value="salarie">🧑‍💼 Salarié & Évolution de carrière</option>
                       </select>
                     </div>
 
-                    {/* Question de profil : Objectif prioritaire */}
+                    {/* Question clé de neurosciences : Habitude réflexe ancre (Gollwitzer) */}
+                    <div className="space-y-1">
+                      <label className="text-xs font-semibold text-white flex items-center justify-between">
+                        <span className="flex items-center gap-1.5">
+                          <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+                          <span>Votre habitude réflexe du quotidien (Ancre)</span>
+                        </span>
+                        <span className="text-[10px] text-purple-300">Prouvé Harvard</span>
+                      </label>
+                      <input
+                        type="text"
+                        value={biggestChallenge}
+                        onChange={e => setBiggestChallenge(e.target.value)}
+                        placeholder="Ex : Dès que je me brosse les dents le matin / après mon premier café"
+                        className="w-full bg-[#120d28] border border-[#5A33FF44] rounded-xl px-3 py-2 text-xs text-white placeholder-[#c4b5fd]/40 focus:outline-none focus:border-[#8B70FF]"
+                      />
+                    </div>
+
+                    {/* Question de profil : Objectif prioritaire de réussite */}
                     <div className="space-y-1">
                       <label className="text-xs font-semibold text-white flex items-center gap-1.5">
                         <Compass className="w-3.5 h-3.5 text-purple-400" />
-                        <span>Votre objectif prioritaire</span>
+                        <span>Votre objectif de réussite</span>
                       </label>
                       <select
                         value={selectedGoal}
                         onChange={e => setSelectedGoal(e.target.value)}
                         className="w-full bg-[#120d28] border border-[#5A33FF44] rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-[#8B70FF]"
                       >
-                        <option value="Passer à l'action et vaincre la procrastination.">Vaincre la procrastination & passer à l'action immédiate</option>
-                        <option value="Créer du contenu régulier et booster mon audience.">Publier du contenu régulier & développer mon audience</option>
-                        <option value="Réussir mes cours et mes examens sereinement.">Réussir mes cours & examens sans surcharge mentale</option>
-                        <option value="Trouver des clients et signer des devis.">Trouver des clients et développer mes ventes</option>
-                        <option value="Concevoir et coder mes applications rapidement.">Développer et coder mes applications plus vite</option>
-                      </select>
-                    </div>
-
-                    {/* Question de profil : Plus grand défi */}
-                    <div className="space-y-1">
-                      <label className="text-xs font-semibold text-white flex items-center gap-1.5">
-                        <Clock className="w-3.5 h-3.5 text-purple-400" />
-                        <span>Votre plus grand défi actuel</span>
-                      </label>
-                      <select
-                        value={biggestChallenge}
-                        onChange={e => setBiggestChallenge(e.target.value)}
-                        className="w-full bg-[#120d28] border border-[#5A33FF44] rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-[#8B70FF]"
-                      >
-                        <option value="Démarrer la tâche sans remettre au lendemain.">Démarrer la tâche sans remettre au lendemain</option>
-                        <option value="Trop d'idées en tête et dispersion mentale.">Trop d'idées en tête et dispersion mentale</option>
-                        <option value="Manque de temps et surcharge d'urgences.">Manque de temps et surcharge au quotidien</option>
-                        <option value="Peur de mal faire et perfectionnisme bloquant.">Peur de mal faire et perfectionnisme bloquant</option>
+                        <option value="Réussir mes cours et mes examens sereinement.">Réussir mes cours (Médecine, Droit, Concours) sans dispersion</option>
+                        <option value="Passer à l'action et vaincre la procrastination.">Vaincre la procrastination & déclencher l'action immédiate</option>
+                        <option value="Créer du contenu régulier et booster mon audience.">Publier des réels viraux & calibrer sons/visuels avec précision</option>
+                        <option value="Trouver des clients et signer des devis.">Multiplier mes ventes et lever les objections clients</option>
+                        <option value="Concevoir et coder mes applications rapidement.">Développer des applications web et coder en 1 prompt</option>
                       </select>
                     </div>
 
@@ -613,75 +613,75 @@ export const VisitorLanding: React.FC<VisitorLandingProps> = ({
                   🎯
                 </div>
                 <h3 className="font-extrabold text-white text-base">
-                  Clarifier une idée floue
+                  Accompagnement vers la Réussite
                 </h3>
                 <p className="text-xs text-[#c4b5fd] leading-relaxed">
-                  Transformez une réflexion vague ou éparse en un projet concret et actionnable. Andrea filtre le bruit mental et isole les 20% d'actions qui apportent 80% des résultats.
+                  Que ce soit en médecine 2e année, en droit, pour un concours ou un projet business : Andrea transforme les doutes en actions tangibles et vous fait franchir vos paliers sans dispersion.
                 </p>
               </div>
 
               {/* Pilier 2 */}
               <div className="bg-[#1b143c] border border-[#5A33FF44] hover:border-[#8B70FF] transition-all rounded-3xl p-5 space-y-3 shadow-lg">
                 <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-purple-600 to-pink-600 flex items-center justify-center text-lg text-white shadow">
-                  🧠
+                  🧬
                 </div>
                 <h3 className="font-extrabold text-white text-base">
-                  Biais cognitifs & Plan en 3 étapes
+                  Implémentation d'intentions (Harvard)
                 </h3>
                 <p className="text-xs text-[#c4b5fd] leading-relaxed">
-                  Débloquez vos situations d'hésitation ou de blocage grâce aux leviers de psychologie comportementale, articulés dans un plan clair en 3 étapes pour avancer sans se perdre.
+                  Se dire « quand et où je vais réviser » réduit vos chances de passage à l'action. Andrea vous apprend à ancrer chaque tâche sur un rituel déjà réflexe (ex : après le brossage de dents le matin) pour exécuter sans résistance mentale.
                 </p>
               </div>
 
               {/* Pilier 3 */}
               <div className="bg-[#1b143c] border border-[#5A33FF44] hover:border-[#8B70FF] transition-all rounded-3xl p-5 space-y-3 shadow-lg">
                 <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-blue-600 to-indigo-600 flex items-center justify-center text-lg text-white shadow">
-                  🌐
+                  ⏱️
                 </div>
                 <h3 className="font-extrabold text-white text-base">
-                  Site web complet en 1 seul prompt
+                  Loi de Parkinson & Mind Wandering
                 </h3>
                 <p className="text-xs text-[#c4b5fd] leading-relaxed">
-                  Générez instantanément une landing page complète avec présentation, grille tarifaire, formulaire et code prêt à être exporté ou déployé sur Vercel.
+                  Micro-créneaux de 25 minutes chrono pour compresser l'effort et tuer la procrastination, alternés avec des phases de vagabondage mental sans écran pour que le Réseau du Mode par Défaut ancre les souvenirs.
                 </p>
               </div>
 
               {/* Pilier 4 */}
               <div className="bg-[#1b143c] border border-[#5A33FF44] hover:border-[#8B70FF] transition-all rounded-3xl p-5 space-y-3 shadow-lg">
                 <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-emerald-600 to-teal-600 flex items-center justify-center text-lg text-white shadow">
-                  🎓
+                  🎬
                 </div>
                 <h3 className="font-extrabold text-white text-base">
-                  Accompagnement scolaire sur-mesure
+                  Montage & Calage Sonore Précis
                 </h3>
                 <p className="text-xs text-[#c4b5fd] leading-relaxed">
-                  Du collège aux grandes écoles et universités : compréhension des théorèmes, rituels de devoirs sans stress, questions d'entraînement et méthodologie d'examen.
+                  Studio créateur complet : choisissez à quelle seconde exacte placer chaque musique, bruitage (Whoosh, Drop), image ou GIF sur la timeline. Hooks 0-3s calibrés pour maximiser la rétention.
                 </p>
               </div>
 
               {/* Pilier 5 */}
               <div className="bg-[#1b143c] border border-[#5A33FF44] hover:border-[#8B70FF] transition-all rounded-3xl p-5 space-y-3 shadow-lg">
                 <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-rose-600 to-amber-600 flex items-center justify-center text-lg text-white shadow">
-                  🎬
+                  🌐
                 </div>
                 <h3 className="font-extrabold text-white text-base">
-                  Création de vidéo & visuel (9:16)
+                  Site Web Complet en 1 Prompt
                 </h3>
                 <p className="text-xs text-[#c4b5fd] leading-relaxed">
-                  Hooks psychologiques pour retenir l'attention dès les 3 premières secondes, découpage de scripts en 3 couches (Hook, Cœur, Sortie) et studio de montage intégré.
+                  Générez en un instant un site complet, 100% responsive smartphone et tablette, avec présentation percutante, grille tarifaire transparente et code propre prêt pour Vercel.
                 </p>
               </div>
 
               {/* Pilier 6 */}
               <div className="bg-[#1b143c] border border-[#5A33FF44] hover:border-[#8B70FF] transition-all rounded-3xl p-5 space-y-3 shadow-lg">
                 <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-cyan-600 to-blue-600 flex items-center justify-center text-lg text-white shadow">
-                  🔍
+                  🛡️
                 </div>
                 <h3 className="font-extrabold text-white text-base">
-                  Recherche Web & Voix fluide
+                  Sécurité Éthique & Recherche Web
                 </h3>
                 <p className="text-xs text-[#c4b5fd] leading-relaxed">
-                  Andrea dispose d'un accès direct à Internet pour enrichir ses réponses en temps réel, couplé à une synthèse vocale multilingue naturelle, fluide et sans robotisation.
+                  Filtres de sécurité avancés avec explications claires en cas de requête interdite, recherche web factuelle en direct et humaniseur de dialogue pour des réponses chaleureuses, directes et sans blabla.
                 </p>
               </div>
             </div>
