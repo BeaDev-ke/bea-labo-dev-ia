@@ -731,7 +731,7 @@ if __name__ == "__main__":
             }}
             className="w-full py-2 px-3 rounded-xl bg-[#171131] hover:bg-[#231a4a] border border-[#5A33FF66] text-xs font-bold text-white transition flex items-center justify-center gap-1.5 shadow hover:border-[#8B70FF]"
           >
-            <Plus className="w-3.5 h-3.5 text-purple-400" />
+            <Plus className="w-3.5 h-3.5 text-zinc-300" />
             <span>Nouvelle discussion</span>
           </button>
 
@@ -1230,15 +1230,15 @@ if __name__ == "__main__":
                       : 'text-[#c4b5fd] hover:text-white bg-[#1b143c] border border-[#5A33FF33]'
                   }`}
                 >
-                  <Globe className="w-3.5 h-3.5 text-cyan-400" />
+                  <Globe className="w-3.5 h-3.5 text-zinc-300" />
                   <span>Création de Site</span>
                 </button>
               </div>
 
               <div className="flex items-center gap-2">
-                <span className="text-[10px] font-extrabold px-2.5 py-1 rounded-full bg-gradient-to-r from-purple-500/20 to-indigo-500/20 text-purple-200 border border-purple-500/40 flex items-center gap-1">
-                  <span>👑 Format Ultra</span>
-                  <span className="text-emerald-400 font-mono">Actif</span>
+                <span className="text-[10px] font-extrabold px-2.5 py-1 rounded-full bg-zinc-800 text-zinc-300 border border-zinc-700 flex items-center gap-1">
+                  <span>Format Ultra</span>
+                  <span className="text-zinc-100 font-mono">Actif</span>
                 </span>
               </div>
             </div>
@@ -1249,7 +1249,7 @@ if __name__ == "__main__":
                 <div className="flex flex-wrap items-center justify-between gap-3 shrink-0">
                   <div>
                     <h2 className="text-xl font-bold text-white flex items-center gap-2">
-                      <Code2 className="w-5 h-5 text-purple-400" />
+                      <Code2 className="w-5 h-5 text-zinc-300" />
                       <span>Éditeur de Code Python</span>
                     </h2>
                     <p className="text-xs text-[#c4b5fd]">Écrivez, testez et exécutez votre script</p>
@@ -1316,155 +1316,72 @@ if __name__ == "__main__":
               </div>
             )}
 
-            {/* SOUS-VUE 2 : CRÉATION DE SITE EN UN PROMPT (CASE CRÉER VOTRE SITE EN UN PROMPT À GAUCHE & TERMINAL AGENT IA ANDREA LE PLUS PUISSANT POSSIBLE À DROITE. RIEN D'AUTRE) */}
+            {/* SOUS-VUE 2 : CRÉATION DE SITE EN UN PROMPT */}
             {codeSubMenu === 'creation_site' && (
-              <div className="flex-1 flex flex-col lg:flex-row h-full overflow-hidden">
-                
-                {/* GAUCHE : UNE CASE CRÉER VOTRE SITE EN UN PROMPT */}
-                <div className="flex-1 flex flex-col h-full overflow-y-auto p-4 md:p-6 space-y-4 bg-[#140e2d]">
-                  <div className="space-y-1">
-                    <h2 className="text-xl sm:text-2xl font-black text-white flex items-center gap-2">
-                      <Globe className="w-6 h-6 text-cyan-400" />
-                      <span>Créer votre site en un prompt</span>
-                    </h2>
-                    <p className="text-xs text-[#c4b5fd]">
-                      Générez un site web complet, moderne et prêt à convertir à partir d'un simple prompt texte.
-                    </p>
-                  </div>
-
-                  {/* LA CASE UNIQUE DE GÉNÉRATION EN 1 PROMPT */}
-                  <div className="bg-[#1b143c] border-2 border-[#5A33FF55] rounded-3xl p-5 shadow-2xl space-y-4">
-                    <label className="block text-xs font-bold text-white uppercase tracking-wider">
-                      Votre prompt de création de site :
-                    </label>
-                    <textarea
-                      value={sitePromptInput}
-                      onChange={e => setSitePromptInput(e.target.value)}
-                      rows={3}
-                      placeholder="Décrivez votre site web idéal (ex: Landing page pour coach sportif avec design sombre, grille de tarifs interactifs, avis clients et appel à l'action immédiat)..."
-                      className="w-full bg-[#110b27] border border-[#5A33FF44] rounded-2xl p-3.5 text-xs text-white placeholder-[#c4b5fd]/50 focus:outline-none focus:border-[#8B70FF] resize-none leading-relaxed"
-                    />
-
-                    <div className="flex items-center justify-between gap-3 pt-1">
-                      <button
-                        onClick={handleGenerateSiteInOnePrompt}
-                        disabled={isGeneratingSitePrompt}
-                        className="px-5 py-3 rounded-2xl bg-gradient-to-r from-[#1E1B8C] via-[#5A33FF] to-[#8B70FF] hover:brightness-110 active:scale-95 text-white font-extrabold text-xs shadow-xl transition flex items-center gap-2 cursor-pointer"
-                      >
-                        <Sparkles className="w-4 h-4 text-amber-300 animate-spin" />
-                        <span>{isGeneratingSitePrompt ? 'Génération en cours...' : 'Créer mon site en un prompt'}</span>
-                      </button>
-
-                      {generatedPromptSiteHtml && (
-                        <button
-                          onClick={handleDownloadGeneratedSite}
-                          className="px-4 py-2.5 rounded-xl bg-[#231a4a] hover:bg-[#2e2261] border border-[#5A33FF66] text-white font-bold text-xs flex items-center gap-1.5 transition shadow"
-                        >
-                          <Download className="w-3.5 h-3.5 text-cyan-300" />
-                          <span>Télécharger le code (.html)</span>
-                        </button>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* APERÇU EN DIRECT DU SITE GÉNÉRÉ */}
-                  {generatedPromptSiteHtml && (
-                    <div className="bg-[#0b081b] border-2 border-[#5A33FF44] rounded-3xl overflow-hidden shadow-2xl flex-1 flex flex-col min-h-[360px]">
-                      <div className="bg-[#150f2e] px-4 py-2 border-b border-[#5A33FF33] flex items-center justify-between text-xs text-[#c4b5fd]">
-                        <span className="font-bold text-white flex items-center gap-1.5">
-                          <Eye className="w-3.5 h-3.5 text-emerald-400" />
-                          <span>Aperçu en direct du site généré</span>
-                        </span>
-                        <span className="text-[10px] text-emerald-400 font-mono">100% Responsive · Prêt à déployer</span>
-                      </div>
-                      <iframe
-                        srcDoc={generatedPromptSiteHtml}
-                        title="Site généré en un prompt"
-                        className="w-full flex-1 border-0 min-h-[360px]"
-                        sandbox="allow-scripts"
-                      />
-                    </div>
-                  )}
+              <div className="flex-1 flex flex-col h-full overflow-y-auto p-4 md:p-6 space-y-4 bg-[#140e2d]">
+                <div className="space-y-1">
+                  <h2 className="text-xl sm:text-2xl font-black text-white flex items-center gap-2">
+                    <Globe className="w-6 h-6 text-zinc-300" />
+                    <span>Créer votre site en un prompt</span>
+                  </h2>
+                  <p className="text-xs text-[#c4b5fd]">
+                    Générez un site web complet, moderne et prêt à convertir à partir d'un simple prompt texte.
+                  </p>
                 </div>
 
-                {/* DROITE : LE TERMINAL OÙ CODER L'AGENT IA ANDREA LE PLUS PUISSANT POSSIBLE */}
-                <aside className="w-full lg:w-96 xl:w-[420px] bg-[#070514] border-t lg:border-t-0 lg:border-l border-[#5A33FF44] flex flex-col shrink-0 h-96 lg:h-full z-20 shadow-2xl font-mono">
-                  
-                  {/* Header Terminal Agent */}
-                  <div className="p-3 bg-[#0d0920] border-b border-[#5A33FF33] flex items-center justify-between shrink-0">
-                    <div className="flex items-center gap-2">
-                      <Terminal className="w-4 h-4 text-emerald-400" />
-                      <span className="font-extrabold text-xs text-white">Terminal Agent Andrea IA</span>
-                    </div>
-                    <span className="text-[9px] px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 font-bold">
-                      MODE ULTRA PUISSANT
-                    </span>
-                  </div>
+                {/* LA CASE UNIQUE DE GÉNÉRATION EN 1 PROMPT */}
+                <div className="bg-[#1b143c] border-2 border-[#5A33FF55] rounded-3xl p-5 shadow-2xl space-y-4">
+                  <label className="block text-xs font-bold text-white uppercase tracking-wider">
+                    Votre prompt de création de site :
+                  </label>
+                  <textarea
+                    value={sitePromptInput}
+                    onChange={e => setSitePromptInput(e.target.value)}
+                    rows={3}
+                    placeholder="Décrivez votre site web idéal (ex: Landing page pour coach avec design sombre, grille de tarifs interactifs, avis clients et appel à l'action immédiat)..."
+                    className="w-full bg-[#110b27] border border-[#5A33FF44] rounded-2xl p-3.5 text-xs text-white placeholder-[#c4b5fd]/50 focus:outline-none focus:border-[#8B70FF] resize-none leading-relaxed"
+                  />
 
-                  {/* Éditeur de Code de l'Agent IA le plus puissant */}
-                  <div className="p-2 bg-[#0a071a] border-b border-[#5A33FF22] shrink-0">
-                    <div className="flex items-center justify-between text-[10px] text-[#c4b5fd] pb-1 px-1">
-                      <span>agent_andrea_hyper_puissant.py</span>
-                      <span className="text-purple-300 font-semibold">Puissance Maximale</span>
+                  <div className="flex items-center justify-between gap-3 pt-1">
+                    <button
+                      onClick={handleGenerateSiteInOnePrompt}
+                      disabled={isGeneratingSitePrompt}
+                      className="px-5 py-3 rounded-2xl bg-gradient-to-r from-[#1E1B8C] via-[#5A33FF] to-[#8B70FF] hover:brightness-110 active:scale-95 text-white font-extrabold text-xs shadow-xl transition flex items-center gap-2 cursor-pointer"
+                    >
+                      <Sparkles className="w-4 h-4 text-zinc-200 animate-spin" />
+                      <span>{isGeneratingSitePrompt ? 'Génération en cours...' : 'Créer mon site en un prompt'}</span>
+                    </button>
+
+                    {generatedPromptSiteHtml && (
+                      <button
+                        onClick={handleDownloadGeneratedSite}
+                        className="px-4 py-2.5 rounded-xl bg-[#231a4a] hover:bg-[#2e2261] border border-[#5A33FF66] text-white font-bold text-xs flex items-center gap-1.5 transition shadow"
+                      >
+                        <Download className="w-3.5 h-3.5 text-zinc-300" />
+                        <span>Télécharger le code (.html)</span>
+                      </button>
+                    )}
+                  </div>
+                </div>
+
+                {/* APERÇU EN DIRECT DU SITE GÉNÉRÉ */}
+                {generatedPromptSiteHtml && (
+                  <div className="bg-[#0b081b] border-2 border-[#5A33FF44] rounded-3xl overflow-hidden shadow-2xl flex-1 flex flex-col min-h-[380px]">
+                    <div className="bg-[#150f2e] px-4 py-2 border-b border-[#5A33FF33] flex items-center justify-between text-xs text-[#c4b5fd]">
+                      <span className="font-bold text-white flex items-center gap-1.5">
+                        <Eye className="w-3.5 h-3.5 text-zinc-300" />
+                        <span>Aperçu en direct du site généré</span>
+                      </span>
+                      <span className="text-[10px] text-zinc-400 font-mono">100% Responsive · Prêt à déployer</span>
                     </div>
-                    <textarea
-                      value={agentScriptCode}
-                      onChange={e => setAgentScriptCode(e.target.value)}
-                      rows={7}
-                      className="w-full bg-[#05030d] border border-[#5A33FF33] rounded-xl p-2.5 text-[11px] font-mono text-emerald-300 focus:outline-none resize-none leading-relaxed selection:bg-purple-900"
-                      spellCheck={false}
+                    <iframe
+                      srcDoc={generatedPromptSiteHtml}
+                      title="Site généré en un prompt"
+                      className="w-full flex-1 border-0 min-h-[380px]"
+                      sandbox="allow-scripts"
                     />
                   </div>
-
-                  {/* Console de Sortie & Commandes de l'Agent */}
-                  <div className="flex-1 overflow-y-auto p-3 space-y-1.5 text-[11px] leading-relaxed">
-                    {agentTerminalLogs.map((log, lIdx) => (
-                      <div 
-                        key={lIdx} 
-                        className={
-                          log.startsWith('andrea-agent') 
-                            ? 'text-cyan-300 font-bold' 
-                            : log.startsWith('[OK]') 
-                              ? 'text-emerald-400' 
-                              : log.startsWith('[KERNEL]') 
-                                ? 'text-amber-300' 
-                                : 'text-zinc-300'
-                        }
-                      >
-                        {log}
-                      </div>
-                    ))}
-                  </div>
-
-                  {/* Ligne de commande Terminal pour piloter l'Agent */}
-                  <div className="p-2.5 bg-[#090616] border-t border-[#5A33FF33] shrink-0">
-                    <div className="flex items-center gap-2 bg-[#05030d] border border-[#5A33FF44] focus-within:border-[#8B70FF] rounded-xl px-2.5 py-1.5">
-                      <span className="text-emerald-400 text-xs font-bold">$</span>
-                      <input
-                        type="text"
-                        value={agentTerminalInput}
-                        onChange={e => setAgentTerminalInput(e.target.value)}
-                        onKeyDown={e => {
-                          if (e.key === 'Enter') {
-                            e.preventDefault();
-                            handleRunAgentTerminalCommand();
-                          }
-                        }}
-                        placeholder="Ex: andrea --run-autonomous, python -m test"
-                        className="flex-1 bg-transparent text-emerald-300 text-xs focus:outline-none placeholder-[#c4b5fd]/40 font-mono"
-                      />
-                      <button
-                        onClick={handleRunAgentTerminalCommand}
-                        disabled={!agentTerminalInput.trim()}
-                        className="px-2.5 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-[10px] font-bold transition disabled:opacity-30"
-                      >
-                        Exécuter
-                      </button>
-                    </div>
-                  </div>
-
-                </aside>
-
+                )}
               </div>
             )}
           </div>
@@ -1525,13 +1442,14 @@ if __name__ == "__main__":
           className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-[#100b24]/95 backdrop-blur-lg border-t border-[#5A33FF44] flex items-center justify-around py-2 px-1 shadow-2xl"
         >
           {[
-            { id: 'chat', label: 'Discussion', icon: '💬' },
-            { id: 'studio', label: 'Montage', icon: '🎬' },
-            { id: 'code', label: 'Code Ultra', icon: '💻' },
-            { id: 'compte', label: 'Offres', icon: '💎' },
-            { id: 'profil', label: 'Mon Profil', icon: '👤' },
+            { id: 'chat', label: 'Discussion', icon: MessageSquare },
+            { id: 'studio', label: 'Montage', icon: Film },
+            { id: 'code', label: 'Code Ultra', icon: Code2 },
+            { id: 'compte', label: 'Offres', icon: CreditCard },
+            { id: 'profil', label: 'Mon Profil', icon: User },
           ].map(tab => {
             const active = currentPage === tab.id;
+            const IconComponent = tab.icon;
             return (
               <button
                 key={tab.id}
@@ -1545,10 +1463,10 @@ if __name__ == "__main__":
                 className={`flex flex-col items-center justify-center flex-1 py-1 rounded-xl transition ${
                   active
                     ? 'text-white font-extrabold bg-[#5A33FF]/30 border border-[#5A33FF]/60 shadow-sm'
-                    : 'text-[#c4b5fd]/80 hover:text-white'
+                    : 'text-zinc-400 hover:text-white'
                 }`}
               >
-                <span className="text-base leading-none">{tab.icon}</span>
+                <IconComponent className={`w-4 h-4 ${active ? 'text-white' : 'text-zinc-400'}`} />
                 <span className="text-[10px] mt-0.5 leading-none">{tab.label}</span>
               </button>
             );
