@@ -184,7 +184,7 @@ class AndreaRequestEngine {
     }
 
     let responseBody = '';
-    let method = 'Implémentation d’intentions & Sciences Comportementales';
+    let method = "Sciences Cognitives & Ingénierie du Comportement Approfondie";
 
     // CAS 1 : ACCOMPAGNEMENT SCOLAIRE, CONCOURS, ÉTUDIANTS (MÉDECINE, DROIT, PRÉPA)
     if (
@@ -198,27 +198,36 @@ class AndreaRequestEngine {
       qLower.includes('étudiant') ||
       qLower.includes('droit') ||
       qLower.includes('anatomie') ||
-      qLower.includes('mémoriser')
+      qLower.includes('mémoriser') ||
+      qLower.includes('apprendre') ||
+      qLower.includes('concentration') ||
+      qLower.includes('focus')
     ) {
-      method = "Implémentation d'intentions de Gollwitzer (Harvard/NYU) & Récupération active";
-      responseBody = `Bonjour ${userName}. Dans un cursus exigeant comme la 2e année de médecine, le droit ou les concours, le problème n'est presque jamais un manque d'intelligence : c'est l'illusion de la volonté pure.
+      method = "Théories Cognitives Multiples : Gollwitzer, Ebbinghaus, Zeigarnik & Réseau par Défaut";
+      responseBody = `Bonjour ${userName}. Dans un cursus exigeant comme la 2e année de médecine, le droit ou les concours, le problème n'est presque jamais un manque d'intelligence : c'est l'illusion de la volonté pure et l'ignorance des lois biologiques du cerveau.
 
-Les recherches en psychologie cognitive menées par Peter Gollwitzer à Harvard et à l'Université de New York (NYU) ont démontré une loi fondamentale : vous dire mentalement « je vais relire mon cours d'anatomie cet après-midi à la bibliothèque » divise par trois vos chances réelles d'exécution. Pourquoi ? Parce que le cerveau doit encore décider du moment précis, évaluer sa motivation et surmonter la friction de transition.
+Voici l'ensemble des protocoles psychologiques et neuro-cognitifs validés par les plus grands laboratoires (Harvard, Stanford, NYU, Oxford) pour vous propulser vers la réussite :
 
-Pour garantir votre réussite, voici l'architecture exacte à appliquer :
+1. L'Implémentation d'intentions de Peter Gollwitzer (Harvard / NYU) :
+Vous dire mentalement « je vais réviser mon anatomie cet après-midi » divise par trois vos chances d'exécution car le cortex préfrontal négocie en permanence. Ancrez l'action sur une habitude préexistante réflexe : « Dès que je termine de me brosser les dents ce matin, Alors j'ouvre immédiatement mon fascicule pour 25 minutes de fiches. » Le signal sensoriel déclenche l'action sans friction décisionnelle.
 
-1. L'Implémentation d'intentions par ancrage automatique :
-Ne prévoyez plus une heure arbitraire. Ancrez l'action sur une habitude que vous faites DÉJÀ de manière 100% réflexe chaque jour sans y réfléchir.
-Exemple prouvé : « Si je termine de me brosser les dents ce matin, Alors j'ouvre immédiatement mon fascicule sur la table et je fais 20 minutes de fiches. » Le stimulus neurologique préexistant déclenche l'action sans négociation interne.
+2. La Loi de Parkinson & la Compression Temporelle :
+Le travail s'étale pour occuper tout le temps qu'on lui concède. Si vous vous accordez 4 heures pour réviser un chapitre, votre esprit va dilater l'effort et s'éparpiller. En imposant des micro-fenêtres serrées de 25 à 30 minutes au chronomètre, vous activez la libération contrôlée de noradrénaline et de dopamine, multipliant la vitesse de traitement.
 
-2. La Loi de Parkinson appliquée à l'apprentissage :
-Le travail s'étale pour occuper tout le temps alloué. Si vous vous donnez 4 heures pour réviser un chapitre, votre esprit va dilater l'effort, procrastiner et se disperser. Fixez des micro-fenêtres de 25 minutes ultra-serrées avec un minuteur physique visible. L'urgence contrôlée active la noradrénaline et décuple la vitesse de traitement.
+3. L'Effet Zeigarnik & l'Amorçage Cognitif :
+Le cerveau humain retient avec une acuité décuplée une tâche entamée mais inachevée. Si vous bloquez devant un gros polycopié, ne prévoyez pas de le finir : écrivez simplement un mot ou lisez deux lignes. Dès lors que l'action est amorcée, la tension psychique interne de Zeigarnik vous pousse naturellement à la poursuivre.
 
-3. Le Mind Wandering stratégique (Réseau du Mode par Défaut) :
-Rester 5 heures d'affilée les yeux rivés sur vos fiches sature les récepteurs synaptiques. Après un bloc focalisé de 35 minutes, accordez-vous 7 minutes de vagabondage mental sans aucun écran (marchez dans la pièce, regardez par la fenêtre, buvez de l'eau). C'est précisément pendant cette phase que le Réseau du Mode par Défaut de votre cerveau consolide les traces mnésiques dans l'hippocampe pour les rendre permanentes au jour de l'examen.
+4. La Courbe de l'Oubli d'Hermann Ebbinghaus & la Répétition Espacée :
+Sans réactivation, 70% des informations s'évaporent en 24 heures. Nous calibrons vos réactivations mnésiques aux intervalles critiques (J+1, J+3, J+7, J+21).
 
-4. La Récupération Active (Retrieval Practice) :
-Bannissez le surlignage passif. Fermez le support et écrivez sur une feuille blanche tout ce dont vous vous souvenez. Chaque effort conscient de rappel renforce l'engramme mémoriel à long terme.`;
+5. La Récupération Active (Retrieval Practice) :
+Le surlignage passif crée l'illusion de la compétence. Fermez le support, prenez une page blanche et reconstituez les schémas et mécanismes clés de mémoire. C'est l'effort conscient d'extraction qui fortifie la gaine de myéline autour des neurones.
+
+6. Le Mind Wandering stratégique & le Réseau du Mode par Défaut (DMN) :
+Travailler 5 heures sans pause sature les récepteurs synaptiques. Après 35 minutes de focus intense, accordez-vous 6 minutes de vagabondage mental sans smartphone ni sollicitation numérique (marchez, regardez l'horizon). C'est précisément pendant ce repos que le Réseau du Mode par Défaut consolide les traces mnésiques dans l'hippocampe pour les rendre permanentes au jour de l'examen.
+
+7. Le Sentiment d'Auto-Efficacité d'Albert Bandura :
+La confiance ne se décrète pas : elle s'échafaude par l'accumulation de micro-victoires irréfutables.`;
     }
 
     // CAS 2 : MONTAGE, VIDÉO VIRALE, RÉELS, AUDIO & CRÉATION DE CONTENU
@@ -299,19 +308,31 @@ Détaillez exactement les étapes concrètes de prise en charge pour que le pros
 
     // CAS PAR DÉFAUT : ACCOMPAGNEMENT GLOBAL VERS LA RÉUSSITE
     else {
-      method = "Ingénierie du Comportement & Passage à l'Action Durable";
-      responseBody = `Bonjour ${userName}. Mon engagement à vos côtés n'est pas de vous donner des conseils vagues ou des discours théoriques, mais de déployer les leviers des neurosciences pour débloquer votre trajectoire et vous mener à la réussite concrète.
+      method = "Ingénierie du Comportement & Neuro-Sciences de la Réussite";
+      responseBody = `Bonjour ${userName}. Mon engagement à vos côtés n'est pas de vous donner des conseils vagues ou des discours théoriques, mais de déployer l'arsenal complet des neurosciences et des sciences comportementales pour débloquer votre trajectoire et vous mener à la réussite concrète.
 
-Voici les principes cardinaux sur lesquels nous fondons chacune de nos interactions :
+Voici l'ensemble des principes cardinaux sur lesquels nous fondons chacune de nos interactions :
 
-1. L'Implémentation d'intentions de Gollwitzer :
+1. L'Implémentation d'intentions de Gollwitzer (Harvard / NYU) :
 Nous ne laissons aucune action en suspens dans un futur flou. Nous ancrons systématiquement chaque étape sur une routine quotidienne existante (${habit}) afin de neutraliser la résistance mentale et déclencher l'action de façon réflexe.
 
 2. La Compression Temporelle de Parkinson :
 Nous brisons les projets intimidants en séquences contraintes. En réduisant drastiquement le temps alloué à une tâche, votre cerveau bascule de l'hésitation à l'exécution pure sans possibilité de sur-analyse stérile.
 
 3. L'Équilibre Mnésique (Focus Intense / Mind Wandering) :
-Pour apprendre plus vite et maintenir un niveau d'énergie optimal tout au long de la semaine, nous calibrons des cycles d'effort chirurgical suivis de micro-pauses sans sollicitation numérique. Cette alternance permet à vos réseaux neuronaux de consolider l'information et d'accroître votre clarté stratégique.
+Pour apprendre plus vite et maintenir un niveau d'énergie optimal tout au long de la semaine, nous calibrons des cycles d'effort chirurgical suivis de micro-pauses sans sollicitation numérique. Cette alternance permet à vos réseaux neuronaux (Réseau du Mode par Défaut) de consolider l'information et d'accroître votre clarté stratégique.
+
+4. L'Effet Zeigarnik :
+Démarrer par une action minuscule (5 secondes) pour créer une tension cognitive inachevée qui propulse l'exécution jusqu'au bout.
+
+5. La Loi de Yerkes-Dodson & Gestion du Stress :
+Calibrer un niveau d'activation physiologique optimal pour atteindre la zone de performance maximale sans basculer dans l'anxiété bloquante.
+
+6. Le Growth Mindset de Carol Dweck (Stanford) :
+Recadrer chaque difficulté technique ou blocage non pas comme un verdict d'aptitude, mais comme un signal direct d'adaptation neuro-synaptique.
+
+7. Le Système 1 / Système 2 de Daniel Kahneman :
+Automatiser les tâches récurrentes via le Système 1 pour réserver l'énergie critique et analytique du Système 2 aux décisions à fort impact.
 
 Je suis prête à analyser votre situation actuelle en profondeur. Quel est le défi prioritaire sur lequel vous souhaitez obtenir une avancée mesurable dès aujourd'hui ?`;
     }

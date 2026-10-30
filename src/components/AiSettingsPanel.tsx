@@ -676,68 +676,39 @@ export const AiSettingsPanel: React.FC<AiSettingsPanelProps> = ({ onNotify }) =>
             </p>
           </div>
 
-          {/* SÉLECTEUR VOIX FÉMININE VS VOIX MASCULINE */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {/* Voix Féminine */}
-            <div 
-              onClick={() => {
-                setSettings({ ...settings, voiceGender: 'feminine', voicePitch: 1.15 });
-                andreaVoice.setGender('feminine');
-              }}
-              className={`p-4 rounded-2xl border-2 transition cursor-pointer space-y-2 ${
-                settings.voiceGender === 'feminine'
-                  ? 'bg-gradient-to-br from-[#1E1B8C] to-[#5A33FF]/40 border-[#8B70FF] text-white shadow-xl scale-[1.01]'
-                  : 'bg-[#151428] border-[#5A33FF22] text-[#A89CFF] hover:bg-[#252245]'
-              }`}
-            >
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <span className="text-2xl">👩</span>
-                  <span className="font-extrabold text-sm text-white">Voix Féminine</span>
-                </div>
-                {settings.voiceGender === 'feminine' && (
-                  <span className="w-5 h-5 rounded-full bg-emerald-400 text-black flex items-center justify-center text-xs font-bold shadow">
-                    ✓
-                  </span>
-                )}
-              </div>
-              <p className="text-xs text-[#c4b5fd] leading-relaxed">
-                Tonalité chaleureuse, dynamique et bienveillante. Idéale pour le coaching comportemental et l'encouragement au passage à l'action.
-              </p>
-              <div className="text-[10px] font-mono text-purple-300">
-                Tonalité : 1.15x · Timbre naturel
-              </div>
-            </div>
+          {/* SÉLECTEUR VOIX SIMPLE AVEC CASES À COCHER (FÉMININE PAR DÉFAUT) */}
+          <div className="p-4 rounded-2xl bg-[#151428] border border-[#5A33FF22] space-y-3">
+            <span className="text-xs font-bold text-white block">Sélection de la Voix :</span>
+            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-6">
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input
+                  type="radio"
+                  name="voiceGenderChoice"
+                  value="feminine"
+                  checked={settings.voiceGender === 'feminine'}
+                  onChange={() => {
+                    setSettings({ ...settings, voiceGender: 'feminine', voicePitch: 1.15 });
+                    andreaVoice.setGender('feminine');
+                  }}
+                  className="w-4 h-4 accent-[#5A33FF] cursor-pointer"
+                />
+                <span className="text-xs font-semibold text-white">Voix Féminine (Par défaut)</span>
+              </label>
 
-            {/* Voix Masculine */}
-            <div 
-              onClick={() => {
-                setSettings({ ...settings, voiceGender: 'masculine', voicePitch: 0.85 });
-                andreaVoice.setGender('masculine');
-              }}
-              className={`p-4 rounded-2xl border-2 transition cursor-pointer space-y-2 ${
-                settings.voiceGender === 'masculine'
-                  ? 'bg-gradient-to-br from-[#1E1B8C] to-[#5A33FF]/40 border-[#8B70FF] text-white shadow-xl scale-[1.01]'
-                  : 'bg-[#151428] border-[#5A33FF22] text-[#A89CFF] hover:bg-[#252245]'
-              }`}
-            >
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <span className="text-2xl">👨</span>
-                  <span className="font-extrabold text-sm text-white">Voix Masculine</span>
-                </div>
-                {settings.voiceGender === 'masculine' && (
-                  <span className="w-5 h-5 rounded-full bg-emerald-400 text-black flex items-center justify-center text-xs font-bold shadow">
-                    ✓
-                  </span>
-                )}
-              </div>
-              <p className="text-xs text-[#c4b5fd] leading-relaxed">
-                Tonalité posée, calme et stratégique. Idéale pour les analyses logiques approfondies, les revues de code et le travail concentré.
-              </p>
-              <div className="text-[10px] font-mono text-purple-300">
-                Tonalité : 0.85x · Timbre grave
-              </div>
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input
+                  type="radio"
+                  name="voiceGenderChoice"
+                  value="masculine"
+                  checked={settings.voiceGender === 'masculine'}
+                  onChange={() => {
+                    setSettings({ ...settings, voiceGender: 'masculine', voicePitch: 0.85 });
+                    andreaVoice.setGender('masculine');
+                  }}
+                  className="w-4 h-4 accent-[#5A33FF] cursor-pointer"
+                />
+                <span className="text-xs font-semibold text-[#c4b5fd]">Voix Masculine</span>
+              </label>
             </div>
           </div>
 

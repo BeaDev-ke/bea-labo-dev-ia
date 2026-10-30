@@ -274,7 +274,7 @@ export const VisitorLanding: React.FC<VisitorLandingProps> = ({
               </h1>
 
               <p className="text-sm sm:text-base text-[#c4b5fd] leading-relaxed max-w-xl">
-                Que vous soyez <strong>étudiant en 2e année de médecine</strong>, candidat aux <strong>concours</strong>, <strong>créateur de vidéo</strong>, <strong>indépendant</strong> ou <strong>ingénieur code</strong> : Andrea mobilise les découvertes des plus grands scientifiques (Harvard, NYU, Stanford) pour débloquer votre passage à l'action. Fini les théories floues : appliquez l'<strong>implémentation d'intentions de Gollwitzer</strong>, la <strong>loi de Parkinson</strong> et le <strong>mind wandering stratégique</strong> pour exceller durablement.
+                L'IA comportementale développée par BehaviorLab AI : un accompagnement sur mesure pour vous faire passer à l'action immédiatement et concrétiser vos projets les plus ambitieux.
               </p>
 
               <div className="pt-2 flex items-center gap-2 flex-wrap">

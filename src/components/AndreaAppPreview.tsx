@@ -722,17 +722,18 @@ if __name__ == "__main__":
             <span>Nouvelle discussion</span>
           </button>
 
-          {/* Menu de Navigation Épuré (Montage, Code Ultra avec sous-menu, Tarifs, Mémoire, Paramètres) */}
+          {/* Menu de Navigation Épuré Monochrome (Discussion, Montage, Code (Ultra), Tarifs, Mémoire, Paramètres) */}
           <nav className="space-y-1 pt-0.5">
             {([
-              { id: 'chat', label: '💬 Discussion', stepId: 'chat' },
-              { id: 'studio', label: '🎬 Montage', stepId: 'montage' },
-              { id: 'code', label: '💻 Code (disponible que avec le format Ultra)', badge: 'Ultra' },
-              { id: 'compte', label: '💎 Offres & Tarifs', stepId: 'offres' },
-              { id: 'memoire', label: "🧠 Mémoire" },
-              { id: 'parametres', label: '⚙️ Paramètres' },
-            ] as Array<{ id: string; label: string; stepId?: string; badge?: string }>).map(item => {
+              { id: 'chat', label: 'Discussion', icon: MessageSquare, stepId: 'chat' },
+              { id: 'studio', label: 'Montage', icon: Film, stepId: 'montage' },
+              { id: 'code', label: 'Code (Ultra)', icon: Code2, badge: 'Ultra' },
+              { id: 'compte', label: 'Offres & Tarifs', icon: CreditCard, stepId: 'offres' },
+              { id: 'memoire', label: 'Mémoire', icon: Brain },
+              { id: 'parametres', label: 'Paramètres', icon: Sliders },
+            ] as Array<{ id: string; label: string; icon: any; stepId?: string; badge?: string }>).map(item => {
               const active = currentPage === item.id;
+              const IconComp = item.icon;
               const buttonEl = (
                 <button
                   key={item.id}
@@ -744,15 +745,20 @@ if __name__ == "__main__":
                     }
                     setIsMobileMenuOpen(false);
                   }}
-                  className={`w-full text-left px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center justify-between ${
+                  className={`w-full text-left px-3 py-2 rounded-xl text-xs font-semibold transition flex items-center justify-between group ${
                     active
-                      ? 'bg-gradient-to-r from-[#1E1B8C] to-[#5A33FF] text-white border border-[#5A33FF] shadow-sm'
-                      : 'text-[#c4b5fd] hover:bg-[#201844] hover:text-white'
+                      ? 'bg-[#231a4a] text-white border border-[#5A33FF66] shadow-sm'
+                      : 'text-zinc-300 hover:bg-[#1a1435] hover:text-white'
                   }`}
                 >
-                  <span className="truncate pr-1">{item.label}</span>
+                  <div className="flex items-center gap-2.5 min-w-0">
+                    <IconComp className={`w-4 h-4 shrink-0 transition ${
+                      active ? 'text-white' : 'text-zinc-400 group-hover:text-zinc-200'
+                    }`} />
+                    <span className="truncate">{item.label}</span>
+                  </div>
                   {item.badge && (
-                    <span className="text-[9px] font-black px-1.5 py-0.2 rounded-full bg-purple-500/30 text-purple-200 border border-purple-400/30 shrink-0">
+                    <span className="text-[9px] font-bold px-1.5 py-0.2 rounded bg-zinc-800 text-zinc-300 border border-zinc-700 shrink-0">
                       {item.badge}
                     </span>
                   )}
@@ -1220,182 +1226,74 @@ if __name__ == "__main__":
 
             {/* SOUS-VUE 1 : ÉDITEUR PYTHON CLASSIQUE */}
             {codeSubMenu === 'editeur' && (
-              <div className="flex-1 flex flex-col lg:flex-row h-full overflow-hidden">
-                <div className="flex-1 flex flex-col h-full overflow-y-auto p-4 md:p-6 space-y-4 bg-[#140e2d]">
-                  <div className="flex flex-wrap items-center justify-between gap-3 shrink-0">
-                    <div>
-                      <h2 className="text-xl font-bold text-white flex items-center gap-2">
-                        <Code2 className="w-5 h-5 text-purple-400" />
-                        <span>💻 Éditeur de Code Python</span>
-                      </h2>
-                      <p className="text-xs text-[#c4b5fd]">Écrivez, testez et demandez à Andrea d'améliorer votre script</p>
-                    </div>
-                    
-                    <div className="flex items-center gap-2">
-                      <button
-                        onClick={handleRunCodeTest}
-                        className="px-3.5 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs flex items-center gap-1.5 shadow transition"
-                        title="Exécuter et tester le script en temps réel"
-                      >
-                        <Play className="w-3.5 h-3.5 fill-white" />
-                        <span>Exécuter / Tester</span>
-                      </button>
-
-                      <button 
-                        onClick={handleDownloadPython}
-                        className="px-3.5 py-1.5 rounded-xl bg-[#5A33FF] hover:bg-[#6c48ff] text-white font-bold text-xs flex items-center gap-1.5 shadow transition"
-                      >
-                        <Download className="w-3.5 h-3.5" />
-                        <span>Télécharger .py</span>
-                      </button>
-                    </div>
+              <div className="flex-1 flex flex-col h-full overflow-y-auto p-4 md:p-6 space-y-4 bg-[#140e2d]">
+                <div className="flex flex-wrap items-center justify-between gap-3 shrink-0">
+                  <div>
+                    <h2 className="text-xl font-bold text-white flex items-center gap-2">
+                      <Code2 className="w-5 h-5 text-purple-400" />
+                      <span>Éditeur de Code Python</span>
+                    </h2>
+                    <p className="text-xs text-[#c4b5fd]">Écrivez, testez et exécutez votre script</p>
                   </div>
+                  
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={handleRunCodeTest}
+                      className="px-3.5 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs flex items-center gap-1.5 shadow transition"
+                      title="Exécuter et tester le script en temps réel"
+                    >
+                      <Play className="w-3.5 h-3.5 fill-white" />
+                      <span>Exécuter / Tester</span>
+                    </button>
 
-                  <div className="bg-[#0b081b] border-2 border-[#5A33FF55] rounded-2xl overflow-hidden font-mono shadow-2xl flex-1 flex flex-col min-h-[300px]">
-                    <div className="bg-[#150f2e] px-4 py-2 border-b border-[#5A33FF33] flex items-center justify-between text-xs text-[#c4b5fd]">
-                      <div className="flex items-center gap-2">
-                        <span className="w-2.5 h-2.5 rounded-full bg-rose-500/80 inline-block" />
-                        <span className="w-2.5 h-2.5 rounded-full bg-amber-500/80 inline-block" />
-                        <span className="w-2.5 h-2.5 rounded-full bg-emerald-500/80 inline-block" />
-                        <span className="font-bold text-white ml-2">mon_script.py (Python)</span>
-                      </div>
-                      <span className="text-[10px] text-zinc-400">UTF-8 · Streamlit Support</span>
-                    </div>
-                    <textarea
-                      value={codeContent}
-                      onChange={e => setCodeContent(e.target.value)}
-                      rows={14}
-                      className="w-full flex-1 bg-transparent text-[#e2d6ff] p-4 text-xs font-mono focus:outline-none resize-none leading-relaxed"
-                      spellCheck={false}
-                    />
+                    <button 
+                      onClick={handleDownloadPython}
+                      className="px-3.5 py-1.5 rounded-xl bg-[#5A33FF] hover:bg-[#6c48ff] text-white font-bold text-xs flex items-center gap-1.5 shadow transition"
+                    >
+                      <Download className="w-3.5 h-3.5" />
+                      <span>Télécharger .py</span>
+                    </button>
                   </div>
-
-                  {codeConsoleOutput && (
-                    <div className="bg-[#090615] border border-emerald-500/40 rounded-2xl p-3 text-xs font-mono space-y-1.5 shadow-xl shrink-0">
-                      <div className="flex items-center justify-between text-[11px] font-bold text-emerald-400 border-b border-emerald-500/20 pb-1">
-                        <div className="flex items-center gap-1.5">
-                          <Terminal className="w-3.5 h-3.5" />
-                          <span>Console de Sortie Python</span>
-                        </div>
-                        <button
-                          onClick={() => setCodeConsoleOutput(null)}
-                          className="text-zinc-400 hover:text-white text-[10px]"
-                        >
-                          Effacer
-                        </button>
-                      </div>
-                      <pre className="text-emerald-200 text-[11px] whitespace-pre-wrap leading-relaxed">
-                        {codeConsoleOutput}
-                      </pre>
-                    </div>
-                  )}
                 </div>
 
-                {/* Espace Andrea IA persistant à droite */}
-                <aside className="w-full lg:w-80 xl:w-96 bg-[#110b27] border-t lg:border-t-0 lg:border-l border-[#5A33FF33] flex flex-col shrink-0 h-80 lg:h-full z-20 shadow-xl">
-                  <div className="p-3 border-b border-[#5A33FF22] bg-[#140e2e] flex items-center justify-between">
+                <div className="bg-[#0b081b] border-2 border-[#5A33FF55] rounded-2xl overflow-hidden font-mono shadow-2xl flex-1 flex flex-col min-h-[340px]">
+                  <div className="bg-[#150f2e] px-4 py-2 border-b border-[#5A33FF33] flex items-center justify-between text-xs text-[#c4b5fd]">
                     <div className="flex items-center gap-2">
-                      <img 
-                        src="/logo_bea.png" 
-                        alt="Andrea" 
-                        className="w-6 h-6 object-contain rounded-lg p-0.5 bg-[#0b0819] border border-[#5A33FF44]"
-                        onError={(e) => { e.currentTarget.src = "/logo_andrea.png"; }}
-                      />
-                      <div>
-                        <span className="font-extrabold text-xs text-white">Espace Andrea IA</span>
-                        <span className="flex items-center gap-1 text-[9px] text-emerald-400 font-semibold leading-none mt-0.5">
-                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                          Coach Code & Débogage
-                        </span>
-                      </div>
+                      <span className="w-2.5 h-2.5 rounded-full bg-rose-500/80 inline-block" />
+                      <span className="w-2.5 h-2.5 rounded-full bg-amber-500/80 inline-block" />
+                      <span className="w-2.5 h-2.5 rounded-full bg-emerald-500/80 inline-block" />
+                      <span className="font-bold text-white ml-2">mon_script.py (Python)</span>
                     </div>
-                    <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-purple-500/20 text-purple-300 border border-purple-500/30">
-                      Python 3.11
-                    </span>
+                    <span className="text-[10px] text-zinc-400">UTF-8 · Streamlit Support</span>
                   </div>
+                  <textarea
+                    value={codeContent}
+                    onChange={e => setCodeContent(e.target.value)}
+                    rows={16}
+                    className="w-full flex-1 bg-transparent text-[#e2d6ff] p-4 text-xs font-mono focus:outline-none resize-none leading-relaxed"
+                    spellCheck={false}
+                  />
+                </div>
 
-                  <div className="p-2.5 bg-[#0d0822] border-b border-[#5A33FF15] space-y-1.5">
-                    <span className="text-[10px] font-extrabold uppercase tracking-wider text-[#c4b5fd]/80 px-1">
-                      Actions immédiates :
-                    </span>
-                    <div className="flex flex-wrap gap-1.5">
+                {codeConsoleOutput && (
+                  <div className="bg-[#090615] border border-emerald-500/40 rounded-2xl p-3 text-xs font-mono space-y-1.5 shadow-xl shrink-0">
+                    <div className="flex items-center justify-between text-[11px] font-bold text-emerald-400 border-b border-emerald-500/20 pb-1">
+                      <div className="flex items-center gap-1.5">
+                        <Terminal className="w-3.5 h-3.5" />
+                        <span>Console de Sortie Python</span>
+                      </div>
                       <button
-                        onClick={() => handleSendCodeAndreaMessage("Analyse ce script et vérifie s'il contient des bugs ou failles de sécurité.")}
-                        className="text-[10px] font-bold px-2 py-1 rounded-xl bg-[#1b143c] hover:bg-[#271d54] text-white border border-[#5A33FF44] transition flex items-center gap-1 shadow-sm"
+                        onClick={() => setCodeConsoleOutput(null)}
+                        className="text-zinc-400 hover:text-white text-[10px]"
                       >
-                        <ShieldCheck className="w-3 h-3 text-emerald-400" />
-                        <span>Déboguer ce script</span>
-                      </button>
-
-                      <button
-                        onClick={() => handleSendCodeAndreaMessage("Optimise les performances de ce script et rends-le plus rapide.")}
-                        className="text-[10px] font-bold px-2 py-1 rounded-xl bg-[#1b143c] hover:bg-[#271d54] text-white border border-[#5A33FF44] transition flex items-center gap-1 shadow-sm"
-                      >
-                        <Zap className="w-3 h-3 text-amber-400" />
-                        <span>Optimiser</span>
+                        Effacer
                       </button>
                     </div>
+                    <pre className="text-emerald-200 text-[11px] whitespace-pre-wrap leading-relaxed">
+                      {codeConsoleOutput}
+                    </pre>
                   </div>
-
-                  <div className="flex-1 overflow-y-auto p-3 space-y-3">
-                    {codeAndreaMessages.map(msg => (
-                      <div
-                        key={msg.id}
-                        className={`flex flex-col ${msg.role === 'user' ? 'items-end' : 'items-start'}`}
-                      >
-                        <div
-                          className={`max-w-[90%] rounded-2xl p-2.5 text-xs leading-relaxed shadow-sm ${
-                            msg.role === 'user'
-                              ? 'bg-gradient-to-r from-[#1E1B8C] to-[#5A33FF] text-white rounded-br-none'
-                              : 'bg-[#1b143c] border border-[#5A33FF33] text-[#e2d6ff] rounded-bl-none'
-                          }`}
-                        >
-                          <p className="whitespace-pre-wrap">{msg.text}</p>
-                        </div>
-                        <span className="text-[9px] text-[#c4b5fd]/60 mt-1 px-1 font-mono">
-                          {msg.time}
-                        </span>
-                      </div>
-                    ))}
-                    {isCodeAndreaThinking && (
-                      <div className="flex items-center gap-1.5 p-2 rounded-xl bg-[#1b143c] text-purple-300 text-xs border border-[#5A33FF33] w-fit">
-                        <Sparkles className="w-3.5 h-3.5 animate-spin text-amber-400" />
-                        <span className="text-[11px] font-semibold">Andrea analyse...</span>
-                      </div>
-                    )}
-                    <div ref={codeChatEndRef} />
-                  </div>
-
-                  <div className="p-2.5 bg-[#0e0924] border-t border-[#5A33FF22]">
-                    <div className="bg-[#171032] border border-[#5A33FF44] focus-within:border-[#8B70FF] rounded-2xl p-1.5 flex items-center gap-2">
-                      <input
-                        type="text"
-                        value={codeAndreaInput}
-                        onChange={e => setCodeAndreaInput(e.target.value)}
-                        onKeyDown={e => {
-                          if (e.key === 'Enter') {
-                            e.preventDefault();
-                            handleSendCodeAndreaMessage();
-                          }
-                        }}
-                        placeholder="Demander à Andrea (déboguer, corriger...)"
-                        className="flex-1 bg-transparent text-white text-xs px-2 focus:outline-none placeholder-[#c4b5fd]/50"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => handleSendCodeAndreaMessage()}
-                        disabled={!codeAndreaInput.trim()}
-                        className={`p-2 rounded-xl transition ${
-                          codeAndreaInput.trim()
-                            ? 'bg-[#5A33FF] text-white hover:brightness-110 shadow'
-                            : 'text-[#c4b5fd]/30 cursor-not-allowed'
-                        }`}
-                      >
-                        <Send className="w-3.5 h-3.5" />
-                      </button>
-                    </div>
-                  </div>
-                </aside>
+                )}
               </div>
             )}
 
