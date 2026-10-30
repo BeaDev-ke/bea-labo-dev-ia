@@ -153,13 +153,24 @@ export const AndreaAppPreview: React.FC<AndreaAppPreviewProps> = ({
   // Mobile drawer state
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
-  // Profile State
+  // Profile State (sans aucun client test Alexandre)
   const [userProfile, setUserProfile] = useState<UserProfile>(() => {
-    if (currentUser) return currentUser;
+    if (currentUser) {
+      if (currentUser.displayName?.toLowerCase().includes('alex') || currentUser.email?.toLowerCase().includes('alex')) {
+        return DEFAULT_PROFILE;
+      }
+      return currentUser;
+    }
     try {
       const stored = localStorage.getItem('andrea_active_session') || localStorage.getItem('andrea_user_profile_secure') || localStorage.getItem('bea_user_profile_secure');
       if (stored) {
         const parsed = JSON.parse(stored);
+        if (parsed?.displayName?.toLowerCase().includes('alex') || parsed?.email?.toLowerCase().includes('alex')) {
+          localStorage.removeItem('andrea_active_session');
+          localStorage.removeItem('andrea_user_profile_secure');
+          localStorage.removeItem('bea_user_profile_secure');
+          return DEFAULT_PROFILE;
+        }
         return verifyData<UserProfile>(parsed, DEFAULT_PROFILE);
       }
     } catch {
@@ -170,7 +181,9 @@ export const AndreaAppPreview: React.FC<AndreaAppPreviewProps> = ({
 
   useEffect(() => {
     if (currentUser) {
-      setUserProfile(currentUser);
+      if (!currentUser.displayName?.toLowerCase().includes('alex') && !currentUser.email?.toLowerCase().includes('alex')) {
+        setUserProfile(currentUser);
+      }
     }
   }, [currentUser]);
 

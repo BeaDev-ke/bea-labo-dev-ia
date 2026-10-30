@@ -1,12 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { 
-  ExternalLink, 
-  Code2, 
-  Film,
-  LogOut,
-  Sparkles,
-  Lock,
-  ArrowLeft
+  Lock
 } from 'lucide-react';
 import { DevPortal } from './components/DevPortal';
 import { DevLab } from './components/DevLab';
@@ -18,12 +12,64 @@ import { UserProfile } from './types/bea';
 
 type MainView = 'visiteur' | 'prod' | 'studio' | 'portal' | 'lab' | 'code';
 
+// Purge immédiate et irréversible de tout vestige du client test Alexandre
+if (typeof window !== 'undefined') {
+  try {
+    const keys = [
+      'andrea_active_session',
+      'andrea_user_profile_secure',
+      'bea_user_profile_secure',
+      'andrea_users_db',
+      'andrea_chat_sessions'
+    ];
+    for (const k of keys) {
+      const val = localStorage.getItem(k);
+      if (val && (val.toLowerCase().includes('alexandre') || val.toLowerCase().includes('alex'))) {
+        if (k === 'andrea_users_db') {
+          try {
+            const db = JSON.parse(val);
+            let modified = false;
+            for (const key of Object.keys(db)) {
+              if (
+                key.toLowerCase().includes('alex') || 
+                db[key]?.displayName?.toLowerCase().includes('alex') || 
+                db[key]?.preferredCallName?.toLowerCase().includes('alex')
+              ) {
+                delete db[key];
+                modified = true;
+              }
+            }
+            if (modified) {
+              localStorage.setItem(k, JSON.stringify(db));
+            }
+          } catch {
+            localStorage.removeItem(k);
+          }
+        } else {
+          localStorage.removeItem(k);
+        }
+      }
+    }
+  } catch {}
+}
+
 export default function App() {
-  // Session state
+  // Session state (garanti sans aucun client test Alexandre)
   const [currentUser, setCurrentUser] = useState<UserProfile | null>(() => {
     try {
       const stored = localStorage.getItem('andrea_active_session');
-      if (stored) return JSON.parse(stored);
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (
+          parsed?.displayName?.toLowerCase().includes('alex') || 
+          parsed?.preferredCallName?.toLowerCase().includes('alex') ||
+          parsed?.email?.toLowerCase().includes('alex')
+        ) {
+          localStorage.removeItem('andrea_active_session');
+          return null;
+        }
+        return parsed;
+      }
     } catch {}
     return null;
   });
@@ -31,37 +77,9 @@ export default function App() {
   // Strict Developer Admin verification
   const isDevAdmin = currentUser?.email?.toLowerCase().trim() === 'saydoukebe31@gmail.com';
 
-  // Clean up any test user "Alexandre" on initial load
-  useEffect(() => {
-    try {
-      const active = localStorage.getItem('andrea_active_session');
-      if (active && (active.toLowerCase().includes('alexandre') || active.toLowerCase().includes('alex'))) {
-        localStorage.removeItem('andrea_active_session');
-        localStorage.removeItem('andrea_user_profile_secure');
-        setCurrentUser(null);
-      }
-      const usersRaw = localStorage.getItem('andrea_users_db');
-      if (usersRaw) {
-        const users = JSON.parse(usersRaw);
-        let changed = false;
-        for (const k of Object.keys(users)) {
-          if (
-            k.toLowerCase().includes('alexandre') ||
-            users[k]?.displayName?.toLowerCase().includes('alexandre') ||
-            users[k]?.preferredCallName?.toLowerCase().includes('alexandre')
-          ) {
-            delete users[k];
-            changed = true;
-          }
-        }
-        if (changed) {
-          localStorage.setItem('andrea_users_db', JSON.stringify(users));
-        }
-      }
-    } catch {}
-  }, []);
-
   // Determine initial view from window.location.pathname
+  // "/" -> Vitrine (Accueil par défaut)
+  // "/portail-dev" -> Portail Développeur
   const getInitialView = (): MainView => {
     if (typeof window === 'undefined') return 'visiteur';
     const path = window.location.pathname;
@@ -113,10 +131,13 @@ export default function App() {
   // Handle successful login or account creation
   const handleEnterApp = (user?: UserProfile) => {
     if (user) {
-      setCurrentUser(user);
-      try {
-        localStorage.setItem('andrea_active_session', JSON.stringify(user));
-      } catch {}
+      // Éviter tout enregistrement d'Alexandre
+      if (!user.displayName?.toLowerCase().includes('alex') && !user.email?.toLowerCase().includes('alex')) {
+        setCurrentUser(user);
+        try {
+          localStorage.setItem('andrea_active_session', JSON.stringify(user));
+        } catch {}
+      }
     }
     navigateTo('prod');
   };
@@ -134,97 +155,9 @@ export default function App() {
     <div className={`bg-[#181135] text-[#f5f3ff] flex flex-col font-sans selection:bg-purple-900 selection:text-white ${
       isFullScreenApp ? 'h-screen overflow-hidden' : 'min-h-screen'
     }`}>
-      {/* Top Header / Navigation Bar */}
-      {!isFullScreenApp && (
-        <header className="sticky top-0 z-50 bg-[#0d0d14]/90 backdrop-blur-md border-b border-zinc-800 px-4 md:px-8 py-3 shadow-xl shrink-0">
-          <div className="max-w-7xl mx-auto flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-            {/* Logo seul sans carré supplémentaire */}
-            <div className="flex items-center gap-3">
-              <button 
-                onClick={() => navigateTo('visiteur')}
-                className="hover:scale-105 transition-transform shrink-0"
-                title="Page Vitrine Andrea (/)"
-              >
-                <img 
-                  src="/logo_bea.png" 
-                  alt="Andrea Logo" 
-                  className="w-10 h-10 object-contain"
-                  onError={(e) => { e.currentTarget.src = '/logo_andrea.png'; }}
-                />
-              </button>
-              <div>
-                <div className="flex items-center gap-2">
-                  <span className="font-extrabold text-lg text-white tracking-tight">Andrea</span>
-                  {currentUser && (
-                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">
-                      {currentUser.displayName} ({currentUser.plan.toUpperCase()})
-                    </span>
-                  )}
-                </div>
-                <p className="text-[11px] text-[#c4b5fd]">
-                  Intelligence Stratégique & Neuro-Comportementale
-                </p>
-              </div>
-            </div>
-
-            {/* Navigation Tabs */}
-            <div className="flex items-center bg-[#18181b] border border-zinc-800 p-1 rounded-2xl shadow-sm gap-1 flex-wrap sm:ml-auto justify-end">
-              {/* 1. Page Vitrine / Accueil (Default on /) */}
-              <button
-                onClick={() => navigateTo('visiteur')}
-                className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition flex items-center gap-1.5 ${
-                  currentView === 'visiteur'
-                    ? 'bg-[#2a2057] text-white shadow-sm border border-[#5A33FF66]'
-                    : 'text-zinc-400 hover:text-white hover:bg-zinc-800/40'
-                }`}
-                title="Page Vitrine d'accueil (/)"
-              >
-                <span>🏠 Vitrine (/)</span>
-              </button>
-
-              {/* 2. Application Andrea en direct */}
-              <button
-                onClick={() => navigateTo('prod')}
-                className="px-3 py-1.5 rounded-xl text-xs font-semibold transition flex items-center gap-1.5 text-zinc-400 hover:text-white hover:bg-zinc-800/40"
-                title="Accéder à l'application Andrea (/app)"
-              >
-                <ExternalLink className="w-3.5 h-3.5" />
-                <span>💬 App Andrea</span>
-              </button>
-
-              {/* 3. Portail Développeur déplacé sur /portail-dev */}
-              <button
-                onClick={() => navigateTo('portal')}
-                className={`px-3 py-1.5 rounded-xl text-xs font-medium transition flex items-center gap-1.5 ${
-                  currentView === 'portal' || currentView === 'lab' || currentView === 'code'
-                    ? 'bg-zinc-800 text-white shadow-sm border border-zinc-700'
-                    : 'text-zinc-400 hover:text-white hover:bg-zinc-800/40'
-                }`}
-                title="Accéder au Portail Développeur (/portail-dev)"
-              >
-                <Code2 className="w-3.5 h-3.5" />
-                <span>🛠️ Portail Dev (/portail-dev)</span>
-              </button>
-
-              {/* Sign out button if logged in */}
-              {currentUser && (
-                <button
-                  onClick={handleSignOut}
-                  className="px-2.5 py-1.5 rounded-xl text-xs font-medium text-rose-300 hover:text-rose-100 hover:bg-rose-950/40 transition flex items-center gap-1"
-                  title="Se déconnecter"
-                >
-                  <LogOut className="w-3.5 h-3.5" />
-                  <span className="hidden md:inline">Déconnexion</span>
-                </button>
-              )}
-            </div>
-          </div>
-        </header>
-      )}
-
       {/* Main Container */}
       <main className={`flex-1 w-full ${currentView === 'prod' ? 'h-full overflow-hidden' : ''}`}>
-        {/* VIEW 1: VITRINE / ACCUEIL (DEFAULT PAR DÉFAUT SUR /) */}
+        {/* VIEW 1: VITRINE / ACCUEIL (PAR DÉFAUT SUR "/") */}
         {currentView === 'visiteur' && (
           <div className="max-w-7xl mx-auto p-3 sm:p-6 md:p-8 space-y-4">
             <VisitorLanding 
@@ -252,7 +185,7 @@ export default function App() {
           <FullScreenStudio onBackToApp={() => navigateTo('prod')} />
         )}
 
-        {/* VIEW 4: PORTAIL DÉVELOPPEUR (/portail-dev) */}
+        {/* VIEW 4: PORTAIL DÉVELOPPEUR DÉPLACÉ SUR "/portail-dev" */}
         {currentView === 'portal' && (
           <div className="max-w-7xl mx-auto p-4 sm:p-6 md:p-8 space-y-4">
             <div className="flex items-center justify-between bg-[#18181b] border border-zinc-800 p-3 rounded-2xl text-xs text-zinc-400">
@@ -348,20 +281,18 @@ export default function App() {
         )}
       </main>
 
-      {/* Minimal Footer (only on visitor landing and dev portal) */}
+      {/* Footer épuré avec lien discret vers le Portail Dev */}
       {currentView === 'visiteur' && (
         <footer className="border-t border-[#5A33FF22] bg-[#100b24] py-4 px-6 text-center text-xs text-[#c4b5fd]/70 mt-auto">
           <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2">
-            <span>Système Andrea · Prêt pour déploiement Vercel</span>
+            <span>Système Andrea · BehaviorLab AI</span>
             <div className="flex items-center gap-3">
               <button onClick={() => navigateTo('visiteur')} className="hover:text-white underline">
-                Accueil (/)
+                Vitrine Accueil (/)
               </button>
-              {isDevAdmin && (
-                <button onClick={() => navigateTo('portal')} className="hover:text-white underline">
-                  Portail Dev (/portail-dev)
-                </button>
-              )}
+              <button onClick={() => navigateTo('portal')} className="text-zinc-500 hover:text-zinc-300 transition">
+                Accès Portail Dev (/portail-dev)
+              </button>
             </div>
           </div>
         </footer>
