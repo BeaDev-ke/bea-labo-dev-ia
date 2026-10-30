@@ -1165,14 +1165,20 @@ if __name__ == "__main__":
         {/* 3. MONTAGE VIDÉO & VISUEL */}
         {currentPage === 'studio' && (
           <div className="flex-1 overflow-hidden flex flex-col">
-            <MusicStudioReels onBack={() => setCurrentPage('chat')} />
+            <MusicStudioReels 
+              onBack={() => setCurrentPage('chat')} 
+              onSwitchToVisualComposition={onOpenStudio}
+            />
           </div>
         )}
 
         {/* 4. LABO D'IA INTÉGRÉ DANS LE MONTAGE */}
         {currentPage === 'creative_hub' && (
           <div className="flex-1 overflow-hidden flex flex-col">
-            <MusicStudioReels onBack={() => setCurrentPage('chat')} />
+            <MusicStudioReels 
+              onBack={() => setCurrentPage('chat')} 
+              onSwitchToVisualComposition={onOpenStudio}
+            />
           </div>
         )}
 

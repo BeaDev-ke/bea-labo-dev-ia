@@ -588,24 +588,11 @@ export const FullScreenStudio: React.FC<FullScreenStudioProps> = ({ onBackToApp 
   if (studioMode === 'daw_reels') {
     return (
       <div className="fixed inset-0 z-50 flex flex-col bg-[#090714]">
-        {/* Top bar with switch to frame composer */}
-        <div className="h-10 bg-[#100b24] border-b border-[#5A33FF33] px-4 flex items-center justify-between text-xs shrink-0">
-          <div className="flex items-center gap-2">
-            <span className="text-amber-400 font-extrabold flex items-center gap-1.5">
-              <span>🎹</span> Studio Musical & Réels Viraux
-            </span>
-            <span className="text-zinc-600">|</span>
-            <span className="text-[#c4b5fd] hidden sm:inline">DAW Multipiste avec sons & mots colorés</span>
-          </div>
-          <button
-            onClick={() => setStudioMode('frame_composer')}
-            className="px-3 py-1 rounded-xl bg-[#201844] hover:bg-[#2b215c] border border-[#5A33FF44] text-[#c4b5fd] hover:text-white transition text-xs font-semibold flex items-center gap-1.5"
-          >
-            <span>🎨 Mode Composition Visuelle →</span>
-          </button>
-        </div>
         <div className="flex-1 overflow-hidden">
-          <MusicStudioReels onBack={onBackToApp} />
+          <MusicStudioReels 
+            onBack={onBackToApp} 
+            onSwitchToVisualComposition={() => setStudioMode('frame_composer')}
+          />
         </div>
       </div>
     );
@@ -629,10 +616,11 @@ export const FullScreenStudio: React.FC<FullScreenStudioProps> = ({ onBackToApp 
           
           <button
             onClick={() => setStudioMode('daw_reels')}
-            className="px-3 py-1.5 rounded-xl bg-gradient-to-r from-orange-600 to-amber-500 text-black font-extrabold text-xs shadow hover:brightness-110 transition flex items-center gap-1.5"
+            className="px-3 py-1.5 rounded-xl bg-[#201844] hover:bg-[#2e2363] border border-[#5A33FF44] text-[#c4b5fd] hover:text-white font-bold text-xs transition flex items-center gap-1.5 shadow"
+            title="Revenir au mode Montage"
           >
-            <Music className="w-3.5 h-3.5" />
-            <span>Studio DAW & Réels</span>
+            <ArrowLeft className="w-3.5 h-3.5" />
+            <span>← Revenir au Montage</span>
           </button>
           
           <div className="h-6 w-px bg-white/10 hidden sm:block" />

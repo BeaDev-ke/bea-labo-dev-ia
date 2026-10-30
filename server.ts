@@ -112,6 +112,43 @@ Ton style :
   }
 });
 
+// GET /api/andrea/music-search?q=...
+// Recherche universelle en direct de musiques, chansons et sons
+app.get('/api/andrea/music-search', async (req, res) => {
+  try {
+    const query = (req.query.q as string || '').trim();
+    if (!query) {
+      return res.json({ results: [] });
+    }
+
+    const itunesUrl = `https://itunes.apple.com/search?term=${encodeURIComponent(query)}&media=music&entity=song&limit=40`;
+    const resp = await fetch(itunesUrl, {
+      headers: { 'Accept': 'application/json' }
+    });
+
+    if (!resp.ok) {
+      return res.json({ results: [] });
+    }
+
+    const data: any = await resp.json();
+    const tracks = (data.results || []).map((t: any) => ({
+      id: String(t.trackId || Math.random()),
+      title: t.trackName || 'Titre inconnu',
+      artist: t.artistName || 'Artiste',
+      previewUrl: t.previewUrl || '',
+      artwork: t.artworkUrl100 || t.artworkUrl60 || '',
+      durationSec: Math.round((t.trackTimeMillis || 30000) / 1000),
+      durationLabel: `${Math.floor((t.trackTimeMillis || 30000) / 60000)}:${String(Math.floor(((t.trackTimeMillis || 30000) % 60000) / 1000)).padStart(2, '0')}`,
+      genre: t.primaryGenreName || 'Musique'
+    }));
+
+    return res.json({ results: tracks });
+  } catch (err: any) {
+    console.error('[Music Search API Error]', err);
+    return res.status(200).json({ results: [] });
+  }
+});
+
 // Middleware Vite pour le développement
 async function startServer() {
   const isProd = process.env.NODE_ENV === 'production';
