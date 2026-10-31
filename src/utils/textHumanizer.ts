@@ -99,7 +99,7 @@ Souhaitez-vous concevoir le script ou les accroches d'une vidéo spécifique auj
     return `Dans l'environnement de développement Andrea (format Ultra), nous abordons le code avec la plus grande rigueur d'ingénierie :
 
 1. Bâtisseur de Site en 1 Seul Prompt :
-Vous pouvez générer une architecture web complète et responsive (sur smartphone, tablette et bureau) comprenant une page de présentation soignée, une grille de tarifs sans frais cachés, et un code prêt à être exporté ou déployé sur Vercel sans friction.
+Vous pouvez générer une architecture web complète et responsive (sur smartphone, tablette et bureau) comprenant une page de présentation soignée, une grille de tarifs sans frais cachés, et un code prêt à être exporté ou mis en ligne sans friction.
 
 2. Terminal et Assistance Python en Direct :
 L'agent Andrea intégré à l'éditeur analyse vos scripts Python ou vos composants React en temps réel, corrige les exceptions AST, optimise la complexité temporelle et propose des améliorations chirurgicales.

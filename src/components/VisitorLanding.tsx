@@ -251,9 +251,15 @@ export const VisitorLanding: React.FC<VisitorLandingProps> = ({
             Formules & Tarifs
           </button>
 
-
-
-
+          {onGoToDevPortal && (
+            <button
+              onClick={onGoToDevPortal}
+              className="px-3 py-1.5 rounded-xl text-xs font-semibold text-zinc-400 hover:text-white bg-[#18181b]/60 hover:bg-[#18181b] border border-zinc-800 hover:border-zinc-700 transition flex items-center gap-1.5"
+              title="Accès Portail Développeur (/portail-dev)"
+            >
+              <span>🛠️ Portail Dev</span>
+            </button>
+          )}
         </div>
       </div>
 
@@ -668,7 +674,7 @@ export const VisitorLanding: React.FC<VisitorLandingProps> = ({
                   Site Web Complet en 1 Prompt
                 </h3>
                 <p className="text-xs text-[#c4b5fd] leading-relaxed">
-                  Générez en un instant un site complet, 100% responsive smartphone et tablette, avec présentation percutante, grille tarifaire transparente et code propre prêt pour Vercel.
+                  Générez en un instant un site complet, 100% responsive smartphone et tablette, avec présentation percutante, grille tarifaire transparente et code propre prêt à être publié en ligne.
                 </p>
               </div>
 

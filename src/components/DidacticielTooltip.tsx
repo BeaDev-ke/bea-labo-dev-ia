@@ -28,7 +28,7 @@ export const DIDACTICIEL_STEPS: Record<string, DidacticielStep> = {
     id: 'site',
     title: 'Création de Site Web en 1 Prompt',
     description: 'Générez et éditez des applications et landing pages complètes avec code multi-fichiers (HTML, CSS, JS) et aperçu responsive.',
-    advantage: 'Remplace une agence web ou des journées de codage. Téléchargez les fichiers prêts à être déployés sur Vercel.',
+    advantage: 'Remplace une agence web ou des journées de codage. Téléchargez les fichiers prêts à être déployés en ligne.',
     badge: 'Production'
   },
   montage: {

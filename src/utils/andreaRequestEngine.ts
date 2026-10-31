@@ -279,7 +279,7 @@ Le visiteur doit comprendre en moins de 5 secondes exactement : ce que vous fait
 Dans notre modèle, nous présentons toujours les offres de manière lisible (Essentiel 9€, Professionnel 14,90€, Ultra 18€ avec toggle annuel -20%). La clarté des tarifs déclenche la confiance et élimine l'anxiété d'engagement.
 
 3. Génération en 1 Prompt Téléchargeable :
-L'onglet Code (disponible avec le format Ultra) permet d'injecter votre vision en un seul prompt pour obtenir un code moderne, propre, responsive sur smartphone et tablette, prêt pour un déploiement Vercel immédiat. L'assistance permanente d'Andrea à droite analyse et optimise vos scripts en direct.`;
+L'onglet Code (disponible avec le format Ultra) permet d'injecter votre vision en un seul prompt pour obtenir un code moderne, propre, responsive sur smartphone et tablette, prêt pour un déploiement Cloud immédiat. L'assistance permanente d'Andrea à droite analyse et optimise vos scripts en direct.`;
     }
 
     // CAS 4 : VENTE, CLIENTS, INDÉPENDANTS & NÉGOCIATION

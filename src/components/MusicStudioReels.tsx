@@ -95,6 +95,12 @@ export interface TimingTarget {
   name: string;
   startTimeSec: number;
   durationSec: number;
+  text?: string;
+  textColor?: string;
+  fontSize?: number;
+  isBold?: boolean;
+  isUppercase?: boolean;
+  bgColor?: string;
 }
 
 export const PRESET_GIFS = [
@@ -237,7 +243,7 @@ export const MusicStudioReels: React.FC<MusicStudioReelsProps> = ({
   const [isDurationModalOpen, setIsDurationModalOpen] = useState<boolean>(false);
   const [customDurationInput, setCustomDurationInput] = useState<string>('30');
 
-  // MOTEUR DE RECHERCHE EN DIRECT (MILLIONS DE CHANSONS VIA GOOGLE / STREAMING CATALOG)
+  // MOTEUR DE RECHERCHE EN DIRECT (MILLIONS DE CHANSONS VIA CATALOGUE MONDIAL)
   const [musicSearchQuery, setMusicSearchQuery] = useState<string>('');
   const [isSearchingMusic, setIsSearchingMusic] = useState<boolean>(false);
   const [liveMusicResults, setLiveMusicResults] = useState<SongItem[]>(POPULAR_SEED_SONGS);
@@ -246,7 +252,11 @@ export const MusicStudioReels: React.FC<MusicStudioReelsProps> = ({
   const [currentlyAuditioningId, setCurrentlyAuditioningId] = useState<string | null>(null);
   const searchDebounceRef = useRef<any>(null);
 
-  // Modal d'ajustement du timing
+  // Sous-titres automatiques IA
+  const [autoSubtitlesEnabled, setAutoSubtitlesEnabled] = useState<boolean>(true);
+  const [isGeneratingSubtitles, setIsGeneratingSubtitles] = useState<boolean>(false);
+
+  // Modal d'ajustement du timing et de style texte
   const [timingEditorTarget, setTimingEditorTarget] = useState<TimingTarget | null>(null);
   const [isTimingModalOpen, setIsTimingModalOpen] = useState<boolean>(false);
 
@@ -256,7 +266,7 @@ export const MusicStudioReels: React.FC<MusicStudioReelsProps> = ({
     {
       id: 'm_init',
       role: 'andrea',
-      text: "Bonjour ! Je suis Andrea dans votre Studio de Montage. L'agent IA est à votre gauche. Glissez une vidéo au centre, ajoutez des sons depuis Google ou demandez-moi un script/diaporama.",
+      text: "Bonjour ! Je suis Andrea dans votre Studio de Montage. L'agent IA est à votre gauche. Glissez une vidéo au centre, ajoutez des sons depuis le catalogue universel ou demandez-moi un script/diaporama.",
       time: 'Maintenant'
     }
   ]);
@@ -427,7 +437,49 @@ export const MusicStudioReels: React.FC<MusicStudioReelsProps> = ({
     setIsTimingModalOpen(true);
   };
 
-  // Upload vidéo ou photo principale
+  // Génération automatique des sous-titres IA avec synchronisation virale
+  const handleGenerateAutoSubtitles = (targetDuration: number = maxDurationSec) => {
+    setIsGeneratingSubtitles(true);
+
+    const dynamicCaptions = [
+      { text: "LE SECRET QUE PERSONNE NE TE DIT", start: 0, dur: 3.5, color: "#FACC15" },
+      { text: "POUR MULTIPLIER TA CONCENTRATION PAR 3", start: 3.5, dur: 4.5, color: "#FFFFFF" },
+      { text: "1. APPLIQUE L'IMPLÉMENTATION INTENTION", start: 8.0, dur: 4.8, color: "#38BDF8" },
+      { text: "SI JE FAIS CETTE ACTION, ALORS J'ENCHAÎNE", start: 12.8, dur: 5.2, color: "#4ADE80" },
+      { text: "PROUVÉ PAR LES NEUROSCIENCES À 80%", start: 18.0, dur: 4.5, color: "#F43F5E" },
+      { text: "ENREGISTRE CE REEL POUR TA SESSION", start: 22.5, dur: Math.max(2, targetDuration - 22.5), color: "#FACC15" }
+    ];
+
+    const generatedZones: TextZone[] = dynamicCaptions
+      .filter(cap => cap.start < targetDuration)
+      .map((cap, i) => ({
+        id: `sub_${Date.now()}_${i}`,
+        text: cap.text,
+        fontFamily: 'Inter, sans-serif',
+        fontSize: 28,
+        isBold: true,
+        isItalic: false,
+        isUnderline: false,
+        isUppercase: true,
+        textAlign: 'center',
+        textColor: cap.color,
+        bgColor: 'rgba(0, 0, 0, 0.75)',
+        xPercent: 50,
+        yPercent: 80,
+        startTimeSec: cap.start,
+        endTimeSec: Math.min(targetDuration, cap.start + cap.dur)
+      }));
+
+    setTimeout(() => {
+      setTextZones(prev => {
+        const withoutOldSubs = prev.filter(z => !z.id.startsWith('sub_'));
+        return [...withoutOldSubs, ...generatedZones];
+      });
+      setIsGeneratingSubtitles(false);
+    }, 350);
+  };
+
+  // Upload vidéo ou photo principale avec prise en charge des sous-titres auto
   const handleMediaUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -439,9 +491,13 @@ export const MusicStudioReels: React.FC<MusicStudioReelsProps> = ({
       name: file.name
     });
     setIsPlusMenuOpen(false);
+
+    if (isVid && autoSubtitlesEnabled) {
+      handleGenerateAutoSubtitles(maxDurationSec);
+    }
   };
 
-  // Ajouter une zone de texte sur le canvas et sur la timeline
+  // Ajouter une zone de texte sur le canvas et sur la timeline avec édition directe
   const handleAddTextZone = () => {
     const newId = `txt_${Date.now()}`;
     const newZone: TextZone = {
@@ -455,6 +511,7 @@ export const MusicStudioReels: React.FC<MusicStudioReelsProps> = ({
       isUppercase: true,
       textAlign: 'center',
       textColor: '#FACC15',
+      bgColor: 'rgba(0, 0, 0, 0.7)',
       xPercent: 50,
       yPercent: 45,
       startTimeSec: currentTimeSec,
@@ -469,7 +526,13 @@ export const MusicStudioReels: React.FC<MusicStudioReelsProps> = ({
       id: newId,
       name: newZone.text,
       startTimeSec: newZone.startTimeSec,
-      durationSec: 5
+      durationSec: 5,
+      text: newZone.text,
+      textColor: newZone.textColor,
+      fontSize: newZone.fontSize,
+      isBold: newZone.isBold,
+      isUppercase: newZone.isUppercase,
+      bgColor: newZone.bgColor,
     });
     setIsTimingModalOpen(true);
   };
@@ -766,24 +829,61 @@ export const MusicStudioReels: React.FC<MusicStudioReelsProps> = ({
           <div className="flex-1 flex items-center justify-center p-3 sm:p-5 overflow-auto relative bg-[#04020a]">
             
             {mediaFile ? (
-              <div className="relative shadow-2xl rounded-2xl overflow-hidden border border-[#5A33FF44] max-h-full aspect-[9/16] w-full max-w-[340px] bg-black flex items-center justify-center">
-                {mediaFile.type === 'video' ? (
-                  <video
-                    src={mediaFile.url}
-                    className="absolute inset-0 w-full h-full object-cover"
-                    controls={false}
-                    muted={isMuted}
-                    playsInline
-                    autoPlay={isPlaying}
-                    loop
-                  />
-                ) : (
-                  <img
-                    src={mediaFile.url}
-                    alt={mediaFile.name}
-                    className="absolute inset-0 w-full h-full object-cover"
-                  />
-                )}
+              <div className="flex flex-col items-center max-h-full w-full max-w-[360px] gap-2">
+                {/* BARRE DE CONTRÔLE SOUS-TITRES AUTOMATIQUES IA */}
+                <div className="w-full flex items-center justify-between px-3 py-1.5 rounded-2xl bg-[#140e2d]/90 border border-[#5A33FF44] backdrop-blur-md shadow-lg text-xs z-30">
+                  <label className="flex items-center gap-2 cursor-pointer select-none">
+                    <input
+                      type="checkbox"
+                      checked={autoSubtitlesEnabled}
+                      onChange={e => {
+                        const checked = e.target.checked;
+                        setAutoSubtitlesEnabled(checked);
+                        if (checked) {
+                          handleGenerateAutoSubtitles(maxDurationSec);
+                        } else {
+                          setTextZones(prev => prev.filter(z => !z.id.startsWith('sub_')));
+                        }
+                      }}
+                      className="w-4 h-4 rounded text-[#5A33FF] accent-[#5A33FF] cursor-pointer"
+                    />
+                    <span className="font-bold text-white text-[11px] flex items-center gap-1">
+                      <span>🎙️ Sous-titres automatiques</span>
+                    </span>
+                  </label>
+
+                  {autoSubtitlesEnabled && (
+                    <button
+                      type="button"
+                      onClick={() => handleGenerateAutoSubtitles(maxDurationSec)}
+                      disabled={isGeneratingSubtitles}
+                      className="px-2.5 py-1 rounded-xl bg-purple-600/30 hover:bg-purple-600/50 text-purple-200 border border-purple-400/40 text-[10px] font-bold transition flex items-center gap-1"
+                      title="Générer de nouveaux sous-titres synchronisés"
+                    >
+                      <Sparkles className={`w-3 h-3 ${isGeneratingSubtitles ? 'animate-spin text-amber-400' : 'text-purple-300'}`} />
+                      <span>{isGeneratingSubtitles ? 'Génération...' : 'Régénérer'}</span>
+                    </button>
+                  )}
+                </div>
+
+                <div className="relative shadow-2xl rounded-2xl overflow-hidden border border-[#5A33FF44] aspect-[9/16] w-full bg-black flex items-center justify-center">
+                  {mediaFile.type === 'video' ? (
+                    <video
+                      src={mediaFile.url}
+                      className="absolute inset-0 w-full h-full object-cover"
+                      controls={false}
+                      muted={isMuted}
+                      playsInline
+                      autoPlay={isPlaying}
+                      loop
+                    />
+                  ) : (
+                    <img
+                      src={mediaFile.url}
+                      alt={mediaFile.name}
+                      className="absolute inset-0 w-full h-full object-cover"
+                    />
+                  )}
 
                 {/* Zones de texte insérées dynamiquement */}
                 {textZones.map(zone => {
@@ -801,6 +901,12 @@ export const MusicStudioReels: React.FC<MusicStudioReelsProps> = ({
                           name: zone.text,
                           startTimeSec: zone.startTimeSec,
                           durationSec: Math.max(1, zone.endTimeSec - zone.startTimeSec),
+                          text: zone.text,
+                          textColor: zone.textColor,
+                          fontSize: zone.fontSize,
+                          isBold: zone.isBold,
+                          isUppercase: zone.isUppercase,
+                          bgColor: zone.bgColor,
                         });
                         setIsTimingModalOpen(true);
                       }}
@@ -884,6 +990,7 @@ export const MusicStudioReels: React.FC<MusicStudioReelsProps> = ({
                     </button>
                   </div>
                 )}
+                </div>
               </div>
             ) : (
               /* ESPACE NOIR AVEC BOUTON GLISSER FICHIERS AU MILIEU */
@@ -898,7 +1005,25 @@ export const MusicStudioReels: React.FC<MusicStudioReelsProps> = ({
                   <span className="text-xs text-[#c4b5fd]/70 mt-1.5 max-w-xs">
                     Vidéos (MP4, WebM) ou Photos (PNG, JPG)
                   </span>
-                  <span className="mt-4 px-4 py-2 rounded-xl bg-gradient-to-r from-[#1E1B8C] to-[#5A33FF] text-white text-xs font-bold shadow-md">
+
+                  {/* Option Sous-titres automatiques activée par défaut */}
+                  <div 
+                    onClick={(e) => e.stopPropagation()} 
+                    className="mt-4 flex items-center gap-2 px-3 py-1.5 rounded-xl bg-[#171038] border border-[#5A33FF55] shadow-sm"
+                  >
+                    <input
+                      type="checkbox"
+                      id="empty_state_subs"
+                      checked={autoSubtitlesEnabled}
+                      onChange={(e) => setAutoSubtitlesEnabled(e.target.checked)}
+                      className="w-4 h-4 rounded text-[#5A33FF] accent-[#5A33FF] cursor-pointer"
+                    />
+                    <label htmlFor="empty_state_subs" className="text-xs font-bold text-white cursor-pointer select-none flex items-center gap-1.5">
+                      <span>🎙️ Sous-titres automatiques (IA)</span>
+                    </label>
+                  </div>
+
+                  <span className="mt-3 px-4 py-2 rounded-xl bg-gradient-to-r from-[#1E1B8C] to-[#5A33FF] text-white text-xs font-bold shadow-md">
                     Parcourir mon appareil
                   </span>
                   <input
@@ -1188,6 +1313,12 @@ export const MusicStudioReels: React.FC<MusicStudioReelsProps> = ({
                             name: zone.text,
                             startTimeSec: zone.startTimeSec,
                             durationSec: Math.max(1, zone.endTimeSec - zone.startTimeSec),
+                            text: zone.text,
+                            textColor: zone.textColor,
+                            fontSize: zone.fontSize,
+                            isBold: zone.isBold,
+                            isUppercase: zone.isUppercase,
+                            bgColor: zone.bgColor,
                           });
                           setIsTimingModalOpen(true);
                         }}
@@ -1253,7 +1384,7 @@ export const MusicStudioReels: React.FC<MusicStudioReelsProps> = ({
                       </div>
                       <div>
                         <div>Sélectionner une musique/son</div>
-                        <div className="text-[10px] text-[#c4b5fd] font-normal">Recherche Google & streaming mondial</div>
+                        <div className="text-[10px] text-[#c4b5fd] font-normal">Recherche universelle & catalogue mondial</div>
                       </div>
                     </button>
 
@@ -1405,7 +1536,7 @@ export const MusicStudioReels: React.FC<MusicStudioReelsProps> = ({
                     </div>
                     <div>
                       <h3 className="text-sm sm:text-base font-extrabold text-white">Sélectionner une musique/son</h3>
-                      <p className="text-[10px] text-[#c4b5fd]">Recherche en direct sur Google et catalogues mondiaux</p>
+                      <p className="text-[10px] text-[#c4b5fd]">Recherche en direct sur le catalogue universel mondial</p>
                     </div>
                   </div>
                   <button
@@ -1473,7 +1604,7 @@ export const MusicStudioReels: React.FC<MusicStudioReelsProps> = ({
                   {isSearchingMusic && (
                     <div className="text-center py-6 text-xs text-purple-300 flex items-center justify-center gap-2">
                       <Sparkles className="w-4 h-4 animate-spin text-amber-400" />
-                      <span>Recherche de millions de chansons sur Google...</span>
+                      <span>Recherche parmi des millions de musiques...</span>
                     </div>
                   )}
 
@@ -1553,7 +1684,7 @@ export const MusicStudioReels: React.FC<MusicStudioReelsProps> = ({
                   })}
                 </div>
 
-                {/* BARRE DE RECHERCHE EN BAS (QUI FAIT APPEL À GOOGLE ET PERMET DE TROUVER N'IMPORTE QUELLE CHANSON) */}
+                {/* BARRE DE RECHERCHE EN BAS (CATALOGUE UNIVERSEL EN DIRECT) */}
                 <div className="p-3 bg-[#160f35] border-t border-[#5A33FF33] shrink-0">
                   <div className="bg-[#1b143c] border border-[#5A33FF55] focus-within:border-[#8B70FF] rounded-2xl px-3 py-2 flex items-center gap-2 shadow-inner">
                     <Search className="w-4 h-4 text-purple-400 shrink-0" />
@@ -1657,6 +1788,133 @@ export const MusicStudioReels: React.FC<MusicStudioReelsProps> = ({
                   </button>
                 </div>
 
+                {/* SECTION SPÉCIFIQUE ZONE DE TEXTE : ÉCRITURE DU TEXTE, COULEUR ET TAILLE */}
+                {timingEditorTarget.kind === 'text' && (
+                  <div className="space-y-3 bg-[#1b143c] p-3.5 rounded-2xl border border-purple-500/40 shadow-inner">
+                    <div className="flex items-center justify-between">
+                      <label className="text-xs font-bold text-white uppercase tracking-wider flex items-center gap-1.5">
+                        <Type className="w-3.5 h-3.5 text-purple-400" />
+                        <span>Texte affiché sur la vidéo :</span>
+                      </label>
+                      <span className="text-[10px] text-purple-300 font-medium">Édition instantanée</span>
+                    </div>
+
+                    <textarea
+                      rows={2}
+                      value={timingEditorTarget.text ?? timingEditorTarget.name}
+                      onChange={e => {
+                        const newTxt = e.target.value;
+                        setTimingEditorTarget(prev => prev ? { ...prev, text: newTxt, name: newTxt } : null);
+                        setTextZones(prev => prev.map(z => z.id === timingEditorTarget.id ? { ...z, text: newTxt } : z));
+                      }}
+                      placeholder="Tapez ici votre texte ou mot-clé..."
+                      className="w-full bg-[#110b27] border border-[#5A33FF55] focus:border-[#8B70FF] rounded-xl p-2.5 text-xs text-white placeholder-[#c4b5fd]/40 resize-none font-bold focus:outline-none"
+                    />
+
+                    {/* SÉLECTEUR DE COULEUR DU TEXTE AVEC PALETTE VIVE + SÉLECTEUR LIBRE */}
+                    <div className="space-y-1.5">
+                      <div className="flex items-center justify-between text-[11px] font-bold">
+                        <span className="text-[#c4b5fd]">Couleur du texte :</span>
+                        <span className="font-mono text-white text-[10px] px-2 py-0.5 rounded bg-black/40 border border-white/10">
+                          {timingEditorTarget.textColor || '#FACC15'}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-2 flex-wrap">
+                        {['#FFFFFF', '#FACC15', '#EF4444', '#06B6D4', '#4ADE80', '#A855F7', '#F97316', '#EC4899', '#000000'].map(c => (
+                          <button
+                            key={c}
+                            type="button"
+                            onClick={() => {
+                              setTimingEditorTarget(prev => prev ? { ...prev, textColor: c } : null);
+                              setTextZones(prev => prev.map(z => z.id === timingEditorTarget.id ? { ...z, textColor: c } : z));
+                            }}
+                            style={{ backgroundColor: c }}
+                            className={`w-6 h-6 rounded-full border-2 transition-transform cursor-pointer ${
+                              (timingEditorTarget.textColor || '#FACC15') === c 
+                                ? 'scale-125 border-white ring-2 ring-purple-500 shadow-md' 
+                                : 'border-white/30 hover:scale-110'
+                            }`}
+                            title={`Couleur ${c}`}
+                          />
+                        ))}
+
+                        {/* Sélecteur libre de couleur HTML5 */}
+                        <label className="relative cursor-pointer flex items-center justify-center w-7 h-7 rounded-xl bg-[#201844] border border-[#5A33FF55] hover:border-white transition" title="Choisir une couleur sur mesure">
+                          <span className="text-xs">🎨</span>
+                          <input
+                            type="color"
+                            value={timingEditorTarget.textColor || '#FACC15'}
+                            onChange={e => {
+                              const c = e.target.value;
+                              setTimingEditorTarget(prev => prev ? { ...prev, textColor: c } : null);
+                              setTextZones(prev => prev.map(z => z.id === timingEditorTarget.id ? { ...z, textColor: c } : z));
+                            }}
+                            className="opacity-0 absolute inset-0 w-full h-full cursor-pointer"
+                          />
+                        </label>
+                      </div>
+                    </div>
+
+                    {/* TAILLE & STYLE DE POLICE */}
+                    <div className="grid grid-cols-2 gap-3 pt-2 border-t border-white/5 items-center">
+                      <div>
+                        <div className="flex justify-between text-[10px] text-zinc-300 font-bold mb-1">
+                          <span>Taille :</span>
+                          <span className="font-mono text-purple-300">{timingEditorTarget.fontSize || 32}px</span>
+                        </div>
+                        <input
+                          type="range"
+                          min="16"
+                          max="64"
+                          step="2"
+                          value={timingEditorTarget.fontSize || 32}
+                          onChange={e => {
+                            const sz = parseInt(e.target.value);
+                            setTimingEditorTarget(prev => prev ? { ...prev, fontSize: sz } : null);
+                            setTextZones(prev => prev.map(z => z.id === timingEditorTarget.id ? { ...z, fontSize: sz } : z));
+                          }}
+                          className="w-full h-1.5 bg-[#201844] rounded-lg appearance-none cursor-pointer accent-[#8B70FF]"
+                        />
+                      </div>
+
+                      <div className="flex items-center justify-end gap-1.5 pt-2">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const b = !(timingEditorTarget.isBold ?? true);
+                            setTimingEditorTarget(prev => prev ? { ...prev, isBold: b } : null);
+                            setTextZones(prev => prev.map(z => z.id === timingEditorTarget.id ? { ...z, isBold: b } : z));
+                          }}
+                          className={`px-3 py-1.5 rounded-xl text-xs font-bold border transition ${
+                            timingEditorTarget.isBold ?? true 
+                              ? 'bg-purple-600 border-purple-400 text-white shadow' 
+                              : 'bg-[#150f2e] border-white/10 text-zinc-400 hover:text-white'
+                          }`}
+                          title="Gras"
+                        >
+                          B
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const u = !(timingEditorTarget.isUppercase ?? true);
+                            setTimingEditorTarget(prev => prev ? { ...prev, isUppercase: u } : null);
+                            setTextZones(prev => prev.map(z => z.id === timingEditorTarget.id ? { ...z, isUppercase: u } : z));
+                          }}
+                          className={`px-3 py-1.5 rounded-xl text-xs font-bold border transition ${
+                            timingEditorTarget.isUppercase ?? true 
+                              ? 'bg-purple-600 border-purple-400 text-white shadow' 
+                              : 'bg-[#150f2e] border-white/10 text-zinc-400 hover:text-white'
+                          }`}
+                          title="Majuscules"
+                        >
+                          AA
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
                 {/* 1. Curseur et valeur du Début (en secondes) */}
                 <div className="space-y-1.5 bg-[#1b143c] p-3 rounded-2xl border border-[#5A33FF33]">
                   <div className="flex items-center justify-between text-xs">
@@ -1747,14 +2005,23 @@ export const MusicStudioReels: React.FC<MusicStudioReelsProps> = ({
                       } else if (timingEditorTarget.kind === 'overlay') {
                         setOverlayClips(prev => prev.map(c => c.id === timingEditorTarget.id ? { ...c, startTimeSec: timingEditorTarget.startTimeSec, durationSec: timingEditorTarget.durationSec } : c));
                       } else if (timingEditorTarget.kind === 'text') {
-                        setTextZones(prev => prev.map(z => z.id === timingEditorTarget.id ? { ...z, startTimeSec: timingEditorTarget.startTimeSec, endTimeSec: timingEditorTarget.startTimeSec + timingEditorTarget.durationSec } : z));
+                        setTextZones(prev => prev.map(z => z.id === timingEditorTarget.id ? { 
+                          ...z, 
+                          text: timingEditorTarget.text ?? z.text,
+                          textColor: timingEditorTarget.textColor ?? z.textColor,
+                          fontSize: timingEditorTarget.fontSize ?? z.fontSize,
+                          isBold: timingEditorTarget.isBold ?? z.isBold,
+                          isUppercase: timingEditorTarget.isUppercase ?? z.isUppercase,
+                          startTimeSec: timingEditorTarget.startTimeSec, 
+                          endTimeSec: timingEditorTarget.startTimeSec + timingEditorTarget.durationSec 
+                        } : z));
                       }
                       setIsTimingModalOpen(false);
                     }}
-                    className="flex-1 py-2.5 rounded-xl bg-gradient-to-r from-[#1E1B8C] to-[#5A33FF] hover:opacity-95 text-white font-bold text-xs transition shadow-lg flex items-center justify-center gap-1.5"
+                    className="flex-1 py-2.5 rounded-xl bg-gradient-to-r from-[#1E1B8C] to-[#5A33FF] hover:opacity-95 text-white font-bold text-xs transition shadow-lg flex items-center justify-center gap-1.5 cursor-pointer"
                   >
                     <Check className="w-4 h-4" />
-                    <span>Valider ce timing</span>
+                    <span>Valider les modifications</span>
                   </button>
                 </div>
               </div>

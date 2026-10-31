@@ -299,7 +299,7 @@ export const AndreaShowcaseVideo: React.FC = () => {
               <div className="bg-[#150f2e] border border-[#5A33FF55] p-3.5 rounded-2xl space-y-2 shadow-xl">
                 <div className="text-[10px] font-bold text-[#8B70FF] uppercase tracking-wider">Un seul prompt complet</div>
                 <div className="text-xs text-white font-mono bg-[#0c081f] p-2.5 rounded-xl border border-white/10">
-                  « Crée un site web complet : page de présentation, grille de tarifs transparente et code HTML5 prêt pour Vercel »
+                  « Crée un site web complet : page de présentation, grille de tarifs transparente et code HTML5 prêt à publier »
                 </div>
                 <div className="flex items-center gap-2 text-[10px] text-emerald-400">
                   <CheckCircle2 className="w-3.5 h-3.5" />
@@ -312,7 +312,7 @@ export const AndreaShowcaseVideo: React.FC = () => {
                   <div className="w-2 h-2 rounded-full bg-rose-500" />
                   <div className="w-2 h-2 rounded-full bg-amber-500" />
                   <div className="w-2 h-2 rounded-full bg-emerald-500" />
-                  <span className="text-[9px] text-zinc-400 font-mono ml-2">votre-projet.vercel.app</span>
+                  <span className="text-[9px] text-zinc-400 font-mono ml-2">votre-site-officiel.com</span>
                 </div>
                 <div className="p-3 bg-gradient-to-br from-[#1E1B8C]/40 to-purple-900/40 rounded-xl border border-purple-500/30 text-center space-y-1.5">
                   <div className="text-xs font-black text-white">Page de Présentation & Tarifs</div>

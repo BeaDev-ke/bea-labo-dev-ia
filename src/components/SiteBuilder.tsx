@@ -140,7 +140,7 @@ const PRESET_PROJECTS: TemplatePreset[] = [
         <div class="text-[11px] text-[#c4b5fd]">Dépendance superflue</div>
       </div>
       <div class="p-4 rounded-2xl glass">
-        <div class="text-2xl font-black text-amber-300">Vercel</div>
+        <div class="text-2xl font-black text-amber-300">Cloud</div>
         <div class="text-[11px] text-[#c4b5fd]">Export direct prêt à déployer</div>
       </div>
     </div>
@@ -241,7 +241,7 @@ const PRESET_PROJECTS: TemplatePreset[] = [
           <span>Le code généré est-il réellement téléchargeable et réutilisable ?</span>
           <span id="faqIcon2">+</span>
         </div>
-        <p id="faqAnswer2" class="hidden text-xs text-[#c4b5fd] mt-2 leading-relaxed">Oui, vous pouvez exporter l'intégralité du code HTML, CSS et JS pour l'héberger où bon vous semble (Vercel, Netlify, hébergement classique).</p>
+        <p id="faqAnswer2" class="hidden text-xs text-[#c4b5fd] mt-2 leading-relaxed">Oui, vous pouvez exporter l'intégralité du code HTML, CSS et JS pour l'héberger où bon vous semble (plateformes Cloud, hébergeur classique ou serveur dédié).</p>
       </div>
     </div>
   </section>

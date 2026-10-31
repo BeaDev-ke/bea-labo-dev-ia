@@ -15,14 +15,14 @@ type MainView = 'visiteur' | 'prod' | 'studio' | 'portal' | 'lab' | 'code';
 // Purge immédiate et irréversible de tout vestige du client test Alexandre
 if (typeof window !== 'undefined') {
   try {
-    const keys = [
+    const keysToPurge = [
       'andrea_active_session',
       'andrea_user_profile_secure',
       'bea_user_profile_secure',
       'andrea_users_db',
       'andrea_chat_sessions'
     ];
-    for (const k of keys) {
+    for (const k of keysToPurge) {
       const val = localStorage.getItem(k);
       if (val && (val.toLowerCase().includes('alexandre') || val.toLowerCase().includes('alex'))) {
         if (k === 'andrea_users_db') {
@@ -47,6 +47,25 @@ if (typeof window !== 'undefined') {
           }
         } else {
           localStorage.removeItem(k);
+        }
+      }
+    }
+    // Purge de toute clé ou valeur orpheline contenant alexandre dans localStorage & sessionStorage
+    for (let i = localStorage.length - 1; i >= 0; i--) {
+      const k = localStorage.key(i);
+      if (k) {
+        const val = localStorage.getItem(k) || '';
+        if (k.toLowerCase().includes('alexandre') || val.toLowerCase().includes('alexandre')) {
+          localStorage.removeItem(k);
+        }
+      }
+    }
+    for (let i = sessionStorage.length - 1; i >= 0; i--) {
+      const k = sessionStorage.key(i);
+      if (k) {
+        const val = sessionStorage.getItem(k) || '';
+        if (k.toLowerCase().includes('alexandre') || val.toLowerCase().includes('alexandre')) {
+          sessionStorage.removeItem(k);
         }
       }
     }
@@ -82,8 +101,11 @@ export default function App() {
   // "/portail-dev" -> Portail Développeur
   const getInitialView = (): MainView => {
     if (typeof window === 'undefined') return 'visiteur';
-    const path = window.location.pathname;
-    if (path === '/portail-dev' || path.startsWith('/portail-dev') || path === '/portal') {
+    const path = window.location.pathname.replace(/\/$/, '') || '/';
+    if (path === '/portail-dev' || path.startsWith('/portail-dev/') || path === '/portal') {
+      if (path === '/portal' && window.history?.replaceState) {
+        window.history.replaceState({ view: 'portal' }, '', '/portail-dev');
+      }
       return 'portal';
     }
     if (path === '/studio') {

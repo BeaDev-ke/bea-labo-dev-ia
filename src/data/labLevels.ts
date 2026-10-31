@@ -493,7 +493,7 @@ return <div className="conversion-score">Score d'impact : {score}/100</div>;`,
       {
         id: '6.4',
         title: 'Export Multi-Formats (HTML, React, Tailwind)',
-        description: 'Exportation prête à déployer sur Vercel, Netlify ou hébergement classique.',
+        description: 'Exportation prête à déployer en ligne, sur le Cloud ou hébergement classique.',
         target: 'SiteBuilder',
         defaultPreset: 'Fournir le fichier index.html autonome sans aucune dépendance externe lourde.',
       },
