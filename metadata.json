@@ -1,6 +1,6 @@
 {
   "name": "Bea Labo Dev IA - Modifications par Niveau",
-  "description": "Portail développeur et laboratoire IA pour l'application Bea (BehaviorLab AI), permettant des modifications de code intelligentes par niveau de granularité avec validation syntaxique et rollback.",
+  "description": "Accompagnement à la réussite grâce à des méthodes psychologiques prouvées dans pleins de domaines.",
   "requestFramePermissions": [],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }

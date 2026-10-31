@@ -90,7 +90,7 @@ export interface OverlayImageGifClip {
 }
 
 export interface TimingTarget {
-  kind: 'audio' | 'overlay' | 'text';
+  kind: 'audio' | 'overlay' | 'text' | 'video';
   id: string;
   name: string;
   startTimeSec: number;
@@ -232,6 +232,10 @@ export const MusicStudioReels: React.FC<MusicStudioReelsProps> = ({
   const [isMusicModalOpen, setIsMusicModalOpen] = useState<boolean>(false);
   const [isImageGifModalOpen, setIsImageGifModalOpen] = useState<boolean>(false);
   const [previewOutroMode, setPreviewOutroMode] = useState<boolean>(false);
+
+  // Modal de modification de la durée totale (valeurs de x à x et saisie personnalisée)
+  const [isDurationModalOpen, setIsDurationModalOpen] = useState<boolean>(false);
+  const [customDurationInput, setCustomDurationInput] = useState<string>('30');
 
   // MOTEUR DE RECHERCHE EN DIRECT (MILLIONS DE CHANSONS VIA GOOGLE / STREAMING CATALOG)
   const [musicSearchQuery, setMusicSearchQuery] = useState<string>('');
@@ -929,9 +933,19 @@ export const MusicStudioReels: React.FC<MusicStudioReelsProps> = ({
                 <RotateCcw className="w-3.5 h-3.5" />
               </button>
 
-              <div className="font-mono text-xs font-bold text-white px-2 py-0.5 rounded bg-[#1b143c]">
-                {currentTimeSec.toFixed(1)}s / {maxDurationSec.toFixed(1)}s
-              </div>
+              {/* TEMPS INTERACTIF & MODIFIABLE (CLIC POUR MODIFIER DE X À X OU ENTRER UNE VALEUR) */}
+              <button
+                onClick={() => {
+                  setCustomDurationInput(String(maxDurationSec));
+                  setIsDurationModalOpen(true);
+                }}
+                className="font-mono text-xs font-bold text-white px-2.5 py-1 rounded-xl bg-[#1b143c] hover:bg-[#251b54] border border-[#5A33FF44] hover:border-[#8B70FF] transition flex items-center gap-1.5 cursor-pointer shadow-sm group"
+                title="Cliquer pour modifier la durée totale ou entrer une valeur personnalisée"
+              >
+                <Clock className="w-3.5 h-3.5 text-zinc-300 group-hover:text-white" />
+                <span>{currentTimeSec.toFixed(1)}s / {maxDurationSec.toFixed(1)}s</span>
+                <span className="text-[10px] text-purple-300 group-hover:text-white font-sans">✎</span>
+              </button>
             </div>
 
             <div className="flex-1 max-w-xl mx-2">
@@ -957,8 +971,8 @@ export const MusicStudioReels: React.FC<MusicStudioReelsProps> = ({
             </div>
           </div>
 
-          {/* 3. UNE SEULE PISTE DE MONTAGE UNIQUE (Sous l'espace noir) */}
-          <div className="bg-[#0b071a] p-3 border-t border-[#5A33FF22] relative shrink-0">
+          {/* 3. PISTE DE MONTAGE UNIQUE AVEC GRADUATIONS VISIBLES & CASE DU BOUTON PLUS */}
+          <div className="bg-[#0b071a] p-3 border-t border-[#5A33FF22] shrink-0">
             <div className="flex items-center justify-between text-xs font-bold text-white mb-2">
               <div className="flex items-center gap-2 text-[#c4b5fd]">
                 <Layers className="w-3.5 h-3.5 text-purple-400" />
@@ -967,261 +981,416 @@ export const MusicStudioReels: React.FC<MusicStudioReelsProps> = ({
                   ({audioClips.length + overlayClips.length + textZones.length + (mediaFile ? 1 : 0)} éléments)
                 </span>
               </div>
-              <div className="text-[10px] text-zinc-400 font-mono">
-                Curseur : <strong className="text-white">{currentTimeSec.toFixed(1)}s</strong>
+              <div className="flex items-center gap-3 text-[10px] text-zinc-400 font-mono">
+                <span>Curseur : <strong className="text-white">{currentTimeSec.toFixed(1)}s</strong></span>
+                <span className="text-zinc-600">|</span>
+                <span>Durée totale : <strong className="text-purple-300">{maxDurationSec.toFixed(1)}s</strong></span>
               </div>
             </div>
 
-            {/* BARRE DE LA PISTE UNIQUE */}
-            <div className="relative h-14 rounded-2xl bg-[#130d2d] border border-[#5A33FF44] p-1 overflow-hidden flex items-center shadow-inner">
+            {/* CONTENEUR PISTE + CASE DU BOUTON PLUS CÔTE À CÔTE SANS CHEVAUCHEMENT */}
+            <div className="flex items-stretch gap-2.5">
               
-              {/* Repères de temps (secondes) */}
-              <div className="absolute inset-x-2 top-0.5 flex justify-between pointer-events-none text-[8px] font-mono text-zinc-500">
-                <span>0s</span>
-                <span>5s</span>
-                <span>10s</span>
-                <span>15s</span>
-                <span>20s</span>
-                <span>25s</span>
-                <span>30s</span>
-              </div>
-
-              {/* État vide */}
-              {!mediaFile && audioClips.length === 0 && overlayClips.length === 0 && textZones.length === 0 && (
-                <div className="w-full text-center text-xs text-[#c4b5fd]/40 italic pointer-events-none mt-2">
-                  Piste vide · Cliquez sur le bouton + en bas à droite pour ajouter musique, vidéo, image ou texte
-                </div>
-              )}
-
-              {/* Clip Vidéo/Photo principale */}
-              {mediaFile && (
+              {/* LA PISTE UNIQUE AVEC RÈGLE DE GRADUATIONS OFFICIELLES */}
+              <div className="flex-1 relative rounded-2xl bg-[#130d2d] border border-[#5A33FF44] overflow-hidden flex flex-col shadow-inner min-h-[92px]">
+                
+                {/* 1. RÈGLE DES GRADUATIONS VISIBLES (CLIQUABLE) */}
                 <div 
-                  style={{ left: '0%', width: '100%' }}
-                  className="absolute top-4 bottom-1 rounded-xl bg-purple-600/30 border border-purple-400/40 text-purple-200 text-[10px] font-bold flex items-center px-2 truncate pointer-events-none"
+                  onClick={(e) => {
+                    const rect = e.currentTarget.getBoundingClientRect();
+                    const clickRatio = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+                    setCurrentTimeSec(parseFloat((clickRatio * maxDurationSec).toFixed(1)));
+                  }}
+                  className="relative h-7 bg-[#171038] border-b border-[#5A33FF44] cursor-pointer select-none overflow-hidden shrink-0"
+                  title="Cliquer sur la graduation pour déplacer la tête de lecture"
                 >
-                  <Film className="w-3 h-3 mr-1 text-purple-300 shrink-0" />
-                  <span className="truncate">{mediaFile.name}</span>
+                  {/* Graduations Majeures avec Chiffres */}
+                  {Array.from({ length: Math.floor(maxDurationSec / (maxDurationSec <= 30 ? 5 : (maxDurationSec <= 60 ? 10 : (maxDurationSec <= 120 ? 15 : 30)))) + 1 }).map((_, idx) => {
+                    const step = maxDurationSec <= 30 ? 5 : (maxDurationSec <= 60 ? 10 : (maxDurationSec <= 120 ? 15 : 30));
+                    const sec = idx * step;
+                    if (sec > maxDurationSec) return null;
+                    const leftPercent = (sec / maxDurationSec) * 100;
+                    return (
+                      <div 
+                        key={`maj_${sec}`} 
+                        style={{ left: `${leftPercent}%` }}
+                        className="absolute top-0 bottom-0 flex flex-col items-center pointer-events-none -translate-x-1/2"
+                      >
+                        <span className="text-[9px] font-mono font-bold text-white tracking-wider leading-none pt-0.5">
+                          {sec}s
+                        </span>
+                        <div className="w-0.5 h-2.5 bg-zinc-200 mt-0.5" />
+                      </div>
+                    );
+                  })}
+
+                  {/* Graduations Mineures (secondes intermédiaires) */}
+                  {Array.from({ length: Math.floor(maxDurationSec / (maxDurationSec <= 30 ? 1 : (maxDurationSec <= 60 ? 2 : (maxDurationSec <= 120 ? 5 : 10)))) + 1 }).map((_, idx) => {
+                    const majorStep = maxDurationSec <= 30 ? 5 : (maxDurationSec <= 60 ? 10 : (maxDurationSec <= 120 ? 15 : 30));
+                    const minorStep = maxDurationSec <= 30 ? 1 : (maxDurationSec <= 60 ? 2 : (maxDurationSec <= 120 ? 5 : 10));
+                    const sec = idx * minorStep;
+                    if (sec % majorStep === 0 || sec > maxDurationSec) return null;
+                    const leftPercent = (sec / maxDurationSec) * 100;
+                    return (
+                      <div 
+                        key={`min_${sec}`} 
+                        style={{ left: `${leftPercent}%` }}
+                        className="absolute bottom-0 w-px h-1.5 bg-zinc-400 pointer-events-none -translate-x-1/2"
+                      />
+                    );
+                  })}
                 </div>
-              )}
 
-              {/* Clips Audio sur la piste unique */}
-              {audioClips.map(clip => {
-                const leftPercent = (clip.startTimeSec / maxDurationSec) * 100;
-                const widthPercent = (clip.durationSec / maxDurationSec) * 100;
-                return (
-                  <div
-                    key={clip.id}
-                    style={{ left: `${leftPercent}%`, width: `${Math.max(12, widthPercent)}%` }}
-                    onClick={() => {
-                      if (clip.previewUrl) {
-                        const a = new Audio(clip.previewUrl);
-                        a.play().catch(() => {});
-                      } else {
-                        synthEngine.playSound(clip.type);
-                      }
-                      setTimingEditorTarget({
-                        kind: 'audio',
-                        id: clip.id,
-                        name: clip.name,
-                        startTimeSec: clip.startTimeSec,
-                        durationSec: clip.durationSec,
-                      });
-                      setIsTimingModalOpen(true);
-                    }}
-                    className={`absolute top-4 bottom-1 rounded-xl ${clip.color || 'bg-amber-600'} text-white text-[9px] font-bold flex items-center justify-between px-2 shadow-lg truncate group cursor-pointer hover:ring-2 hover:ring-amber-300 transition z-10`}
-                    title="Cliquer pour ajuster le moment d'apparition dans la vidéo"
-                  >
-                    <div className="flex items-center gap-1 truncate">
-                      <Music className="w-3 h-3 text-amber-200 shrink-0" />
-                      <span className="truncate">{clip.name}</span>
+                {/* 2. ZONE DE PISTE (CLIPS AUDIO, VIDÉO, TEXTES, OVERLAYS) */}
+                <div className="relative flex-1 p-1 flex items-center min-h-[58px]">
+                  
+                  {/* Guides verticaux de repères de temps */}
+                  {Array.from({ length: Math.floor(maxDurationSec / (maxDurationSec <= 30 ? 5 : (maxDurationSec <= 60 ? 10 : (maxDurationSec <= 120 ? 15 : 30)))) + 1 }).map((_, idx) => {
+                    const step = maxDurationSec <= 30 ? 5 : (maxDurationSec <= 60 ? 10 : (maxDurationSec <= 120 ? 15 : 30));
+                    const sec = idx * step;
+                    if (sec > maxDurationSec) return null;
+                    const leftPercent = (sec / maxDurationSec) * 100;
+                    return (
+                      <div 
+                        key={`guide_${sec}`} 
+                        style={{ left: `${leftPercent}%` }}
+                        className="absolute top-0 bottom-0 w-px bg-white/5 pointer-events-none -translate-x-1/2"
+                      />
+                    );
+                  })}
+
+                  {/* État vide */}
+                  {!mediaFile && audioClips.length === 0 && overlayClips.length === 0 && textZones.length === 0 && (
+                    <div className="w-full text-center text-xs text-[#c4b5fd]/40 italic pointer-events-none">
+                      Piste vide · Cliquez sur le bouton + à droite pour ajouter musique, vidéo, image ou texte
                     </div>
-                    <span className="text-[8px] opacity-80 font-mono ml-1">{clip.startTimeSec.toFixed(1)}s</span>
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setAudioClips(prev => prev.filter(c => c.id !== clip.id));
-                      }}
-                      className="opacity-0 group-hover:opacity-100 p-0.5 hover:text-red-200 transition ml-1"
-                    >
-                      <Trash2 className="w-2.5 h-2.5" />
-                    </button>
-                  </div>
-                );
-              })}
+                  )}
 
-              {/* Clips Image/GIF sur la piste unique */}
-              {overlayClips.map(clip => {
-                const leftPercent = (clip.startTimeSec / maxDurationSec) * 100;
-                const widthPercent = (clip.durationSec / maxDurationSec) * 100;
-                return (
-                  <div
-                    key={clip.id}
-                    style={{ left: `${leftPercent}%`, width: `${Math.max(12, widthPercent)}%` }}
-                    onClick={() => {
-                      setTimingEditorTarget({
-                        kind: 'overlay',
-                        id: clip.id,
-                        name: clip.name,
-                        startTimeSec: clip.startTimeSec,
-                        durationSec: clip.durationSec,
-                      });
-                      setIsTimingModalOpen(true);
-                    }}
-                    className="absolute top-4 bottom-1 rounded-xl bg-gradient-to-r from-pink-600 to-rose-600 text-white text-[9px] font-bold flex items-center justify-between px-2 shadow-lg truncate group cursor-pointer hover:ring-2 hover:ring-pink-300 transition z-10"
-                    title="Cliquer pour ajuster le moment d'apparition dans la vidéo"
-                  >
-                    <div className="flex items-center gap-1 truncate">
-                      <ImageIcon className="w-3 h-3 text-pink-200 shrink-0" />
-                      <span className="truncate">{clip.name}</span>
+                  {/* Clip Vidéo/Photo principale */}
+                  {mediaFile && (
+                    <div 
+                      style={{ left: '0%', width: '100%' }}
+                      onClick={() => {
+                        setTimingEditorTarget({
+                          kind: 'video',
+                          id: 'main_media',
+                          name: mediaFile.name,
+                          startTimeSec: 0,
+                          durationSec: maxDurationSec,
+                        });
+                        setIsTimingModalOpen(true);
+                      }}
+                      className="absolute top-1 bottom-1 rounded-xl bg-purple-600/30 border border-purple-400/50 text-purple-200 text-[10px] font-bold flex items-center px-2 truncate cursor-pointer hover:ring-1 hover:ring-purple-300 transition"
+                      title="Cliquer pour ajuster le média principal"
+                    >
+                      <Film className="w-3 h-3 mr-1 text-purple-300 shrink-0" />
+                      <span className="truncate">{mediaFile.name}</span>
                     </div>
-                    <span className="text-[8px] opacity-80 font-mono ml-1">{clip.startTimeSec.toFixed(1)}s</span>
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setOverlayClips(prev => prev.filter(c => c.id !== clip.id));
-                      }}
-                      className="opacity-0 group-hover:opacity-100 p-0.5 hover:text-red-200 transition ml-1"
-                    >
-                      <Trash2 className="w-2.5 h-2.5" />
-                    </button>
-                  </div>
-                );
-              })}
+                  )}
 
-              {/* Clips Texte sur la piste unique */}
-              {textZones.map(zone => {
-                const leftPercent = (zone.startTimeSec / maxDurationSec) * 100;
-                const widthPercent = ((zone.endTimeSec - zone.startTimeSec) / maxDurationSec) * 100;
-                return (
+                  {/* Clips Audio sur la piste unique */}
+                  {audioClips.map(clip => {
+                    const leftPercent = (clip.startTimeSec / maxDurationSec) * 100;
+                    const widthPercent = (clip.durationSec / maxDurationSec) * 100;
+                    return (
+                      <div
+                        key={clip.id}
+                        style={{ left: `${leftPercent}%`, width: `${Math.max(12, widthPercent)}%` }}
+                        onClick={() => {
+                          if (clip.previewUrl) {
+                            const a = new Audio(clip.previewUrl);
+                            a.play().catch(() => {});
+                          } else {
+                            synthEngine.playSound(clip.type);
+                          }
+                          setTimingEditorTarget({
+                            kind: 'audio',
+                            id: clip.id,
+                            name: clip.name,
+                            startTimeSec: clip.startTimeSec,
+                            durationSec: clip.durationSec,
+                          });
+                          setIsTimingModalOpen(true);
+                        }}
+                        className={`absolute top-1 bottom-1 rounded-xl ${clip.color || 'bg-amber-600'} text-white text-[9px] font-bold flex items-center justify-between px-2 shadow-lg truncate group cursor-pointer hover:ring-2 hover:ring-amber-300 transition z-10`}
+                        title="Cliquer pour ajuster le moment d'apparition dans la vidéo"
+                      >
+                        <div className="flex items-center gap-1 truncate">
+                          <Music className="w-3 h-3 text-amber-200 shrink-0" />
+                          <span className="truncate">{clip.name}</span>
+                        </div>
+                        <span className="text-[8px] opacity-80 font-mono ml-1">{clip.startTimeSec.toFixed(1)}s</span>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setAudioClips(prev => prev.filter(c => c.id !== clip.id));
+                          }}
+                          className="opacity-0 group-hover:opacity-100 p-0.5 hover:text-red-200 transition ml-1"
+                        >
+                          <Trash2 className="w-2.5 h-2.5" />
+                        </button>
+                      </div>
+                    );
+                  })}
+
+                  {/* Clips Image/GIF sur la piste unique */}
+                  {overlayClips.map(clip => {
+                    const leftPercent = (clip.startTimeSec / maxDurationSec) * 100;
+                    const widthPercent = (clip.durationSec / maxDurationSec) * 100;
+                    return (
+                      <div
+                        key={clip.id}
+                        style={{ left: `${leftPercent}%`, width: `${Math.max(12, widthPercent)}%` }}
+                        onClick={() => {
+                          setTimingEditorTarget({
+                            kind: 'overlay',
+                            id: clip.id,
+                            name: clip.name,
+                            startTimeSec: clip.startTimeSec,
+                            durationSec: clip.durationSec,
+                          });
+                          setIsTimingModalOpen(true);
+                        }}
+                        className="absolute top-1 bottom-1 rounded-xl bg-gradient-to-r from-pink-600 to-rose-600 text-white text-[9px] font-bold flex items-center justify-between px-2 shadow-lg truncate group cursor-pointer hover:ring-2 hover:ring-pink-300 transition z-10"
+                        title="Cliquer pour ajuster le moment d'apparition dans la vidéo"
+                      >
+                        <div className="flex items-center gap-1 truncate">
+                          <ImageIcon className="w-3 h-3 text-pink-200 shrink-0" />
+                          <span className="truncate">{clip.name}</span>
+                        </div>
+                        <span className="text-[8px] opacity-80 font-mono ml-1">{clip.startTimeSec.toFixed(1)}s</span>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setOverlayClips(prev => prev.filter(c => c.id !== clip.id));
+                          }}
+                          className="opacity-0 group-hover:opacity-100 p-0.5 hover:text-red-200 transition ml-1"
+                        >
+                          <Trash2 className="w-2.5 h-2.5" />
+                        </button>
+                      </div>
+                    );
+                  })}
+
+                  {/* Clips Texte sur la piste unique */}
+                  {textZones.map(zone => {
+                    const leftPercent = (zone.startTimeSec / maxDurationSec) * 100;
+                    const widthPercent = ((zone.endTimeSec - zone.startTimeSec) / maxDurationSec) * 100;
+                    return (
+                      <div
+                        key={zone.id}
+                        style={{ left: `${leftPercent}%`, width: `${Math.max(12, widthPercent)}%` }}
+                        onClick={() => {
+                          setSelectedTextZoneId(zone.id);
+                          setTimingEditorTarget({
+                            kind: 'text',
+                            id: zone.id,
+                            name: zone.text,
+                            startTimeSec: zone.startTimeSec,
+                            durationSec: Math.max(1, zone.endTimeSec - zone.startTimeSec),
+                          });
+                          setIsTimingModalOpen(true);
+                        }}
+                        className="absolute top-1 bottom-1 rounded-xl bg-gradient-to-r from-cyan-600 to-blue-600 text-white text-[9px] font-bold flex items-center justify-between px-2 shadow-lg truncate group cursor-pointer hover:ring-2 hover:ring-cyan-300 transition z-10"
+                        title="Cliquer pour ajuster le moment d'apparition du texte"
+                      >
+                        <div className="flex items-center gap-1 truncate">
+                          <Type className="w-3 h-3 text-cyan-200 shrink-0" />
+                          <span className="truncate">{zone.text}</span>
+                        </div>
+                        <span className="text-[8px] opacity-80 font-mono ml-1">{zone.startTimeSec.toFixed(1)}s</span>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setTextZones(prev => prev.filter(z => z.id !== zone.id));
+                          }}
+                          className="opacity-0 group-hover:opacity-100 p-0.5 hover:text-red-200 transition ml-1"
+                        >
+                          <Trash2 className="w-2.5 h-2.5" />
+                        </button>
+                      </div>
+                    );
+                  })}
+
+                  {/* Curseur de lecture vertical rouge */}
                   <div
-                    key={zone.id}
-                    style={{ left: `${leftPercent}%`, width: `${Math.max(12, widthPercent)}%` }}
-                    onClick={() => {
-                      setSelectedTextZoneId(zone.id);
-                      setTimingEditorTarget({
-                        kind: 'text',
-                        id: zone.id,
-                        name: zone.text,
-                        startTimeSec: zone.startTimeSec,
-                        durationSec: Math.max(1, zone.endTimeSec - zone.startTimeSec),
-                      });
-                      setIsTimingModalOpen(true);
-                    }}
-                    className="absolute top-4 bottom-1 rounded-xl bg-gradient-to-r from-cyan-600 to-blue-600 text-white text-[9px] font-bold flex items-center justify-between px-2 shadow-lg truncate group cursor-pointer hover:ring-2 hover:ring-cyan-300 transition z-10"
-                    title="Cliquer pour ajuster le moment d'apparition du texte"
+                    style={{ left: `${(currentTimeSec / maxDurationSec) * 100}%` }}
+                    className="absolute top-0 bottom-0 w-1 bg-rose-500 shadow-md pointer-events-none z-30 transition-all duration-75"
                   >
-                    <div className="flex items-center gap-1 truncate">
-                      <Type className="w-3 h-3 text-cyan-200 shrink-0" />
-                      <span className="truncate">{zone.text}</span>
-                    </div>
-                    <span className="text-[8px] opacity-80 font-mono ml-1">{zone.startTimeSec.toFixed(1)}s</span>
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setTextZones(prev => prev.filter(z => z.id !== zone.id));
-                      }}
-                      className="opacity-0 group-hover:opacity-100 p-0.5 hover:text-red-200 transition ml-1"
-                    >
-                      <Trash2 className="w-2.5 h-2.5" />
-                    </button>
+                    <div className="w-3 h-3 bg-rose-500 rounded-full -ml-1 -mt-0.5 shadow-lg" />
                   </div>
-                );
-              })}
-
-              {/* Curseur de lecture vertical rouge */}
-              <div
-                style={{ left: `${(currentTimeSec / maxDurationSec) * 100}%` }}
-                className="absolute top-0 bottom-0 w-1 bg-rose-500 shadow-md pointer-events-none z-30 transition-all duration-75"
-              >
-                <div className="w-3 h-3 bg-rose-500 rounded-full -ml-1 -mt-0.5 shadow-lg" />
+                </div>
               </div>
+
+              {/* 3. CASE DÉDIÉE AU BOUTON PLUS : DANS SA PROPRE CASE, NE CACHE AUCUN ÉLÉMENT */}
+              <div className="shrink-0 relative flex items-center">
+                <button
+                  onClick={() => setIsPlusMenuOpen(prev => !prev)}
+                  className="w-14 h-full min-h-[92px] rounded-2xl bg-gradient-to-r from-[#1E1B8C] to-[#5A33FF] hover:brightness-110 active:scale-95 text-white flex flex-col items-center justify-center shadow-xl border-2 border-purple-400/50 transition cursor-pointer gap-1 p-2"
+                  title="Ajouter au montage (+)"
+                >
+                  <Plus className={`w-6 h-6 transition-transform duration-200 ${isPlusMenuOpen ? 'rotate-45' : ''}`} />
+                  <span className="text-[10px] font-extrabold text-zinc-100">Ajouter</span>
+                </button>
+
+                {/* Menu Popover du Bouton "+" orienté vers le haut */}
+                {isPlusMenuOpen && (
+                  <div className="absolute bottom-full right-0 mb-2 w-64 bg-[#140e2d] border border-[#5A33FF55] rounded-2xl shadow-2xl p-2 space-y-1 animate-in slide-in-from-bottom-2 z-50">
+                    <div className="px-3 py-1.5 text-[10px] font-extrabold text-[#c4b5fd] uppercase tracking-wider border-b border-white/5">
+                      Ajouter au projet :
+                    </div>
+
+                    {/* Option 1 : Sélectionner une musique/son */}
+                    <button
+                      onClick={() => {
+                        setIsMusicModalOpen(true);
+                        setIsPlusMenuOpen(false);
+                      }}
+                      className="w-full text-left px-3 py-2 rounded-xl hover:bg-[#201844] text-xs font-bold text-white transition flex items-center gap-2.5"
+                    >
+                      <div className="w-7 h-7 rounded-lg bg-amber-500/20 text-amber-300 flex items-center justify-center">
+                        <Music className="w-4 h-4" />
+                      </div>
+                      <div>
+                        <div>Sélectionner une musique/son</div>
+                        <div className="text-[10px] text-[#c4b5fd] font-normal">Recherche Google & streaming mondial</div>
+                      </div>
+                    </button>
+
+                    {/* Option 2 : Insérer une image ou un GIF */}
+                    <button
+                      onClick={() => {
+                        setIsImageGifModalOpen(true);
+                        setIsPlusMenuOpen(false);
+                      }}
+                      className="w-full text-left px-3 py-2 rounded-xl hover:bg-[#201844] text-xs font-bold text-white transition flex items-center gap-2.5"
+                    >
+                      <div className="w-7 h-7 rounded-lg bg-pink-500/20 text-pink-300 flex items-center justify-center">
+                        <ImageIcon className="w-4 h-4" />
+                      </div>
+                      <div>
+                        <div>Insérer une image ou un GIF</div>
+                        <div className="text-[10px] text-[#c4b5fd] font-normal">Photos, stickers ou GIFs animés</div>
+                      </div>
+                    </button>
+
+                    {/* Option 3 : Insérer une zone de texte */}
+                    <button
+                      onClick={() => {
+                        handleAddTextZone();
+                        setIsPlusMenuOpen(false);
+                      }}
+                      className="w-full text-left px-3 py-2 rounded-xl hover:bg-[#201844] text-xs font-bold text-white transition flex items-center gap-2.5"
+                    >
+                      <div className="w-7 h-7 rounded-lg bg-cyan-500/20 text-cyan-300 flex items-center justify-center">
+                        <Type className="w-4 h-4" />
+                      </div>
+                      <div>
+                        <div>Insérer une zone de texte</div>
+                        <div className="text-[10px] text-[#c4b5fd] font-normal">Titres, sous-titres personnalisables</div>
+                      </div>
+                    </button>
+                  </div>
+                )}
+              </div>
+
             </div>
           </div>
 
-          {/* 4. BOUTON "+" POSITIONNÉ EN BAS À DROITE (COMMANDE EXACTE) */}
-          <div className="absolute bottom-4 right-4 z-40">
-            <button
-              onClick={() => setIsPlusMenuOpen(prev => !prev)}
-              className="w-12 h-12 rounded-full bg-gradient-to-r from-[#1E1B8C] to-[#5A33FF] hover:brightness-110 active:scale-95 text-white flex items-center justify-center shadow-2xl border-2 border-purple-400/50 transition cursor-pointer"
-              title="Ajouter au montage (+)"
-            >
-              <Plus className={`w-6 h-6 transition-transform duration-200 ${isPlusMenuOpen ? 'rotate-45' : ''}`} />
-            </button>
-
-            {/* Menu Popover du Bouton "+" orienté vers le haut à gauche */}
-            {isPlusMenuOpen && (
-              <div className="absolute bottom-14 right-0 w-64 bg-[#140e2d] border border-[#5A33FF55] rounded-2xl shadow-2xl p-2 space-y-1 animate-in slide-in-from-bottom-2 z-50">
-                <div className="px-3 py-1.5 text-[10px] font-extrabold text-[#c4b5fd] uppercase tracking-wider border-b border-white/5">
-                  Ajouter au projet :
+          {/* ================= MODALE MODIFICATION DURÉE DU TEMPS (VALEURS X À X ET CASE SAISIE) ================= */}
+          {isDurationModalOpen && (
+            <div className="fixed inset-0 bg-black/75 backdrop-blur-md z-50 flex items-center justify-center p-4 animate-in fade-in">
+              <div className="bg-[#120c2b] border-2 border-[#5A33FF66] rounded-3xl max-w-md w-full p-5 shadow-2xl space-y-4">
+                <div className="flex items-center justify-between border-b border-[#5A33FF33] pb-3">
+                  <div className="flex items-center gap-2">
+                    <Clock className="w-4 h-4 text-zinc-300" />
+                    <h3 className="text-sm font-extrabold text-white">Modifier la durée du projet</h3>
+                  </div>
+                  <button onClick={() => setIsDurationModalOpen(false)} className="text-zinc-400 hover:text-white">
+                    <X className="w-4 h-4" />
+                  </button>
                 </div>
 
-                {/* Option 1 : Sélectionner une musique/son */}
-                <button
-                  onClick={() => {
-                    setIsMusicModalOpen(true);
-                    setIsPlusMenuOpen(false);
-                  }}
-                  className="w-full text-left px-3 py-2 rounded-xl hover:bg-[#201844] text-xs font-bold text-white transition flex items-center gap-2.5"
-                >
-                  <div className="w-7 h-7 rounded-lg bg-amber-500/20 text-amber-300 flex items-center justify-center">
-                    <Music className="w-4 h-4" />
-                  </div>
+                <div className="space-y-4">
+                  {/* Valeurs rapides de x à x */}
                   <div>
-                    <div>Sélectionner une musique/son</div>
-                    <div className="text-[10px] text-[#c4b5fd] font-normal">Recherche sur Google & streaming mondial</div>
+                    <label className="text-xs font-bold text-white block mb-2">Choisir une durée prédéfinie :</label>
+                    <div className="grid grid-cols-5 gap-1.5">
+                      {[5, 10, 15, 30, 45, 60, 90, 120, 180, 300].map(s => (
+                        <button
+                          key={s}
+                          onClick={() => {
+                            setMaxDurationSec(s);
+                            setCustomDurationInput(String(s));
+                            if (currentTimeSec > s) setCurrentTimeSec(s);
+                            setIsDurationModalOpen(false);
+                          }}
+                          className={`py-2 px-1 rounded-xl text-xs font-mono font-bold transition border ${
+                            maxDurationSec === s
+                              ? 'bg-[#5A33FF] border-[#8B70FF] text-white shadow'
+                              : 'bg-[#1b143c] border-[#5A33FF22] text-zinc-300 hover:text-white hover:bg-[#251c54]'
+                          }`}
+                        >
+                          {s}s
+                        </button>
+                      ))}
+                    </div>
                   </div>
-                </button>
 
-                {/* Option 2 : Insérer une image ou un GIF */}
-                <button
-                  onClick={() => {
-                    setIsImageGifModalOpen(true);
-                    setIsPlusMenuOpen(false);
-                  }}
-                  className="w-full text-left px-3 py-2 rounded-xl hover:bg-[#201844] text-xs font-bold text-white transition flex items-center gap-2.5"
-                >
-                  <div className="w-7 h-7 rounded-lg bg-pink-500/20 text-pink-300 flex items-center justify-center">
-                    <ImageIcon className="w-4 h-4" />
+                  {/* Case pour entrer une valeur personnalisée */}
+                  <div className="space-y-2 pt-2 border-t border-[#5A33FF22]">
+                    <label className="text-xs font-bold text-white block">Entrer une valeur précise (en secondes) :</label>
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="number"
+                        min="1"
+                        max="600"
+                        step="1"
+                        value={customDurationInput}
+                        onChange={e => setCustomDurationInput(e.target.value)}
+                        className="flex-1 bg-[#181138] border border-[#5A33FF55] focus:border-[#8B70FF] rounded-xl px-3.5 py-2 text-white font-mono text-xs focus:outline-none"
+                        placeholder="Ex: 40"
+                      />
+                      <button
+                        onClick={() => {
+                          const val = parseFloat(customDurationInput);
+                          if (!isNaN(val) && val >= 1 && val <= 600) {
+                            setMaxDurationSec(val);
+                            if (currentTimeSec > val) setCurrentTimeSec(val);
+                            setIsDurationModalOpen(false);
+                          }
+                        }}
+                        className="px-4 py-2 rounded-xl bg-gradient-to-r from-[#1E1B8C] to-[#5A33FF] text-white font-bold text-xs shadow transition cursor-pointer"
+                      >
+                        Appliquer
+                      </button>
+                    </div>
+                    <p className="text-[10px] text-zinc-400">Plage autorisée : 1 à 600 secondes (10 minutes).</p>
                   </div>
-                  <div>
-                    <div>Insérer une image ou GIF</div>
-                    <div className="text-[10px] text-[#c4b5fd] font-normal">Stickers viraux & fichiers</div>
-                  </div>
-                </button>
 
-                {/* Option 3 : Insérer une zone de texte */}
-                <button
-                  onClick={handleAddTextZone}
-                  className="w-full text-left px-3 py-2 rounded-xl hover:bg-[#201844] text-xs font-bold text-white transition flex items-center gap-2.5"
-                >
-                  <div className="w-7 h-7 rounded-lg bg-cyan-500/20 text-cyan-300 flex items-center justify-center">
-                    <Type className="w-4 h-4" />
+                  {/* Saut direct curseur */}
+                  <div className="space-y-2 pt-2 border-t border-[#5A33FF22]">
+                    <label className="text-xs font-bold text-white block">Position du curseur :</label>
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="number"
+                        min="0"
+                        max={maxDurationSec}
+                        step="0.1"
+                        value={currentTimeSec.toFixed(1)}
+                        onChange={e => {
+                          const val = parseFloat(e.target.value);
+                          if (!isNaN(val)) setCurrentTimeSec(Math.min(maxDurationSec, Math.max(0, val)));
+                        }}
+                        className="flex-1 bg-[#181138] border border-[#5A33FF55] focus:border-[#8B70FF] rounded-xl px-3.5 py-2 text-white font-mono text-xs focus:outline-none"
+                      />
+                      <span className="text-xs text-zinc-400 font-mono">/ {maxDurationSec.toFixed(1)}s</span>
+                    </div>
                   </div>
-                  <div>
-                    <div>Insérer une zone de texte</div>
-                    <div className="text-[10px] text-[#c4b5fd] font-normal">Mots clés d'accroche et sous-titres</div>
-                  </div>
-                </button>
-
-                {/* Option 4 : Importer Vidéo ou Photo principale */}
-                <label className="w-full text-left px-3 py-2 rounded-xl hover:bg-[#201844] text-xs font-bold text-white transition flex items-center gap-2.5 cursor-pointer">
-                  <div className="w-7 h-7 rounded-lg bg-purple-500/20 text-purple-300 flex items-center justify-center">
-                    <Upload className="w-4 h-4" />
-                  </div>
-                  <div>
-                    <div>Importer Vidéo / Photo</div>
-                    <div className="text-[10px] text-[#c4b5fd] font-normal">Depuis votre appareil</div>
-                  </div>
-                  <input
-                    type="file"
-                    accept="video/*,image/*"
-                    onChange={handleMediaUpload}
-                    className="hidden"
-                  />
-                </label>
+                </div>
               </div>
-            )}
-          </div>
+            </div>
+          )}
 
           {/* ================= MODALE SÉLECTION DE MUSIQUES / SONS : RECHERCHE EN DIRECT SUR DES MILLIONS DE CHANSONS ================= */}
           {isMusicModalOpen && (

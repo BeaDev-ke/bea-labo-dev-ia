@@ -63,9 +63,10 @@ const DEFAULT_SETTINGS: AiSettings = {
 
 interface AiSettingsPanelProps {
   onNotify?: (msg: string) => void;
+  initialTab?: 'voice' | 'persona' | 'tools' | 'privacy';
 }
 
-export const AiSettingsPanel: React.FC<AiSettingsPanelProps> = ({ onNotify }) => {
+export const AiSettingsPanel: React.FC<AiSettingsPanelProps> = ({ onNotify, initialTab }) => {
   const [settings, setSettings] = useState<AiSettings>(() => {
     try {
       const saved = localStorage.getItem('andrea_ai_settings') || localStorage.getItem('bea_ai_settings');
@@ -74,7 +75,14 @@ export const AiSettingsPanel: React.FC<AiSettingsPanelProps> = ({ onNotify }) =>
     return DEFAULT_SETTINGS;
   });
 
-  const [activeTab, setActiveTab] = useState<'voice' | 'persona' | 'tools' | 'privacy'>('voice');
+  const [activeTab, setActiveTab] = useState<'voice' | 'persona' | 'tools' | 'privacy'>(initialTab || 'voice');
+
+  useEffect(() => {
+    if (initialTab) {
+      setActiveTab(initialTab);
+    }
+  }, [initialTab]);
+
   const [savedToast, setSavedToast] = useState(false);
   const [isTestingVoice, setIsTestingVoice] = useState(false);
   const [testPhrase, setTestPhrase] = useState("Bonjour, je suis Andrea. Mon moteur vocal est optimisé pour vous répondre instantanément.");
@@ -121,9 +129,9 @@ export const AiSettingsPanel: React.FC<AiSettingsPanelProps> = ({ onNotify }) =>
   };
 
   return (
-    <div className="w-full max-w-5xl mx-auto bg-[#150f2e] border border-[#5A33FF33] rounded-3xl shadow-2xl overflow-hidden flex flex-col md:flex-row min-h-[580px] animate-in fade-in">
-      {/* SIDEBAR SOUS-MENUS À GAUCHE */}
-      <aside className="w-full md:w-64 lg:w-72 bg-[#100b24] border-b md:border-b-0 md:border-r border-[#5A33FF33] p-4 flex flex-col justify-between shrink-0">
+    <div className="flex-1 flex flex-col md:flex-row h-full w-full overflow-hidden bg-[#150f2e]">
+      {/* SIDEBAR SOUS-MENUS COLLÉ AU SIDEBAR PRINCIPAL (PAS DE NOUVELLE CASE SÉPARÉE) */}
+      <aside className="w-full md:w-64 lg:w-72 bg-[#100b24] border-b md:border-b-0 md:border-r border-[#5A33FF33] p-4 flex flex-col justify-between shrink-0 h-full">
         <div className="space-y-4">
           {/* Header Paramètres */}
           <div className="px-2 py-1 flex items-center gap-2.5">

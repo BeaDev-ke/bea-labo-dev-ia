@@ -63,6 +63,9 @@ export interface ChatMessage {
   content: string;
   timestamp: string;
   attachmentName?: string;
+  attachmentUrl?: string;
+  attachmentType?: string;
+  generatedImageUrl?: string;
   securityShield?: boolean;
   webSources?: WebSource[];
   usedWebSearch?: boolean;
