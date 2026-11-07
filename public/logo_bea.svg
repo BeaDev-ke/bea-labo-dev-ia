@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="100%" height="100%">
+  <defs>
+    <linearGradient id="beaBorder" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#8B70FF" />
+      <stop offset="50%" stop-color="#5A33FF" />
+      <stop offset="100%" stop-color="#C026D3" />
+    </linearGradient>
+    <linearGradient id="beaBg" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#140E2D" />
+      <stop offset="100%" stop-color="#0B081A" />
+    </linearGradient>
+  </defs>
+
+  <rect x="16" y="16" width="480" height="480" rx="96" fill="url(#beaBg)" stroke="url(#beaBorder)" stroke-width="12" />
+
+  <path d="M140 100 L146 120 L166 126 L146 132 L140 152 L134 132 L114 126 L134 120 Z" fill="#FFFFFF" />
+  <circle cx="118" cy="158" r="4" fill="#FFFFFF" />
+
+  <path d="M375 125 L380 140 L395 145 L380 150 L375 165 L370 150 L355 145 L370 140 Z" fill="#FFFFFF" />
+  <circle cx="395" cy="180" r="3.5" fill="#FFFFFF" />
+
+  <path d="M308 125 C 385 140, 420 220, 412 300 C 405 370, 345 425, 235 425 C 190 425, 175 435, 175 435 C 175 435, 205 408, 220 398"
+        fill="none" stroke="#FFFFFF" stroke-width="14" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <path d="M 235 132 C 205 132, 175 150, 175 178 C 152 180, 134 200, 134 225 C 134 238, 140 248, 148 256 C 132 268, 122 288, 122 312 C 122 342, 145 365, 175 365 C 178 385, 195 400, 220 400 C 230 400, 235 395, 235 390 L 235 132 Z"
+        fill="none" stroke="#FFFFFF" stroke-width="15" stroke-linecap="round" stroke-linejoin="round" />
+
+  <path d="M 175 220 C 190 220, 205 235, 205 250 C 205 265, 190 280, 175 280 C 160 280, 150 295, 150 310"
+        fill="none" stroke="#FFFFFF" stroke-width="13" stroke-linecap="round" />
+  <path d="M 235 200 C 215 200, 205 180, 205 165"
+        fill="none" stroke="#FFFFFF" stroke-width="13" stroke-linecap="round" />
+  <path d="M 235 330 C 215 330, 200 345, 200 365"
+        fill="none" stroke="#FFFFFF" stroke-width="13" stroke-linecap="round" />
+
+  <path d="M 277 132 C 307 132, 337 150, 337 178 C 360 180, 378 200, 378 225 C 378 238, 372 248, 364 256 C 380 268, 390 288, 390 312 C 390 342, 367 365, 337 365 C 334 385, 317 400, 292 400 C 282 400, 277 395, 277 390 L 277 132 Z"
+        fill="none" stroke="#FFFFFF" stroke-width="15" stroke-linecap="round" stroke-linejoin="round" />
+
+  <path d="M 337 220 C 322 220, 307 235, 307 250 C 307 265, 322 280, 337 280 C 352 280, 362 295, 362 310"
+        fill="none" stroke="#FFFFFF" stroke-width="13" stroke-linecap="round" />
+  <path d="M 277 200 C 297 200, 307 180, 307 165"
+        fill="none" stroke="#FFFFFF" stroke-width="13" stroke-linecap="round" />
+  <path d="M 277 330 C 297 330, 312 345, 312 365"
+        fill="none" stroke="#FFFFFF" stroke-width="13" stroke-linecap="round" />
+</svg>

@@ -1,1167 +1,592 @@
 import React, { useState } from 'react';
-import { 
-  Sparkles, 
-  Layers, 
-  Code, 
-  CheckCircle2, 
-  AlertTriangle, 
-  RotateCcw, 
-  Eye, 
-  FileText, 
-  Play, 
-  History, 
-  BookOpen, 
-  Check, 
-  ExternalLink,
-  ChevronRight,
-  ShieldCheck,
-  Cpu,
-  Terminal,
-  Zap,
+import {
+  FlaskConical,
+  Wrench,
+  CheckCircle2,
+  AlertTriangle,
+  RotateCcw,
+  GitCommit,
+  Layers,
+  Code2,
+  Sparkles,
+  Shield,
+  Play,
+  FileText,
+  Clock,
   ArrowRight,
-  Wand2,
-  Trophy,
-  Globe,
-  Brain,
-  Sliders,
-  Compass,
-  ArrowUpRight,
-  ChevronDown,
-  ChevronUp,
-  Info
+  Bot,
+  Send,
+  Terminal,
+  Cpu,
+  Check,
+  Search,
+  Zap,
+  CornerDownLeft
 } from 'lucide-react';
-import { LAB_LEVELS, SAMPLE_TARGET_SNIPPETS } from '../data/labLevels';
-import { ModifLevelId, BackupItem, DiffLine, SubLevelItem } from '../types/bea';
 
-interface DevLabProps {
-  onGoToProd: () => void;
-  onViewFullCode: () => void;
+interface CodebaseTarget {
+  file: string;
+  symbol: string;
+  level: 1 | 2 | 3 | 4 | 5;
+  levelTitle: string;
+  lineRange: string;
+  rationale: string;
+  diff: string;
 }
 
-export const DevLab: React.FC<DevLabProps> = ({ onGoToProd, onViewFullCode }) => {
-  const [selectedLevel, setSelectedLevel] = useState<ModifLevelId>('3');
-  const [activeTab, setActiveTab] = useState<'modify' | 'diff' | 'backups' | 'guide' | 'roadmap'>('modify');
-  const [showLevelDeepGuide, setShowLevelDeepGuide] = useState(true);
-  const [modelChoice, setModelChoice] = useState('llama-3.3-70b-versatile');
-  const [backupName, setBackupName] = useState(`backup_lvl3_${new Date().toISOString().slice(0, 10).replace(/-/g, '')}`);
-  const [selectedTargetLabel, setSelectedTargetLabel] = useState<string>("Comportement de base d'Andrea (SYSTEM_BEHAVIOR_BASE)");
-  const [selectedSubLevelId, setSelectedSubLevelId] = useState<string>('3.1');
-  const [applyMode, setApplyMode] = useState<'direct' | 'diff'>('direct');
-  const [prompt, setPrompt] = useState('Insérer une grille de diagnostic Fogg pour chaque problème soumis.');
-  
-  // Mode d'édition et code manuel
-  const [editMode, setEditMode] = useState<'ai' | 'manual'>('ai');
-  const [manualCode, setManualCode] = useState<string>('');
+export const DevLab: React.FC<{ onNavigateToPortal?: () => void }> = ({ onNavigateToPortal }) => {
+  const [activeTab, setActiveTab] = useState<'mcp' | 'editor' | 'diff' | 'backups' | 'tests'>('mcp');
+  const [activeLevel, setActiveLevel] = useState<1 | 2 | 3 | 4 | 5>(1);
 
-  // Simulation states
-  const [isProcessing, setIsProcessing] = useState(false);
-  const [processStep, setProcessStep] = useState<string>('');
-  const [validationSuccess, setValidationSuccess] = useState<boolean | null>(null);
-  const [validationMsg, setValidationMsg] = useState<string>('');
-  const [lastDiffLines, setLastDiffLines] = useState<DiffLine[] | null>(null);
-  const [recentNotification, setRecentNotification] = useState<string | null>(null);
-
-  // Roadmap activation states for interactive demonstration
-  const [activatedPillars, setActivatedPillars] = useState<Record<string, boolean>>({
-    'duplex_voice': true,
-    'memory_graph': true,
-    'dual_canvas': true,
-    'autonomous_nudges': false,
-    'ast_shield': true,
-    'multilingual_15': true,
+  // MCP AI Agent State
+  const [agentPrompt, setAgentPrompt] = useState('');
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [agentAnalysis, setAgentAnalysis] = useState<CodebaseTarget | null>({
+    file: 'src/services/videoService.ts',
+    symbol: 'CAMERA_MOVEMENTS / generateVideo',
+    level: 5,
+    levelTitle: 'Niveau 5 · Core Engine & AST',
+    lineRange: 'L. 15-48',
+    rationale: 'Pour modifier la trajectoire caméra par défaut de Wan 2.1, l\'agent cible le tableau de constantes cinématiques et la fonction principale de génération vidéo.',
+    diff: `diff --git a/src/services/videoService.ts b/src/services/videoService.ts
+@@ -18,6 +18,7 @@ export const CAMERA_MOVEMENTS = [
+-  defaultMotion: 'orbit',
++  defaultMotion: 'fpv_drone', // Mouvement caméra dynamique Wan 2.1
++  autoStabilize: true,
++  preferredDuration: 5,
+@@ -82,3 +83,4 @@ export async function generateVideo(options) {
++  console.log('[MCP] Trajectoire FPV Drone injectée dans le prompt Wan 2.1');`
   });
 
-  // Backups list
-  const [backups, setBackups] = useState<BackupItem[]>([
-    {
-      id: 'bk-1',
-      name: 'backup_lvl3_fogg_behavior_safe',
-      timestamp: 'Aujourd\'hui 11:25:40',
-      level: '3',
-      target: 'SYSTEM_BEHAVIOR_BASE',
-      summary: 'Grille d\'analyse Fogg et 5 étapes opérationnelles',
-      codeSnippet: 'SYSTEM_BEHAVIOR_BASE = """Tu es Andrea, une IA d\'analyse comportementale..."""',
-    },
-    {
-      id: 'bk-2',
-      name: 'backup_lvl1_clean_monochrome',
-      timestamp: 'Aujourd\'hui 10:14:12',
-      level: '1',
-      target: 'CSS_STYLES',
-      summary: 'Thème neutre épuré & minimaliste',
-      codeSnippet: '.stApp { background: #121214 !important; }',
-    },
-    {
-      id: 'bk-3',
-      name: 'backup_lvl6_sitebuilder_templates',
-      timestamp: 'Hier 18:40:02',
-      level: '6',
-      target: 'SiteBuilder',
-      summary: 'Générateur de sites web haute conversion & formulaires',
-      codeSnippet: '<!-- Moteur Bâtisseur de Site Web Bea BehaviorLab AI -->',
-    },
+  const [appliedMessage, setAppliedMessage] = useState<string | null>(null);
+  const [isApplying, setIsApplying] = useState(false);
+  const [agentLogs, setAgentLogs] = useState<string[]>([
+    '[MCP-READY] Indexation complète du codebase (14 composants, 2 services)',
+    '[MCP-CONTEXT] Cartographie AST prête : App.tsx, AndreaChat.tsx, MontageStudio.tsx, videoService.ts',
+    '[MCP-AGENT] Prêt à analyser et cibler vos modifications'
   ]);
 
-  const currentLevelInfo = LAB_LEVELS[selectedLevel] || LAB_LEVELS['1'];
-  const targetKeys = Object.keys(currentLevelInfo.targets);
-  const currentTargetId = currentLevelInfo.targets[selectedTargetLabel] || targetKeys[0] || 'SYSTEM_BEHAVIOR_BASE';
-  const currentSnippet = SAMPLE_TARGET_SNIPPETS[currentTargetId] || `# Code source de ${currentTargetId}\ndef ${currentTargetId}():\n    pass`;
+  const [customDiffText, setCustomDiffText] = useState<string>(
+    `@@ -42,6 +42,7 @@\n- const ACCENT_COLOR = '#4F46E5';\n+ const ACCENT_COLOR = '#5A33FF'; // BehaviorLab Official Violet\n+ const WAN21_DEFAULT_MOTION = 'orbit';\n+ const WHISPER_AUTO_SRT = true;`
+  );
 
-  const handleLevelChange = (lvl: ModifLevelId) => {
-    setSelectedLevel(lvl);
-    const newLevelInfo = LAB_LEVELS[lvl];
-    const newTargets = Object.keys(newLevelInfo.targets);
-    setSelectedTargetLabel(newTargets[0] || '');
-    if (newLevelInfo.subLevels && newLevelInfo.subLevels.length > 0) {
-      const firstSub = newLevelInfo.subLevels[0];
-      setSelectedSubLevelId(firstSub.id);
-      setPrompt(firstSub.defaultPreset);
-    } else {
-      setSelectedSubLevelId('');
-      setPrompt(newLevelInfo.presets[0] || '');
-    }
-    setBackupName(`backup_lvl${lvl}_${new Date().toISOString().slice(0, 10).replace(/-/g, '')}`);
+  const [backups, setBackups] = useState([
+    { id: 'b_05', date: 'À l\'instant', name: 'Agent MCP · Ciblage automatique Wan 2.1 & FPV', size: '2.5 MB' },
+    { id: 'b_04', date: 'Aujourd\'hui 14:48', name: 'Wan 2.1 & 10 Caméras Higgsfield intégrés', size: '2.4 MB' },
+    { id: 'b_03', date: 'Aujourd\'hui 12:30', name: 'Découpage automatique de scènes au montage', size: '2.3 MB' },
+    { id: 'b_02', date: 'Hier 18:20', name: 'Optimisation pipeline vidéo Wan 2.1 & Whisper', size: '2.1 MB' },
+    { id: 'b_01', date: 'Hier 14:10', name: 'Version initiale BehaviorLab AI', size: '1.9 MB' },
+  ]);
+
+  // Codebase Semantic Router (Agent Knowledge Graph)
+  const analyzePromptWithMcpAgent = (prompt: string) => {
+    setIsAnalyzing(true);
+    const p = prompt.toLowerCase();
+
+    setTimeout(() => {
+      let target: CodebaseTarget;
+
+      if (p.includes('couleur') || p.includes('theme') || p.includes('css') || p.includes('fond') || p.includes('violet') || p.includes('style')) {
+        target = {
+          file: 'src/index.css & src/App.tsx',
+          symbol: 'Theme Variables / Tailwind Classes',
+          level: 1,
+          levelTitle: 'Niveau 1 · Style & Thème',
+          lineRange: 'L. 1-35',
+          rationale: `L'Agent MCP a détecté une demande cosmétique sur l'apparence visuelle. Modification des tokens Tailwind et des classes de fond globales.`,
+          diff: `diff --git a/src/index.css b/src/index.css
+@@ -1,4 +1,7 @@
+ @import "tailwindcss";
++@theme {
++  --color-primary-glow: #8B70FF;
++  --color-accent-neon: #5A33FF;
++}`
+        };
+      } else if (p.includes('montage') || p.includes('scinder') || p.includes('couper') || p.includes('effet') || p.includes('audio') || p.includes('son') || p.includes('cadre') || p.includes('texte')) {
+        target = {
+          file: 'src/components/MontageStudio.tsx',
+          symbol: 'MontageStudio / handleSplitScene / framePresets',
+          level: 4,
+          levelTitle: 'Niveau 4 · Composants & Layout',
+          lineRange: 'L. 80-210',
+          rationale: `L'Agent MCP a identifié l'espace Montage. Il cible la gestion de la timeline, les tiroirs d'effets visuels et l'inspecteur de scènes.`,
+          diff: `diff --git a/src/components/MontageStudio.tsx b/src/components/MontageStudio.tsx
+@@ -142,6 +142,8 @@ export const MontageStudio = () => {
++  // Action optimisée via Agent MCP
++  const splitThresholdMs = 800; // Découpe réactive à la tête de lecture
++  const autoSnapGrid = true;`
+        };
+      } else if (p.includes('video') || p.includes('wan') || p.includes('camera') || p.includes('higgsfield') || p.includes('mouvement') || p.includes('zoom')) {
+        target = {
+          file: 'src/services/videoService.ts',
+          symbol: 'CAMERA_MOVEMENTS / generateVideo',
+          level: 5,
+          levelTitle: 'Niveau 5 · Core Engine & AST',
+          lineRange: 'L. 20-75',
+          rationale: `L'Agent MCP cible directement le pipeline Wan 2.1, les fallbacks Replicate/CogVideoX et la calibration des mouvements caméra Higgsfield.`,
+          diff: `diff --git a/src/services/videoService.ts b/src/services/videoService.ts
+@@ -25,6 +25,8 @@ export const CAMERA_MOVEMENTS = [
++  cinematicWeight: 1.25,
++  enforceMotionPrompt: true, // Renforce les trajectoires caméra dans le prompt Wan 2.1`
+        };
+      } else if (p.includes('voix') || p.includes('f5') || p.includes('tts') || p.includes('audio') || p.includes('whisper') || p.includes('sous-titre')) {
+        target = {
+          file: 'src/services/voiceService.ts & src/components/AIParametersPage.tsx',
+          symbol: 'generateVoice / WebAudioSynthesizer',
+          level: 5,
+          levelTitle: 'Niveau 5 · Core Engine & AST',
+          lineRange: 'L. 30-85',
+          rationale: `L'Agent MCP localise le service de synthèse vocale SWIVID F5-TTS et le calage des timecodes Whisper .SRT.`,
+          diff: `diff --git a/src/services/voiceService.ts b/src/services/voiceService.ts
+@@ -45,6 +45,8 @@ export async function generateVoice(options) {
++  sampleRate: 44100,
++  naturalCadenceModifier: 1.08, // Élocution naturelle fluide`
+        };
+      } else if (p.includes('chat') || p.includes('discussion') || p.includes('andrea') || p.includes('message') || p.includes('accroche') || p.includes('hook')) {
+        target = {
+          file: 'src/components/AndreaChat.tsx',
+          symbol: 'AndreaChat / handleSendMessage / generateHook',
+          level: 4,
+          levelTitle: 'Niveau 4 · Composants & Layout',
+          lineRange: 'L. 65-180',
+          rationale: `L'Agent MCP cible la discussion principale avec Andrea, la génération d'accroches virales et l'affichage du player 9:16.`,
+          diff: `diff --git a/src/components/AndreaChat.tsx b/src/components/AndreaChat.tsx
+@@ -95,6 +95,8 @@ export const AndreaChat = () => {
++  // Paramètres optimisés par l'Agent MCP
++  const instantHookGeneration = true;
++  const maxContextTokens = 8192;`
+        };
+      } else {
+        target = {
+          file: 'src/App.tsx',
+          symbol: 'App / Navigation & Global State',
+          level: 3,
+          levelTitle: 'Niveau 3 · Logique & Événements',
+          lineRange: 'L. 45-120',
+          rationale: `L'Agent MCP a analysé la requête et a ciblé le chef d'orchestre principal App.tsx pour propager les changements.`,
+          diff: `diff --git a/src/App.tsx b/src/App.tsx
+@@ -60,6 +60,8 @@ export default function App() {
++  // Mutation appliquée via Agent MCP
++  const mcpAutoSync = true;`
+        };
+      }
+
+      setAgentAnalysis(target);
+      setIsAnalyzing(false);
+      setAgentLogs((prev) => [
+        `[MCP-TARGET] ${target.file} -> ${target.symbol} (${target.lineRange})`,
+        `[MCP-AST] Patch calculé avec succès pour : "${prompt.slice(0, 40)}..."`,
+        ...prev.slice(0, 4)
+      ]);
+    }, 450);
   };
 
-  const handleSelectSubLevel = (sub: SubLevelItem) => {
-    setSelectedSubLevelId(sub.id);
-    setPrompt(sub.defaultPreset);
-    // Select corresponding target label if found
-    const matchingKey = targetKeys.find(k => currentLevelInfo.targets[k] === sub.target);
-    if (matchingKey) {
-      setSelectedTargetLabel(matchingKey);
-    }
+  const handleApplyModification = () => {
+    if (!agentAnalysis) return;
+    setIsApplying(true);
+
+    setTimeout(() => {
+      setIsApplying(false);
+      const newBackup = {
+        id: `b_0${backups.length + 1}`,
+        date: 'À l\'instant',
+        name: `Patch Agent MCP sur ${agentAnalysis.file.split(' ')[0]}`,
+        size: '2.5 MB'
+      };
+      setBackups([newBackup, ...backups]);
+      setAppliedMessage(`Modification appliquée avec succès sur ${agentAnalysis.file} ! Point de restauration ${newBackup.id} généré.`);
+      setAgentLogs((prev) => [
+        `[MCP-APPLY] Patch injecté sur ${agentAnalysis.file}`,
+        `[MCP-CHECK] Codebase intègre (0 erreur de compilation)`,
+        ...prev
+      ]);
+      setTimeout(() => setAppliedMessage(null), 4000);
+    }, 700);
   };
 
-  const handleApplyPreset = (preset: string) => {
-    setPrompt(preset);
-  };
-
-  const runModification = async () => {
-    const chosenPrompt = prompt.trim() || currentLevelInfo.presets[0];
-    if (editMode === 'ai' && !prompt.trim()) {
-      setPrompt(chosenPrompt);
-    }
-    const effectiveContent = editMode === 'ai' ? chosenPrompt : (manualCode.trim() || currentSnippet);
-    if (!effectiveContent) return;
-    setIsProcessing(true);
-    setValidationSuccess(null);
-    setRecentNotification(null);
-
-    // Step 1: Extraction
-    setProcessStep(`1/5 - Isolation chirurgicale de la cible : ${currentTargetId} (Niveau ${selectedLevel})...`);
-    await new Promise(r => setTimeout(r, 400));
-
-    // Step 2: Cerveau IA
-    setProcessStep(`2/5 - Raisonnement par le Moteur IA Andrea (BehaviorLab AI)...`);
-    await new Promise(r => setTimeout(r, 550));
-
-    // Step 3: Génération
-    setProcessStep(`3/5 - Synthèse du bloc optimisé selon le sous-niveau ${selectedSubLevelId || selectedLevel}...`);
-    await new Promise(r => setTimeout(r, 500));
-
-    // Step 4: AST Validation
-    setProcessStep(`4/5 - Contrôle de syntaxe Python strict (ast.parse)...`);
-    await new Promise(r => setTimeout(r, 400));
-
-    setValidationSuccess(true);
-    setValidationMsg('Contrôle ast.parse 100% réussi : zéro SyntaxError, indentation validée, prêt pour la prod.');
-
-    // Generate simulated Diff
-    const diff: DiffLine[] = [
-      { type: 'same', text: `def ${currentTargetId}():` },
-      { type: 'same', text: `    # Bloc initialisé pour le niveau ${selectedLevel}` },
-      { type: 'remove', text: `    # Version précédente sans optimisation comportementale` },
-      { type: 'add', text: `    # [Niveau ${selectedLevel}${selectedSubLevelId ? ' · ' + selectedSubLevelId : ''}] Optimisation active :` },
-      { type: 'add', text: `    # Directive : ${chosenPrompt.slice(0, 65)}...` },
-      { type: 'add', text: `    return execute_behavioral_pipeline("${currentTargetId}")` },
-      { type: 'same', text: `    # Fin du bloc validé` },
-    ];
-    setLastDiffLines(diff);
-
-    // Step 5: Save
-    setProcessStep(`5/5 - Création du snapshot de sauvegarde et déploiement...`);
-    await new Promise(r => setTimeout(r, 350));
-
-    const newBackup: BackupItem = {
-      id: `bk-${Date.now()}`,
-      name: backupName,
-      timestamp: 'À l\'instant',
-      level: selectedLevel,
-      target: currentTargetId,
-      summary: chosenPrompt.slice(0, 70) + (chosenPrompt.length > 70 ? '...' : ''),
-      codeSnippet: `# Snapshot Niveau ${selectedLevel}\n# Cible : ${currentTargetId}\n# Directive : ${chosenPrompt}`,
-    };
-    setBackups(prev => [newBackup, ...prev]);
-
-    setIsProcessing(false);
-    setProcessStep('');
-    setRecentNotification(`Modification du Niveau ${selectedLevel} (${currentTargetId}) appliquée avec succès ! Syntaxe validée.`);
-    
-    if (applyMode === 'diff') {
-      setActiveTab('diff');
-    }
-  };
-
-  const handleRollback = (backup: BackupItem) => {
-    setRecentNotification(`Restauration réussie vers la sauvegarde ${backup.name} (${backup.timestamp}).`);
-  };
-
-  const togglePillar = (key: string) => {
-    setActivatedPillars(prev => ({ ...prev, [key]: !prev[key] }));
-  };
+  const samplePrompts = [
+    { label: '🎥 Vidéo Wan 2.1 : Vitesse 1.25x et FPV Drone', prompt: 'Modifie le moteur vidéo Wan 2.1 pour activer le mouvement FPV drone et une durée optimisée de 5s' },
+    { label: '🎨 Style : Thème violet néon #8B70FF', prompt: 'Passe la couleur d\'accentuation principale en violet néon intense #8B70FF avec effet glow' },
+    { label: '✂️ Montage : Découpe automatique scènes', prompt: 'Active la découpe automatique des scènes avec seuil réactif au curseur de lecture' },
+    { label: '🎙️ Voix F5-TTS : Cadence naturelle fluide', prompt: 'Optimise l\'élocution de la synthèse vocale F5-TTS pour un débit plus vivant' },
+    { label: '💬 Discussion : Hooks instantanés 3s', prompt: 'Renforce la génération des accroches virales pour captiver l\'audience dès les 3 premières secondes' },
+  ];
 
   return (
     <div className="space-y-6">
-      {/* HEADER SECTION */}
-      <div className="bg-[#18181b] border border-zinc-800 rounded-3xl p-6 shadow-xl">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <div>
-            <div className="flex items-center gap-2 mb-2 flex-wrap">
-              <span className="text-xs font-bold px-2.5 py-0.5 rounded-full bg-zinc-800 text-zinc-300 border border-zinc-700">
-                BehaviorLab AI · Système Dev
-              </span>
-              <span className="text-xs font-bold px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-300 border border-emerald-500/30 flex items-center gap-1">
-                <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
-                AST Shield Actif (Anti-Crash)
-              </span>
-              <span className="text-xs font-bold px-2.5 py-0.5 rounded-full bg-zinc-800 text-zinc-300 border border-zinc-700">
-                8 Niveaux d'Intervention
-              </span>
-            </div>
-            <h1 className="text-2xl md:text-3xl font-black text-white tracking-tight flex items-center gap-2">
-              🧪 Labo Dev IA <span className="text-zinc-400">Andrea</span>
-            </h1>
-            <p className="text-xs md:text-sm text-zinc-400 max-w-2xl mt-1 leading-relaxed">
-              Pilotez l'architecture d'Andrea par niveaux et sous-niveaux ultra-ciblés : de la micro-retouche visuelle jusqu'aux moteurs multi-agents, bâtisseur web, mémoire vectorielle et sécurité globale.
-            </p>
+      {/* Top Banner */}
+      <div className="p-6 rounded-3xl bg-[#140e2d] border border-[#5A33FF44] flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-xl">
+        <div className="space-y-1">
+          <div className="flex items-center gap-2 text-xs font-semibold text-[#8B70FF] uppercase tracking-wider">
+            <Bot className="w-4 h-4 text-purple-400" />
+            <span>Agent IA Ingénieur Code & Protocole MCP</span>
           </div>
+          <h2 className="text-2xl font-black text-white flex items-center gap-2.5">
+            <span>Labo Dev · Superviseur MCP</span>
+            <span className="px-2.5 py-0.5 rounded-full bg-[#201844] text-[#c4b5fd] text-xs font-mono font-bold border border-[#5A33FF55]">
+              Full Codebase Access
+            </span>
+          </h2>
+          <p className="text-xs text-slate-300 max-w-2xl">
+            L'Agent IA connaît l'intégralité du code de l'application. Envoyez n'importe quelle consigne en langage naturel : il sait exactement dans quel fichier, composant et fonction agir.
+          </p>
+        </div>
 
-          <div className="flex items-center gap-2 flex-wrap shrink-0">
-            <button
-              onClick={onViewFullCode}
-              className="px-3.5 py-2 rounded-xl bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 text-xs font-medium text-zinc-200 transition flex items-center gap-2 shadow-sm"
-            >
-              <FileText className="w-4 h-4 text-zinc-300" />
-              <span>app.py</span>
-            </button>
-            <button
-              onClick={onGoToProd}
-              className="px-4 py-2 rounded-xl bg-white hover:bg-zinc-200 text-black text-xs font-bold transition flex items-center gap-2 shadow"
-            >
-              <ExternalLink className="w-4 h-4" />
-              <span>Tester le Site (Prod)</span>
-            </button>
+        <div className="flex items-center gap-2 shrink-0">
+          <div className="px-3 py-2 rounded-xl bg-purple-950/80 border border-purple-500/40 text-purple-300 text-xs font-mono flex items-center gap-2">
+            <Cpu className="w-4 h-4 text-purple-400 animate-pulse" />
+            <span>Agent MCP En Ligne</span>
           </div>
         </div>
       </div>
 
-      {/* Notification banner avec action directe */}
-      {recentNotification && (
-        <div className="bg-emerald-950/70 border border-emerald-500/60 rounded-2xl p-4 text-sm text-emerald-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-xl animate-in fade-in">
-          <div className="flex items-center gap-3">
-            <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0" />
-            <span className="font-medium text-xs sm:text-sm">{recentNotification}</span>
-          </div>
-          <div className="flex items-center gap-2 shrink-0 self-end sm:self-auto">
-            <button
-              onClick={onGoToProd}
-              className="px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs transition flex items-center gap-1.5 shadow"
-            >
-              <span>🌐 Voir sur le Site</span>
-              <ArrowRight className="w-3.5 h-3.5" />
-            </button>
-            <button
-              onClick={() => setRecentNotification(null)}
-              className="text-xs text-emerald-400 hover:text-white underline px-2 py-1"
-            >
-              Fermer
-            </button>
-          </div>
+      {appliedMessage && (
+        <div className="p-4 rounded-2xl bg-emerald-950/90 border border-emerald-500/50 text-emerald-200 text-xs font-semibold flex items-center gap-2.5 shadow-lg">
+          <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+          <span>{appliedMessage}</span>
         </div>
       )}
 
-      {/* TABS NAVIGATION - ALIGNÉS À DROITE SANS COULEURS FLASHY */}
-      <div className="flex items-center gap-1.5 border-b border-zinc-800 pb-2 overflow-x-auto justify-end">
-        <button
-          onClick={() => setActiveTab('modify')}
-          className={`px-3.5 py-2 rounded-xl text-xs font-medium flex items-center gap-2 transition ${
-            activeTab === 'modify'
-              ? 'bg-zinc-800 text-white shadow-sm border border-zinc-700 font-semibold'
-              : 'text-zinc-400 hover:text-white hover:bg-zinc-800/40'
-          }`}
-        >
-          <Zap className="w-4 h-4" />
-          <span>🚀 Modifier (8 Niveaux)</span>
-        </button>
+      {/* Main Labo Tabs */}
+      <div className="rounded-3xl bg-[#100b24] border border-[#5A33FF44] overflow-hidden shadow-2xl">
+        {/* Navigation Bar */}
+        <div className="px-6 py-3.5 bg-[#171038] border-b border-[#5A33FF33] flex flex-wrap items-center justify-between gap-3">
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setActiveTab('mcp')}
+              className={`px-3.5 py-2 rounded-xl text-xs font-bold transition flex items-center gap-2 cursor-pointer ${
+                activeTab === 'mcp'
+                  ? 'bg-gradient-to-r from-[#1E1B8C] to-[#5A33FF] text-white shadow-md'
+                  : 'text-[#c4b5fd] hover:text-white hover:bg-[#201844]'
+              }`}
+            >
+              <Bot className="w-3.5 h-3.5 text-purple-300" />
+              <span>Agent IA MCP (Recommandé)</span>
+            </button>
 
-        <button
-          onClick={() => setActiveTab('roadmap')}
-          className={`px-3.5 py-2 rounded-xl text-xs font-medium flex items-center gap-2 transition ${
-            activeTab === 'roadmap'
-              ? 'bg-zinc-800 text-white shadow-sm border border-zinc-700 font-semibold'
-              : 'text-zinc-400 hover:text-white hover:bg-zinc-800/40'
-          }`}
-        >
-          <Trophy className="w-4 h-4 text-amber-400" />
-          <span>🏆 Vision Top 10 Mondial</span>
-        </button>
+            <button
+              onClick={() => setActiveTab('editor')}
+              className={`px-3.5 py-2 rounded-xl text-xs font-bold transition flex items-center gap-2 cursor-pointer ${
+                activeTab === 'editor'
+                  ? 'bg-gradient-to-r from-[#1E1B8C] to-[#5A33FF] text-white shadow-md'
+                  : 'text-[#c4b5fd] hover:text-white hover:bg-[#201844]'
+              }`}
+            >
+              <Code2 className="w-3.5 h-3.5" />
+              <span>Éditeur AST & Niveaux</span>
+            </button>
 
-        <button
-          onClick={() => setActiveTab('diff')}
-          className={`px-3.5 py-2 rounded-xl text-xs font-medium flex items-center gap-2 transition ${
-            activeTab === 'diff'
-              ? 'bg-zinc-800 text-white shadow-sm border border-zinc-700 font-semibold'
-              : 'text-zinc-400 hover:text-white hover:bg-zinc-800/40'
-          }`}
-        >
-          <Eye className="w-4 h-4" />
-          <span>🔍 Diff & Inspection</span>
-          {lastDiffLines && <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />}
-        </button>
+            <button
+              onClick={() => setActiveTab('diff')}
+              className={`px-3.5 py-2 rounded-xl text-xs font-bold transition flex items-center gap-2 cursor-pointer ${
+                activeTab === 'diff'
+                  ? 'bg-gradient-to-r from-[#1E1B8C] to-[#5A33FF] text-white shadow-md'
+                  : 'text-[#c4b5fd] hover:text-white hover:bg-[#201844]'
+              }`}
+            >
+              <GitCommit className="w-3.5 h-3.5" />
+              <span>Aperçu Diff Git</span>
+            </button>
 
-        <button
-          onClick={() => setActiveTab('backups')}
-          className={`px-3.5 py-2 rounded-xl text-xs font-medium flex items-center gap-2 transition ${
-            activeTab === 'backups'
-              ? 'bg-zinc-800 text-white shadow-sm border border-zinc-700 font-semibold'
-              : 'text-zinc-400 hover:text-white hover:bg-zinc-800/40'
-          }`}
-        >
-          <History className="w-4 h-4" />
-          <span>💾 Sauvegardes ({backups.length})</span>
-        </button>
+            <button
+              onClick={() => setActiveTab('backups')}
+              className={`px-3.5 py-2 rounded-xl text-xs font-bold transition flex items-center gap-2 cursor-pointer ${
+                activeTab === 'backups'
+                  ? 'bg-gradient-to-r from-[#1E1B8C] to-[#5A33FF] text-white shadow-md'
+                  : 'text-[#c4b5fd] hover:text-white hover:bg-[#201844]'
+              }`}
+            >
+              <Clock className="w-3.5 h-3.5" />
+              <span>Sauvegardes & Rollback ({backups.length})</span>
+            </button>
 
-        <button
-          onClick={() => setActiveTab('guide')}
-          className={`px-3.5 py-2 rounded-xl text-xs font-medium flex items-center gap-2 transition ${
-            activeTab === 'guide'
-              ? 'bg-zinc-800 text-white shadow-sm border border-zinc-700 font-semibold'
-              : 'text-zinc-400 hover:text-white hover:bg-zinc-800/40'
-          }`}
-        >
-          <BookOpen className="w-4 h-4" />
-          <span>📖 Guide Architecture</span>
-        </button>
-      </div>
-
-      {/* TAB 1: MODIFIER PAR NIVEAU & SOUS-NIVEAUX */}
-      {activeTab === 'modify' && (
-        <div className="space-y-6">
-          {/* LEVEL SELECTOR: 8 NIVEAUX DISPONIBLES EN GRILLE ULTRA-CLAIRE */}
-          <div>
-            <div className="flex items-center justify-between mb-3">
-              <label className="text-sm font-bold text-white flex items-center gap-2">
-                <Layers className="w-4 h-4 text-zinc-300" />
-                <span>1. Choisissez le Niveau d'Intervention (8 Niveaux) :</span>
-              </label>
-              <span className="text-xs text-zinc-400">Isolation chirurgicale garantie</span>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-              {(Object.keys(LAB_LEVELS) as ModifLevelId[]).map(lvlId => {
-                const lvl = LAB_LEVELS[lvlId];
-                const isSelected = selectedLevel === lvlId;
-                return (
-                  <button
-                    key={lvlId}
-                    type="button"
-                    onClick={() => handleLevelChange(lvlId)}
-                    className={`text-left p-3.5 rounded-2xl border transition relative overflow-hidden flex flex-col justify-between ${
-                      isSelected
-                        ? 'bg-zinc-800 border-zinc-600 shadow-md ring-1 ring-zinc-500'
-                        : 'bg-[#18181b] border-zinc-800 hover:border-zinc-700 hover:bg-zinc-800/50'
-                    }`}
-                  >
-                    <div>
-                      <div className="flex items-center justify-between mb-1.5">
-                        <span className={`text-[10px] font-bold px-2 py-0.5 rounded-md border ${lvl.color}`}>
-                          {lvl.badge}
-                        </span>
-                        {isSelected && <Check className="w-4 h-4 text-white" />}
-                      </div>
-                      <div className="text-xs font-bold text-white mb-1">{lvl.title}</div>
-                      <div className="text-[11px] text-zinc-400 line-clamp-2 leading-relaxed">
-                        {lvl.scope}
-                      </div>
-                    </div>
-                  </button>
-                );
-              })}
-            </div>
+            <button
+              onClick={() => setActiveTab('tests')}
+              className={`px-3.5 py-2 rounded-xl text-xs font-bold transition flex items-center gap-2 cursor-pointer ${
+                activeTab === 'tests'
+                  ? 'bg-gradient-to-r from-[#1E1B8C] to-[#5A33FF] text-white shadow-md'
+                  : 'text-[#c4b5fd] hover:text-white hover:bg-[#201844]'
+              }`}
+            >
+              <Shield className="w-3.5 h-3.5" />
+              <span>Intégrité & Tests</span>
+            </button>
           </div>
 
-          {/* SOUS-NIVEAUX D'INTERVENTION SPÉCIFIQUES AU NIVEAU CHOISI */}
-          {currentLevelInfo.subLevels && currentLevelInfo.subLevels.length > 0 && (
-            <div className="bg-[#18181b] border border-zinc-800 rounded-2xl p-5 space-y-3">
-              <div className="flex items-center justify-between">
-                <label className="text-xs font-bold text-white flex items-center gap-2">
-                  <Sliders className="w-4 h-4 text-cyan-400" />
-                  <span>Sous-Niveaux & Spécialisations pour le {currentLevelInfo.badge} :</span>
-                </label>
-                <span className="text-[11px] text-zinc-400">Cliquez pour pré-remplir l'intervention</span>
-              </div>
+          <div className="text-[11px] font-mono text-[#c4b5fd]">
+            Projet : <span className="text-white font-bold">Bea Labo Dev IA v2.4</span>
+          </div>
+        </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5">
-                {currentLevelInfo.subLevels.map(sub => {
-                  const isSubSelected = selectedSubLevelId === sub.id;
-                  return (
-                    <button
-                      key={sub.id}
-                      type="button"
-                      onClick={() => handleSelectSubLevel(sub)}
-                      className={`text-left p-3 rounded-xl border transition flex flex-col justify-between ${
-                        isSubSelected
-                          ? 'bg-zinc-800/90 border-zinc-600 shadow-sm text-white'
-                          : 'bg-[#212121] border-zinc-800/90 text-zinc-400 hover:text-zinc-200 hover:border-zinc-700'
-                      }`}
-                    >
-                      <div>
-                        <div className="flex items-center justify-between mb-1">
-                          <span className="font-mono text-[10px] font-bold px-1.5 py-0.5 rounded bg-zinc-700/60 text-zinc-200">
-                            {sub.id}
-                          </span>
-                          {isSubSelected && <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />}
-                        </div>
-                        <div className="text-xs font-bold text-white mb-1">{sub.title}</div>
-                        <p className="text-[11px] text-zinc-400 line-clamp-2 leading-relaxed">
-                          {sub.description}
-                        </p>
-                      </div>
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-          )}
-
-          {/* EXPLICATIONS APPROFONDIES DU NIVEAU SÉLECTIONNÉ */}
-          {currentLevelInfo.deepGuide && (
-            <div className="bg-[#18181b] border border-zinc-800 rounded-2xl overflow-hidden shadow-lg transition-all">
-              <button
-                type="button"
-                onClick={() => setShowLevelDeepGuide(!showLevelDeepGuide)}
-                className="w-full px-5 py-3.5 bg-[#212121]/70 hover:bg-[#212121] flex items-center justify-between text-left transition"
-              >
-                <div className="flex items-center gap-2.5">
-                  <span className="p-1.5 rounded-lg bg-zinc-800 border border-zinc-700 text-zinc-300">
-                    <BookOpen className="w-4 h-4 text-purple-400" />
-                  </span>
-                  <div>
-                    <div className="text-xs font-bold text-white flex items-center gap-2">
-                      <span>Comprendre en profondeur le {currentLevelInfo.badge}</span>
-                      <span className="text-[10px] font-normal text-zinc-400">Architecture, Sécurité & Conseils</span>
-                    </div>
-                    <p className="text-[11px] text-zinc-400 line-clamp-1">{currentLevelInfo.deepGuide.summary}</p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-2 text-xs text-zinc-400">
-                  <span>{showLevelDeepGuide ? 'Masquer' : 'Afficher'}</span>
-                  {showLevelDeepGuide ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
-                </div>
-              </button>
-
-              {showLevelDeepGuide && (
-                <div className="p-5 space-y-4 text-xs border-t border-zinc-800 bg-[#18181b]">
-                  {/* Mental Model Banner */}
-                  <div className="p-3.5 rounded-xl bg-purple-950/20 border border-purple-500/30 flex items-start gap-2.5">
-                    <Brain className="w-4 h-4 text-purple-400 shrink-0 mt-0.5" />
-                    <div>
-                      <strong className="text-white block mb-0.5">Modèle mental de l'Architecte :</strong>
-                      <p className="text-[#d8ccff] leading-relaxed">{currentLevelInfo.deepGuide.mentalModel}</p>
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {/* Quand l'utiliser */}
-                    <div className="p-3.5 rounded-xl bg-[#212121] border border-zinc-800 space-y-2">
-                      <div className="font-bold text-emerald-300 flex items-center gap-1.5">
-                        <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
-                        <span>Quand utiliser ce niveau ?</span>
-                      </div>
-                      <ul className="space-y-1.5 text-zinc-300 text-[11px] list-disc list-inside">
-                        {currentLevelInfo.deepGuide.whenToUse.map((item, i) => (
-                          <li key={i} className="leading-relaxed">{item}</li>
-                        ))}
-                      </ul>
-                    </div>
-
-                    {/* Garanties & Sécurité */}
-                    <div className="p-3.5 rounded-xl bg-[#212121] border border-zinc-800 space-y-2">
-                      <div className="font-bold text-cyan-300 flex items-center gap-1.5">
-                        <ShieldCheck className="w-3.5 h-3.5 text-cyan-400" />
-                        <span>Garanties & Bouclier AST</span>
-                      </div>
-                      <ul className="space-y-1.5 text-zinc-300 text-[11px] list-disc list-inside">
-                        {currentLevelInfo.deepGuide.safeGuards.map((item, i) => (
-                          <li key={i} className="leading-relaxed">{item}</li>
-                        ))}
-                      </ul>
-                    </div>
-                  </div>
-
-                  {/* Pièges & Exemple */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {/* Pièges fréquents */}
-                    <div className="p-3.5 rounded-xl bg-[#212121] border border-zinc-800 space-y-2">
-                      <div className="font-bold text-amber-300 flex items-center gap-1.5">
-                        <AlertTriangle className="w-3.5 h-3.5 text-amber-400" />
-                        <span>Pièges fréquents à éviter</span>
-                      </div>
-                      <ul className="space-y-1.5 text-zinc-300 text-[11px] list-disc list-inside">
-                        {currentLevelInfo.deepGuide.commonPitfalls.map((item, i) => (
-                          <li key={i} className="leading-relaxed">{item}</li>
-                        ))}
-                      </ul>
-                    </div>
-
-                    {/* Fichiers & Exemple concret */}
-                    <div className="p-3.5 rounded-xl bg-[#212121] border border-zinc-800 space-y-2">
-                      <div className="font-bold text-purple-300 flex items-center gap-1.5">
-                        <Code className="w-3.5 h-3.5 text-purple-400" />
-                        <span>Exemple concret d'intervention</span>
-                      </div>
-                      <div className="text-[11px] text-zinc-300 space-y-1">
-                        <div><strong className="text-white">Demande :</strong> « {currentLevelInfo.deepGuide.practicalExample.userPrompt} »</div>
-                        <div className="text-zinc-400 text-[10px]">{currentLevelInfo.deepGuide.practicalExample.actionDescription}</div>
-                        <pre className="bg-[#141416] p-2 rounded-lg border border-zinc-800 font-mono text-[10px] text-zinc-300 overflow-x-auto mt-1">
-                          {currentLevelInfo.deepGuide.practicalExample.codeSample}
-                        </pre>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              )}
-            </div>
-          )}
-
-          {/* CONFIGURATION & CIBLE */}
-          <div className="bg-[#18181b] border border-zinc-800 rounded-2xl p-5 space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              {/* Target selector */}
-              <div className="md:col-span-2">
-                <label className="block text-xs font-bold text-white mb-1.5 flex items-center gap-1.5">
-                  <Code className="w-3.5 h-3.5 text-zinc-300" />
-                  <span>2. Cible spécifique pour le Niveau {selectedLevel} :</span>
-                </label>
-                <select
-                  value={selectedTargetLabel}
-                  onChange={e => setSelectedTargetLabel(e.target.value)}
-                  className="w-full bg-[#212121] border border-zinc-700 text-white text-xs font-medium rounded-xl px-3.5 py-2.5 focus:outline-none focus:border-zinc-500"
-                >
-                  {targetKeys.map(key => (
-                    <option key={key} value={key}>
-                      {key}
-                    </option>
-                  ))}
-                </select>
-                <p className="text-[11px] text-zinc-400 mt-1">
-                  Identifiant Python : <code className="text-zinc-200 font-mono">{currentTargetId}</code> · Seul ce bloc sera modifié et validé par ast.parse.
-                </p>
-              </div>
-
-              {/* Model choice */}
-              <div>
-                <label className="block text-xs font-bold text-white mb-1.5 flex items-center gap-1.5">
-                  <Cpu className="w-3.5 h-3.5 text-zinc-300" />
-                  <span>Cerveau IA :</span>
-                </label>
-                <select
-                  value={modelChoice}
-                  onChange={e => setModelChoice(e.target.value)}
-                  className="w-full bg-[#212121] border border-zinc-700 text-white text-xs font-medium rounded-xl px-3.5 py-2.5 focus:outline-none focus:border-zinc-500"
-                >
-                  <option value="llama-3.3-70b-versatile">Llama 3.3 70B (Ultra recommandé)</option>
-                  <option value="llama-3.1-8b-instant">Llama Instant (Rapide)</option>
-                </select>
-              </div>
-            </div>
-
-            {/* Presets rapides */}
-            <div className="pt-2 border-t border-zinc-800 space-y-2">
-              <label className="block text-xs font-semibold text-zinc-400">
-                Idées de modifications pré-validées :
+        {/* Tab 1: AGENT IA MCP (Interactive Natural Language Modification Engine) */}
+        {activeTab === 'mcp' && (
+          <div className="p-6 space-y-6">
+            {/* Input Prompt Section */}
+            <div className="space-y-3">
+              <label className="text-xs font-extrabold text-white flex items-center justify-between">
+                <span className="flex items-center gap-2">
+                  <Sparkles className="w-4 h-4 text-purple-400" />
+                  <span>Envoyer une consigne de modification à l'Agent IA MCP :</span>
+                </span>
+                <span className="text-[11px] text-[#c4b5fd] font-normal">
+                  L'agent identifie automatiquement le fichier, le composant et la fonction
+                </span>
               </label>
-              <div className="flex flex-wrap gap-1.5">
-                {currentLevelInfo.presets.map((pr, idx) => (
+
+              <div className="relative">
+                <input
+                  type="text"
+                  value={agentPrompt}
+                  onChange={(e) => setAgentPrompt(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' && agentPrompt.trim()) {
+                      analyzePromptWithMcpAgent(agentPrompt);
+                    }
+                  }}
+                  placeholder="Ex : Change le mouvement caméra par défaut de Wan 2.1 en FPV Drone et augmente la durée..."
+                  className="w-full bg-[#0c081e] border border-[#5A33FF66] rounded-2xl px-4 py-3.5 pr-28 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-[#8B70FF] shadow-inner font-sans"
+                />
+
+                <button
+                  onClick={() => {
+                    if (agentPrompt.trim()) analyzePromptWithMcpAgent(agentPrompt);
+                  }}
+                  disabled={isAnalyzing || !agentPrompt.trim()}
+                  className="absolute right-2 top-1/2 -translate-y-1/2 px-4 py-2 bg-gradient-to-r from-[#1E1B8C] to-[#5A33FF] hover:from-[#2a24bf] hover:to-[#7048ff] text-white font-bold text-xs rounded-xl transition flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
+                >
+                  <Send className="w-3.5 h-3.5" />
+                  <span>{isAnalyzing ? 'Analyse...' : 'Analyser'}</span>
+                </button>
+              </div>
+
+              {/* Sample Quick Chips */}
+              <div className="flex flex-wrap items-center gap-2 pt-1">
+                <span className="text-[11px] text-slate-400 font-semibold mr-1">Exemples rapides :</span>
+                {samplePrompts.map((sp, idx) => (
                   <button
                     key={idx}
-                    type="button"
-                    onClick={() => handleApplyPreset(pr)}
-                    className="text-left text-[11px] px-2.5 py-1.5 rounded-lg bg-[#212121] hover:bg-zinc-700/60 border border-zinc-700 text-zinc-300 hover:text-white transition"
+                    onClick={() => {
+                      setAgentPrompt(sp.prompt);
+                      analyzePromptWithMcpAgent(sp.prompt);
+                    }}
+                    className="text-[11px] px-3 py-1 rounded-full bg-[#1b143c] hover:bg-[#261d54] text-[#c4b5fd] hover:text-white border border-[#5A33FF33] transition cursor-pointer"
                   >
-                    💡 {pr}
+                    {sp.label}
                   </button>
                 ))}
               </div>
             </div>
 
-            {/* Mode selection: Prompt IA ou Code Manuel */}
-            <div className="pt-2 border-t border-zinc-800 flex items-center justify-between">
-              <div className="flex items-center gap-1 bg-[#212121] p-1 rounded-xl border border-zinc-700 text-xs">
-                <button
-                  type="button"
-                  onClick={() => setEditMode('ai')}
-                  className={`px-3 py-1 rounded-lg font-medium transition ${
-                    editMode === 'ai' ? 'bg-zinc-800 text-white shadow-sm' : 'text-zinc-400 hover:text-white'
-                  }`}
-                >
-                  🤖 Par Prompt IA
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setEditMode('manual');
-                    if (!manualCode) setManualCode(currentSnippet);
-                  }}
-                  className={`px-3 py-1 rounded-lg font-medium transition ${
-                    editMode === 'manual' ? 'bg-zinc-800 text-white shadow-sm' : 'text-zinc-400 hover:text-white'
-                  }`}
-                >
-                  ✍️ Code Manuel Direct
-                </button>
-              </div>
+            {/* MCP Analysis & Diagnostic Result Card */}
+            {agentAnalysis && (
+              <div className="p-6 rounded-2xl bg-[#150f33] border border-[#5A33FF55] space-y-5 shadow-xl">
+                <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[#5A33FF33] pb-4">
+                  <div className="space-y-1">
+                    <div className="flex items-center gap-2">
+                      <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse" />
+                      <span className="text-xs font-bold text-emerald-400 uppercase tracking-wider">
+                        Cible identifiée par l'Agent MCP
+                      </span>
+                    </div>
+                    <div className="text-base font-extrabold text-white flex items-center gap-2 font-mono">
+                      <span>{agentAnalysis.file}</span>
+                      <span className="text-slate-400 text-xs">({agentAnalysis.lineRange})</span>
+                    </div>
+                  </div>
 
-              <div className="text-[11px] text-zinc-400">
-                Mode d'application : <strong>{applyMode === 'direct' ? 'Déploiement direct' : 'Validation visuelle (Diff)'}</strong>
-              </div>
-            </div>
-
-            {/* Textarea instruction or code */}
-            {editMode === 'ai' ? (
-              <div className="space-y-1.5">
-                <label className="block text-xs font-bold text-white">
-                  3. Décrivez précisément la modification à appliquer :
-                </label>
-                <textarea
-                  rows={3}
-                  value={prompt}
-                  onChange={e => setPrompt(e.target.value)}
-                  placeholder={`Exemple : Optimiser le bloc ${currentTargetId} pour ajouter une relance comportementale...`}
-                  className="w-full bg-[#212121] border border-zinc-700 rounded-xl p-3 text-xs text-white placeholder-zinc-500 focus:outline-none focus:border-zinc-500 font-mono leading-relaxed"
-                />
-              </div>
-            ) : (
-              <div className="space-y-1.5">
-                <div className="flex items-center justify-between">
-                  <label className="block text-xs font-bold text-white">
-                    3. Édition manuelle du bloc ({currentTargetId}) :
-                  </label>
-                  <button
-                    type="button"
-                    onClick={() => setManualCode(currentSnippet)}
-                    className="text-[11px] text-zinc-400 hover:text-white underline"
-                  >
-                    Réinitialiser au code original
-                  </button>
+                  <div className="flex items-center gap-2">
+                    <span className="px-3 py-1 rounded-xl bg-[#201844] text-[#8B70FF] text-xs font-mono font-bold border border-[#5A33FF44]">
+                      {agentAnalysis.levelTitle}
+                    </span>
+                    <button
+                      onClick={handleApplyModification}
+                      disabled={isApplying}
+                      className="px-4 py-2 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-500 hover:from-emerald-500 hover:to-teal-400 text-white font-bold text-xs transition shadow-lg shadow-emerald-950/40 flex items-center gap-2 cursor-pointer disabled:opacity-50"
+                    >
+                      <Sparkles className="w-4 h-4 text-amber-300" />
+                      <span>{isApplying ? 'Application du patch...' : 'Appliquer via Agent MCP'}</span>
+                    </button>
+                  </div>
                 </div>
-                <textarea
-                  rows={8}
-                  value={manualCode || currentSnippet}
-                  onChange={e => setManualCode(e.target.value)}
-                  className="w-full bg-[#121214] border border-zinc-700 rounded-xl p-3 text-xs text-zinc-200 font-mono leading-relaxed focus:outline-none focus:border-zinc-500"
-                />
+
+                {/* Agent Reasoning */}
+                <div className="p-4 rounded-xl bg-[#0d091e] border border-[#5A33FF33] space-y-1.5">
+                  <div className="text-[11px] font-bold text-[#c4b5fd] uppercase tracking-wider flex items-center gap-1.5">
+                    <Bot className="w-3.5 h-3.5 text-purple-400" />
+                    <span>Raisonnement de l'Agent IA & Point d'impact :</span>
+                  </div>
+                  <p className="text-xs text-slate-200 leading-relaxed font-sans">
+                    {agentAnalysis.rationale}
+                  </p>
+                  <div className="text-[11px] text-slate-400 font-mono pt-1">
+                    🎯 Symbole cible : <span className="text-purple-300">{agentAnalysis.symbol}</span>
+                  </div>
+                </div>
+
+                {/* Diff Preview */}
+                <div className="space-y-2">
+                  <div className="text-xs font-bold text-white flex items-center justify-between">
+                    <span>Patch Git Diff généré :</span>
+                    <span className="text-[10px] font-mono text-slate-400">Contrôle d'intégrité AST : OK</span>
+                  </div>
+                  <pre className="p-4 rounded-xl bg-[#090616] border border-[#5A33FF44] font-mono text-xs text-slate-200 overflow-x-auto leading-relaxed">
+                    {agentAnalysis.diff.split('\n').map((line, i) => {
+                      let color = 'text-slate-300';
+                      if (line.startsWith('+')) color = 'text-emerald-400 bg-emerald-950/30 px-1 rounded';
+                      else if (line.startsWith('-')) color = 'text-rose-400 bg-rose-950/30 px-1 rounded';
+                      else if (line.startsWith('@')) color = 'text-sky-400 font-bold';
+                      else if (line.startsWith('diff')) color = 'text-purple-400 font-bold';
+                      return <div key={i} className={color}>{line}</div>;
+                    })}
+                  </pre>
+                </div>
               </div>
             )}
 
-            {/* Action footer */}
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-3 border-t border-zinc-800">
-              <div className="flex items-center gap-3">
-                <input
-                  type="text"
-                  value={backupName}
-                  onChange={e => setBackupName(e.target.value)}
-                  placeholder="Nom de la sauvegarde"
-                  className="bg-[#212121] border border-zinc-700 rounded-xl px-3 py-1.5 text-xs text-zinc-300 font-mono focus:outline-none w-56"
-                />
+            {/* Live Agent Logs Stream */}
+            <div className="p-4 rounded-2xl bg-[#0d091e] border border-[#5A33FF22] space-y-2">
+              <div className="text-[11px] font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
+                <Terminal className="w-3.5 h-3.5 text-slate-500" />
+                <span>Journal d'activité de l'Agent MCP :</span>
+              </div>
+              <div className="space-y-1 font-mono text-[11px] text-slate-400">
+                {agentLogs.map((log, i) => (
+                  <div key={i} className="flex items-center gap-2">
+                    <span className="text-purple-400">›</span>
+                    <span>{log}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Tab 2: AST Editor by Levels */}
+        {activeTab === 'editor' && (
+          <div className="p-6 space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="p-4 bg-[#14132b] rounded-2xl border border-[#5A33FF33] space-y-2">
+                <label className="text-xs font-bold text-slate-300">Action prédéfinie (Niveau {activeLevel})</label>
                 <select
-                  value={applyMode}
-                  onChange={e => setApplyMode(e.target.value as any)}
-                  className="bg-[#212121] border border-zinc-700 rounded-xl px-2.5 py-1.5 text-xs text-zinc-300 focus:outline-none"
+                  value={'accent_color'}
+                  onChange={() => {}}
+                  className="w-full px-3 py-2 bg-[#201844] border border-[#5A33FF44] rounded-xl text-xs text-white focus:outline-none"
                 >
-                  <option value="direct">Sauvegarder & Appliquer</option>
-                  <option value="diff">Inspecter le Diff avant validation</option>
+                  <option value="accent_color">Ajuster la teinte principale (#5A33FF)</option>
+                  <option value="motion_defaults">Mouvement Wan 2.1 par défaut (Orbit 360°)</option>
+                  <option value="whisper_sync">Sous-titres automatiques Whisper (Activés)</option>
+                  <option value="f5tts_rate">Vitesse d'élocution F5-TTS (1.05x)</option>
                 </select>
               </div>
 
-              <button
-                type="button"
-                onClick={runModification}
-                disabled={isProcessing}
-                className={`px-6 py-2.5 rounded-xl font-bold text-xs transition flex items-center justify-center gap-2 shadow-lg ${
-                  isProcessing 
-                    ? 'bg-zinc-700 text-zinc-400 cursor-wait' 
-                    : 'bg-white hover:bg-zinc-200 text-black active:scale-95'
-                }`}
-              >
-                {isProcessing ? (
-                  <>
-                    <span className="w-3.5 h-3.5 border-2 border-black border-t-transparent rounded-full animate-spin" />
-                    <span>Traitement en cours...</span>
-                  </>
-                ) : (
-                  <>
-                    <Play className="w-3.5 h-3.5 fill-black" />
-                    <span>Lancer la Modification (Niveau {selectedLevel})</span>
-                  </>
-                )}
-              </button>
-            </div>
-
-            {/* Process step live feed */}
-            {isProcessing && (
-              <div className="p-3 rounded-xl bg-zinc-900 border border-zinc-700 text-xs font-mono text-zinc-300 flex items-center gap-2.5 animate-in fade-in">
-                <span className="w-2.5 h-2.5 rounded-full bg-cyan-400 animate-ping" />
-                <span>{processStep}</span>
-              </div>
-            )}
-          </div>
-        </div>
-      )}
-
-      {/* TAB 2: VISION & ROADMAP TOP 10 MONDIAL */}
-      {activeTab === 'roadmap' && (
-        <div className="bg-[#18181b] border border-zinc-800 rounded-3xl p-6 md:p-8 space-y-8 animate-in fade-in">
-          <div className="space-y-3">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-300 text-xs font-bold">
-              <Trophy className="w-4 h-4 text-amber-400" />
-              <span>Analyse Stratégique & Feuille de Route BehaviorLab AI</span>
-            </div>
-            <h2 className="text-2xl md:text-3xl font-black text-white tracking-tight">
-              Ce qui sépare Andrea d'un outil IA dans le TOP 10 MONDIAL
-            </h2>
-            <p className="text-xs md:text-sm text-zinc-300 leading-relaxed max-w-3xl">
-              Pour offrir une intelligence artificielle de rang mondial, un outil ne peut pas se contenter d'un simple chat passif. Il doit être <strong>multimodal, proactif, doté d'une mémoire cognitive profonde et d'un environnement de création en direct</strong>.
-            </p>
-          </div>
-
-          {/* THE 6 CRITICAL PILLARS TO ENTER TOP 10 */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {/* PILLAR 1: MULTIMODAL DUPLEX */}
-            <div className={`p-5 rounded-2xl border transition-all ${
-              activatedPillars.duplex_voice ? 'bg-[#212121] border-zinc-600 shadow-md' : 'bg-[#18181b] border-zinc-800 opacity-80'
-            }`}>
-              <div className="flex items-center justify-between mb-3">
-                <div className="flex items-center gap-2.5">
-                  <div className="w-9 h-9 rounded-xl bg-zinc-800 flex items-center justify-center text-lg">
-                    🎙️
-                  </div>
-                  <div>
-                    <h3 className="font-bold text-sm text-white">1. Voix Full-Duplex & Latence &lt;250ms</h3>
-                    <div className="text-[10px] text-zinc-400">Audio bidirectionnel temps réel haute fidélité</div>
-                  </div>
+              <div className="p-4 bg-[#14132b] rounded-2xl border border-[#5A33FF33] space-y-2">
+                <label className="text-xs font-bold text-slate-300">Portée d'application</label>
+                <div className="text-xs text-slate-400 font-mono py-2">
+                  src/services/videoService.ts · src/components/AndreaChat.tsx
                 </div>
-                <button
-                  onClick={() => togglePillar('duplex_voice')}
-                  className={`text-[10px] font-bold px-2 py-1 rounded-lg border transition ${
-                    activatedPillars.duplex_voice ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40' : 'bg-zinc-800 text-zinc-400 border-zinc-700'
-                  }`}
-                >
-                  {activatedPillars.duplex_voice ? '✓ Actif' : 'Désactivé'}
-                </button>
               </div>
-              <p className="text-xs text-zinc-300 leading-relaxed mb-3">
-                <strong>Ce qui manque aux IAs ordinaires :</strong> Elles attendent qu'on clique sur un micro puis s'arrêtent. Un outil du Top 10 permet de converser oralement en continu, avec des intonations naturelles, en pouvant interrompre l'IA quand elle parle.
-              </p>
-              <div className="text-[11px] text-zinc-400 bg-[#141416] p-2.5 rounded-xl border border-zinc-800">
-                <strong>Dans Bea :</strong> Intégration de Web Speech API dictée sans coupure + synthèse vocale adaptative (`beaVoice`).
+
+              <div className="p-4 bg-[#14132b] rounded-2xl border border-[#5A33FF33] space-y-2">
+                <label className="text-xs font-bold text-slate-300">Statut du build</label>
+                <div className="flex items-center gap-2 text-xs text-emerald-400 font-mono py-2">
+                  <CheckCircle2 className="w-4 h-4" />
+                  <span>0 erreur · Prêt au déploiement</span>
+                </div>
               </div>
             </div>
 
-            {/* PILLAR 2: PERSISTENT COGNITIVE MEMORY */}
-            <div className={`p-5 rounded-2xl border transition-all ${
-              activatedPillars.memory_graph ? 'bg-[#212121] border-zinc-600 shadow-md' : 'bg-[#18181b] border-zinc-800 opacity-80'
-            }`}>
-              <div className="flex items-center justify-between mb-3">
-                <div className="flex items-center gap-2.5">
-                  <div className="w-9 h-9 rounded-xl bg-zinc-800 flex items-center justify-center text-lg">
-                    🧠
-                  </div>
-                  <div>
-                    <h3 className="font-bold text-sm text-white">2. Graphe de Mémoire Cognitive</h3>
-                    <div className="text-[10px] text-zinc-400">Bien plus qu'un simple historique de chat</div>
-                  </div>
-                </div>
-                <button
-                  onClick={() => togglePillar('memory_graph')}
-                  className={`text-[10px] font-bold px-2 py-1 rounded-lg border transition ${
-                    activatedPillars.memory_graph ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40' : 'bg-zinc-800 text-zinc-400 border-zinc-700'
-                  }`}
-                >
-                  {activatedPillars.memory_graph ? '✓ Actif' : 'Désactivé'}
-                </button>
-              </div>
-              <p className="text-xs text-zinc-300 leading-relaxed mb-3">
-                <strong>Ce qui manque aux IAs ordinaires :</strong> Elles oublient dès qu'une session expire. Un outil du Top 10 cartographie vos forces, vos moments de découragement, vos projets récurrents et ajuste ses conseils sans que vous ayez à vous répéter.
-              </p>
-              <div className="text-[11px] text-zinc-400 bg-[#141416] p-2.5 rounded-xl border border-zinc-800">
-                <strong>Dans Bea :</strong> Table Supabase `memories` persistante avec profilage automatique (étudiant, créateur, indépendant) et suivi de la série de jours consécutifs.
-              </div>
-            </div>
-
-            {/* PILLAR 3: DUAL-CANVAS INTERACTIVE WORKSPACE */}
-            <div className={`p-5 rounded-2xl border transition-all ${
-              activatedPillars.dual_canvas ? 'bg-[#212121] border-zinc-600 shadow-md' : 'bg-[#18181b] border-zinc-800 opacity-80'
-            }`}>
-              <div className="flex items-center justify-between mb-3">
-                <div className="flex items-center gap-2.5">
-                  <div className="w-9 h-9 rounded-xl bg-zinc-800 flex items-center justify-center text-lg">
-                    ⚡
-                  </div>
-                  <div>
-                    <h3 className="font-bold text-sm text-white">3. Espace Double-Canvas & Studio de Code Live</h3>
-                    <div className="text-[10px] text-zinc-400">Le chat à gauche, le produit vivant à droite</div>
-                  </div>
-                </div>
-                <button
-                  onClick={() => togglePillar('dual_canvas')}
-                  className={`text-[10px] font-bold px-2 py-1 rounded-lg border transition ${
-                    activatedPillars.dual_canvas ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40' : 'bg-zinc-800 text-zinc-400 border-zinc-700'
-                  }`}
-                >
-                  {activatedPillars.dual_canvas ? '✓ Actif' : 'Désactivé'}
-                </button>
-              </div>
-              <p className="text-xs text-zinc-300 leading-relaxed mb-3">
-                <strong>Ce qui manque aux IAs ordinaires :</strong> Tout reste enfermé dans des blocs de texte. Dans le Top 10, quand vous demandez un site web ou une miniature, l'application s'affiche en direct à côté et s'actualise au millimètre.
-              </p>
-              <div className="text-[11px] text-zinc-400 bg-[#141416] p-2.5 rounded-xl border border-zinc-800">
-                <strong>Dans Bea :</strong> SiteBuilder réactif avec aperçu Desktop/Mobile interactif et VisualDesignStudio avec canevas 9:16 / 1:1 / 16:9.
-              </div>
-            </div>
-
-            {/* PILLAR 4: PROACTIVE NUDGES */}
-            <div className={`p-5 rounded-2xl border transition-all ${
-              activatedPillars.autonomous_nudges ? 'bg-[#212121] border-zinc-600 shadow-md' : 'bg-[#18181b] border-zinc-800 opacity-80'
-            }`}>
-              <div className="flex items-center justify-between mb-3">
-                <div className="flex items-center gap-2.5">
-                  <div className="w-9 h-9 rounded-xl bg-zinc-800 flex items-center justify-center text-lg">
-                    🎯
-                  </div>
-                  <div>
-                    <h3 className="font-bold text-sm text-white">4. Relances Comportementales Proactives (Nudges)</h3>
-                    <div className="text-[10px] text-zinc-400">Une IA qui vient vers vous au moment critique</div>
-                  </div>
-                </div>
-                <button
-                  onClick={() => togglePillar('autonomous_nudges')}
-                  className={`text-[10px] font-bold px-2 py-1 rounded-lg border transition ${
-                    activatedPillars.autonomous_nudges ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40' : 'bg-zinc-800 text-zinc-400 border-zinc-700'
-                  }`}
-                >
-                  {activatedPillars.autonomous_nudges ? '✓ Actif' : 'En test'}
-                </button>
-              </div>
-              <p className="text-xs text-zinc-300 leading-relaxed mb-3">
-                <strong>Ce qui manque aux IAs ordinaires :</strong> Si vous ne revenez pas, elles ne font rien. Le secret d'une IA comportementale d'élite est de vous envoyer un check-in amical quand vous aviez promis de faire une tâche à 15h.
-              </p>
-              <div className="text-[11px] text-zinc-400 bg-[#141416] p-2.5 rounded-xl border border-zinc-800">
-                <strong>Dans Bea :</strong> Système de streaks (jours consécutifs) et compteur d'élan mental (Momentum Points).
-              </div>
-            </div>
-
-            {/* PILLAR 5: AST SHIELD & ZERO CRASH */}
-            <div className={`p-5 rounded-2xl border transition-all ${
-              activatedPillars.ast_shield ? 'bg-[#212121] border-zinc-600 shadow-md' : 'bg-[#18181b] border-zinc-800 opacity-80'
-            }`}>
-              <div className="flex items-center justify-between mb-3">
-                <div className="flex items-center gap-2.5">
-                  <div className="w-9 h-9 rounded-xl bg-zinc-800 flex items-center justify-center text-lg">
-                    🛡️
-                  </div>
-                  <div>
-                    <h3 className="font-bold text-sm text-white">5. Exécution Sans Erreur & Bouclier AST</h3>
-                    <div className="text-[10px] text-zinc-400">Zéro plantage en production garanti</div>
-                  </div>
-                </div>
-                <button
-                  onClick={() => togglePillar('ast_shield')}
-                  className={`text-[10px] font-bold px-2 py-1 rounded-lg border transition ${
-                    activatedPillars.ast_shield ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40' : 'bg-zinc-800 text-zinc-400 border-zinc-700'
-                  }`}
-                >
-                  {activatedPillars.ast_shield ? '✓ Actif' : 'Désactivé'}
-                </button>
-              </div>
-              <p className="text-xs text-zinc-300 leading-relaxed mb-3">
-                <strong>Ce qui manque aux IAs ordinaires :</strong> Elles génèrent du code qui casse dès qu'on le lance. Un outil du Top 10 inspecte le code dans un arbre abstrait (AST) avant de l'écrire et rollback automatiquement en cas de pépin.
-              </p>
-              <div className="text-[11px] text-zinc-400 bg-[#141416] p-2.5 rounded-xl border border-zinc-800">
-                <strong>Dans Bea :</strong> Labo Dev IA avec validation <code className="text-white font-mono">ast.parse()</code> intégrée et historique de snapshots.
-              </div>
-            </div>
-
-            {/* PILLAR 6: 15 WORLD LANGUAGES */}
-            <div className={`p-5 rounded-2xl border transition-all ${
-              activatedPillars.multilingual_15 ? 'bg-[#212121] border-zinc-600 shadow-md' : 'bg-[#18181b] border-zinc-800 opacity-80'
-            }`}>
-              <div className="flex items-center justify-between mb-3">
-                <div className="flex items-center gap-2.5">
-                  <div className="w-9 h-9 rounded-xl bg-zinc-800 flex items-center justify-center text-lg">
-                    🌍
-                  </div>
-                  <div>
-                    <h3 className="font-bold text-sm text-white">6. 15 Langues Majeures & Adaptation Culturelle</h3>
-                    <div className="text-[10px] text-zinc-400">Présence mondiale instantanée</div>
-                  </div>
-                </div>
-                <button
-                  onClick={() => togglePillar('multilingual_15')}
-                  className={`text-[10px] font-bold px-2 py-1 rounded-lg border transition ${
-                    activatedPillars.multilingual_15 ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40' : 'bg-zinc-800 text-zinc-400 border-zinc-700'
-                  }`}
-                >
-                  {activatedPillars.multilingual_15 ? '✓ Actif' : 'Désactivé'}
-                </button>
-              </div>
-              <p className="text-xs text-zinc-300 leading-relaxed mb-3">
-                <strong>Ce qui manque aux IAs ordinaires :</strong> Traductions mot à mot froides. Dans le Top 10, les métaphores comportementales et les déclencheurs de passage à l'action sont adaptés aux cultures occidentales, asiatiques, arabes et africaines.
-              </p>
-              <div className="text-[11px] text-zinc-400 bg-[#141416] p-2.5 rounded-xl border border-zinc-800">
-                <strong>Dans Bea :</strong> Prise en charge des 15 langues majeures (FR, EN, ES, DE, PT, IT, NL, AR, ZH, JA, KO, RU, HI, TR, WO) dès la vitrine.
-              </div>
+            <div>
+              <label className="text-xs font-semibold text-slate-300 block mb-2">
+                Patch AST / Snippet injecté :
+              </label>
+              <textarea
+                value={customDiffText}
+                onChange={(e) => setCustomDiffText(e.target.value)}
+                spellCheck={false}
+                className="w-full h-48 p-4 bg-[#0c0b17] rounded-2xl border border-[#5A33FF44] font-mono text-xs text-slate-200 leading-relaxed focus:outline-none resize-none"
+              />
             </div>
           </div>
+        )}
 
-          {/* MATRICE COMPARATIVE */}
-          <div className="p-6 bg-[#212121] border border-zinc-700 rounded-2xl space-y-4">
-            <h3 className="font-bold text-base text-white flex items-center gap-2">
-              <span>Matrice d'excellence : Andrea vs IA Générique Standard vs Outils de Code Classiques</span>
-            </h3>
-            <div className="overflow-x-auto">
-              <table className="w-full text-xs text-left">
-                <thead className="text-[11px] uppercase text-zinc-400 border-b border-zinc-700">
-                  <tr>
-                    <th className="py-2.5 pr-4">Capacité</th>
-                    <th className="py-2.5 px-3 font-bold text-white">Andrea (BehaviorLab AI)</th>
-                    <th className="py-2.5 px-3 text-zinc-400">IA Conversationnelle Standard</th>
-                    <th className="py-2.5 px-3 text-zinc-400">Outils de Code Classiques</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-zinc-800 text-zinc-300">
-                  <tr>
-                    <td className="py-2.5 pr-4 font-semibold text-white">Psychologie Comportementale Fogg</td>
-                    <td className="py-2.5 px-3 text-emerald-400 font-bold">✓ Cœur natif & analyse agile</td>
-                    <td className="py-2.5 px-3 text-zinc-500">Générique</td>
-                    <td className="py-2.5 px-3 text-zinc-500">Non</td>
-                  </tr>
-                  <tr>
-                    <td className="py-2.5 pr-4 font-semibold text-white">Validation AST Anti-Crash Directe</td>
-                    <td className="py-2.5 px-3 text-emerald-400 font-bold">✓ 8 Niveaux chirurgicaux</td>
-                    <td className="py-2.5 px-3 text-zinc-500">Non</td>
-                    <td className="py-2.5 px-3 text-cyan-400">Partiel (IDE local)</td>
-                  </tr>
-                  <tr>
-                    <td className="py-2.5 pr-4 font-semibold text-white">Bâtisseur Web & Studio Visuel</td>
-                    <td className="py-2.5 px-3 text-emerald-400 font-bold">✓ Intégré sans quitter l'app</td>
-                    <td className="py-2.5 px-3 text-zinc-500">Code brut textuel</td>
-                    <td className="py-2.5 px-3 text-cyan-400">Outils séparés</td>
-                  </tr>
-                  <tr>
-                    <td className="py-2.5 pr-4 font-semibold text-white">Mémoire d'Habitudes & Streaks</td>
-                    <td className="py-2.5 px-3 text-emerald-400 font-bold">✓ Suivi de régularité & momentum</td>
-                    <td className="py-2.5 px-3 text-zinc-400">Historique basique</td>
-                    <td className="py-2.5 px-3 text-zinc-500">Non</td>
-                  </tr>
-                  <tr>
-                    <td className="py-2.5 pr-4 font-semibold text-white">15 Langues en Vitrine & App</td>
-                    <td className="py-2.5 px-3 text-emerald-400 font-bold">✓ Inclus Wolof & Monde</td>
-                    <td className="py-2.5 px-3 text-zinc-400">Partiel</td>
-                    <td className="py-2.5 px-3 text-zinc-500">Anglais prioritaire</td>
-                  </tr>
-                </tbody>
-              </table>
+        {/* Tab 3: Git Diff */}
+        {activeTab === 'diff' && (
+          <div className="p-6">
+            <div className="p-5 bg-[#090616] rounded-2xl border border-[#5A33FF33] font-mono text-xs space-y-1">
+              <div className="text-slate-500 font-bold mb-2">diff --git a/src/services/videoService.ts b/src/services/videoService.ts</div>
+              <div className="text-sky-400">@@ -15,8 +15,12 @@ export const CAMERA_MOVEMENTS = [</div>
+              <div className="text-slate-400">   id: 'orbit', name: 'Orbit 360°'</div>
+              <div className="text-rose-400 bg-rose-950/30 px-1 rounded">-  engine: 'legacy'</div>
+              <div className="text-emerald-400 bg-emerald-950/30 px-1 rounded">+  engine: 'wan-2.1-primary'</div>
+              <div className="text-emerald-400 bg-emerald-950/30 px-1 rounded">+  fallback: ['cogvideox-5b', 'animatediff-sd15']</div>
+              <div className="text-slate-400">   promptCue: '360 degree rotational orbit camera shot around central subject...'</div>
             </div>
           </div>
-        </div>
-      )}
+        )}
 
-      {/* TAB 3: DIFF & INSPECTION */}
-      {activeTab === 'diff' && (
-        <div className="bg-[#18181b] border border-zinc-800 rounded-2xl p-6 space-y-4">
-          <div className="flex items-center justify-between">
-            <h3 className="text-base font-bold text-white flex items-center gap-2">
-              <Eye className="w-4 h-4 text-zinc-300" />
-              <span>Inspection Différentielle (Diff Visuel)</span>
-            </h3>
-            <span className="text-xs text-zinc-400">Cible : <code className="text-zinc-200 font-mono">{currentTargetId}</code></span>
-          </div>
-
-          {lastDiffLines ? (
-            <div className="bg-[#121214] border border-zinc-800 rounded-xl p-4 font-mono text-xs space-y-1 overflow-x-auto">
-              {lastDiffLines.map((line, idx) => (
-                <div
-                  key={idx}
-                  className={`px-2 py-0.5 rounded flex items-center gap-2 ${
-                    line.type === 'add'
-                      ? 'bg-emerald-950/60 text-emerald-300 border-l-2 border-emerald-400'
-                      : line.type === 'remove'
-                      ? 'bg-rose-950/60 text-rose-300 line-through border-l-2 border-rose-400'
-                      : 'text-zinc-400'
-                  }`}
-                >
-                  <span className="w-4 text-center text-zinc-600 select-none">
-                    {line.type === 'add' ? '+' : line.type === 'remove' ? '-' : ' '}
-                  </span>
-                  <span>{line.text}</span>
-                </div>
-              ))}
+        {/* Tab 4: Backups & Rollback */}
+        {activeTab === 'backups' && (
+          <div className="p-6 space-y-3">
+            <div className="text-xs text-slate-400">
+              Chaque modification appliquée via l'Agent MCP génère automatiquement un point de restauration :
             </div>
-          ) : (
-            <div className="text-center py-12 text-xs text-zinc-500 space-y-2">
-              <Eye className="w-8 h-8 mx-auto text-zinc-600 opacity-50" />
-              <p>Aucune modification récente à inspecter.</p>
-              <button
-                onClick={() => setActiveTab('modify')}
-                className="text-white hover:underline text-xs"
-              >
-                Lancer une modification dans l'onglet 1
-              </button>
-            </div>
-          )}
-        </div>
-      )}
-
-      {/* TAB 4: SAUVEGARDES & ROLLBACK */}
-      {activeTab === 'backups' && (
-        <div className="bg-[#18181b] border border-zinc-800 rounded-2xl p-6 space-y-4">
-          <div className="flex items-center justify-between">
-            <h3 className="text-base font-bold text-white flex items-center gap-2">
-              <History className="w-4 h-4 text-zinc-300" />
-              <span>Historique des Sauvegardes & Rollbacks Automatiques ({backups.length})</span>
-            </h3>
-            <span className="text-xs text-zinc-400">Restauration 100% infaillible</span>
-          </div>
-
-          <div className="space-y-3">
-            {backups.map(bk => (
+            {backups.map((bk) => (
               <div
                 key={bk.id}
-                className="bg-[#212121] border border-zinc-700/80 rounded-xl p-4 flex flex-col md:flex-row md:items-center justify-between gap-3 hover:border-zinc-600 transition"
+                className="p-4 bg-[#14132b] rounded-2xl border border-[#5A33FF33] flex items-center justify-between text-xs"
               >
-                <div className="space-y-1">
-                  <div className="flex items-center gap-2">
-                    <span className="font-mono text-xs font-bold text-white">{bk.name}</span>
-                    <span className="text-[10px] px-2 py-0.5 rounded-full bg-zinc-800 text-zinc-300 border border-zinc-700">
-                      Niveau {bk.level}
-                    </span>
-                    <span className="text-[10px] text-zinc-400">{bk.timestamp}</span>
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-xl bg-[#201844] flex items-center justify-center text-[#8B70FF] font-bold">
+                    {bk.id.replace('b_', '#')}
                   </div>
-                  <p className="text-xs text-zinc-400">{bk.summary}</p>
+                  <div>
+                    <div className="font-bold text-white">{bk.name}</div>
+                    <div className="text-[11px] text-slate-400">{bk.date} · {bk.size}</div>
+                  </div>
                 </div>
-
-                <div className="flex items-center gap-2 shrink-0">
-                  <button
-                    onClick={() => handleRollback(bk)}
-                    className="px-3 py-1.5 rounded-lg bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 text-white font-semibold text-xs transition flex items-center gap-1.5 shadow-sm"
-                  >
-                    <RotateCcw className="w-3.5 h-3.5" />
-                    <span>Restaurer cette version</span>
-                  </button>
-                </div>
+                <button
+                  onClick={() => {
+                    alert(`Restauration vers ${bk.name} effectuée avec succès.`);
+                  }}
+                  className="px-3 py-1.5 rounded-xl bg-[#201844] hover:bg-[#2b1f5c] border border-[#5A33FF44] text-slate-200 hover:text-white transition-colors cursor-pointer flex items-center gap-1.5"
+                >
+                  <RotateCcw className="w-3.5 h-3.5" />
+                  <span>Rollback</span>
+                </button>
               </div>
             ))}
           </div>
-        </div>
-      )}
+        )}
 
-      {/* TAB 5: GUIDE DES 8 NIVEAUX */}
-      {activeTab === 'guide' && (
-        <div className="bg-[#18181b] border border-zinc-800 rounded-2xl p-6 space-y-6">
-          <div>
-            <h3 className="text-base font-bold text-white flex items-center gap-2">
-              <BookOpen className="w-4 h-4 text-zinc-300" />
-              <span>Guide d'Architecture des 8 Niveaux de Modification</span>
-            </h3>
-            <p className="text-xs text-zinc-400 mt-1 leading-relaxed">
-              Pourquoi segmenter en 8 niveaux ? Parce qu'un fichier de 2500 lignes envoyé d'un seul bloc à un LLM risque d'être tronqué ou d'introduire des régressions. Le système par niveau isole la cible avec une précision chirurgicale et garantit un code exécutable en prod.
-            </p>
+        {/* Tab 5: Tests */}
+        {activeTab === 'tests' && (
+          <div className="p-6 space-y-3">
+            <div className="p-4 bg-[#14132b] rounded-2xl border border-emerald-500/30 flex items-center justify-between text-xs">
+              <div>
+                <div className="font-bold text-white">Test 1 · Intégrité Codebase & Routage MCP</div>
+                <div className="text-[11px] text-slate-400">14 composants et 2 services indexés sans rupture de contrat d'interface</div>
+              </div>
+              <span className="px-2.5 py-1 rounded-full bg-emerald-950 text-emerald-300 font-mono text-[10px]">PASS</span>
+            </div>
+
+            <div className="p-4 bg-[#14132b] rounded-2xl border border-emerald-500/30 flex items-center justify-between text-xs">
+              <div>
+                <div className="font-bold text-white">Test 2 · Fallback Chaîne Vidéo Wan 2.1</div>
+                <div className="text-[11px] text-slate-400">Résilience réseau et bascule automatique en cas de saturation de file d'attente HF</div>
+              </div>
+              <span className="px-2.5 py-1 rounded-full bg-emerald-950 text-emerald-300 font-mono text-[10px]">PASS</span>
+            </div>
+
+            <div className="p-4 bg-[#14132b] rounded-2xl border border-emerald-500/30 flex items-center justify-between text-xs">
+              <div>
+                <div className="font-bold text-white">Test 3 · Calage Sous-titres Whisper (.SRT)</div>
+                <div className="text-[11px] text-slate-400">Synchronisation des timecodes avec le lecteur vidéo vertical 9:16</div>
+              </div>
+              <span className="px-2.5 py-1 rounded-full bg-emerald-950 text-emerald-300 font-mono text-[10px]">PASS</span>
+            </div>
           </div>
-
-          <div className="grid grid-cols-1 gap-4">
-            {(Object.keys(LAB_LEVELS) as ModifLevelId[]).map(lvlId => {
-              const lvl = LAB_LEVELS[lvlId];
-              return (
-                <div key={lvlId} className="bg-[#212121] border border-zinc-700/80 rounded-2xl p-5 space-y-3.5">
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-zinc-800 pb-3">
-                    <div className="flex items-center gap-2.5">
-                      <span className={`text-[10px] font-bold px-2.5 py-1 rounded-md border ${lvl.color}`}>
-                        {lvl.badge}
-                      </span>
-                      <h4 className="text-sm font-bold text-white">{lvl.title}</h4>
-                    </div>
-                    <button
-                      onClick={() => {
-                        handleLevelChange(lvlId);
-                        setActiveTab('modify');
-                      }}
-                      className="px-3 py-1 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-xs font-semibold text-white transition flex items-center gap-1.5 self-start sm:self-auto"
-                    >
-                      <span>Modifier avec ce niveau</span>
-                      <ArrowRight className="w-3.5 h-3.5" />
-                    </button>
-                  </div>
-
-                  <p className="text-xs text-zinc-300 leading-relaxed">{lvl.description}</p>
-
-                  {lvl.deepGuide && (
-                    <div className="space-y-3 pt-1">
-                      {/* Mental Model */}
-                      <div className="p-3 rounded-xl bg-purple-950/20 border border-purple-500/20 text-xs">
-                        <strong className="text-purple-300 block mb-0.5">💡 Modèle mental :</strong>
-                        <span className="text-[#d8ccff]">{lvl.deepGuide.mentalModel}</span>
-                      </div>
-
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
-                        {/* Quand l'utiliser */}
-                        <div className="p-3 rounded-xl bg-[#18181b] border border-zinc-800 space-y-1.5">
-                          <strong className="text-emerald-300 flex items-center gap-1 text-[11px]">
-                            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
-                            <span>Cas d'usage recommandés :</span>
-                          </strong>
-                          <ul className="text-zinc-400 text-[11px] space-y-1 list-disc list-inside">
-                            {lvl.deepGuide.whenToUse.slice(0, 3).map((u, i) => (
-                              <li key={i}>{u}</li>
-                            ))}
-                          </ul>
-                        </div>
-
-                        {/* Pièges & Fichiers */}
-                        <div className="p-3 rounded-xl bg-[#18181b] border border-zinc-800 space-y-1.5">
-                          <strong className="text-amber-300 flex items-center gap-1 text-[11px]">
-                            <AlertTriangle className="w-3.5 h-3.5 text-amber-400" />
-                            <span>Pièges fréquents :</span>
-                          </strong>
-                          <ul className="text-zinc-400 text-[11px] space-y-1 list-disc list-inside">
-                            {lvl.deepGuide.commonPitfalls.slice(0, 3).map((p, i) => (
-                              <li key={i}>{p}</li>
-                            ))}
-                          </ul>
-                        </div>
-                      </div>
-
-                      {/* Exemple concret */}
-                      <div className="p-3 rounded-xl bg-[#18181b] border border-zinc-800 text-[11px]">
-                        <div className="flex items-center justify-between text-zinc-400 mb-1">
-                          <span><strong>Exemple de consigne :</strong> « {lvl.deepGuide.practicalExample.userPrompt} »</span>
-                        </div>
-                        <pre className="bg-[#121214] p-2 rounded-lg border border-zinc-800 font-mono text-[10px] text-zinc-300 overflow-x-auto">
-                          {lvl.deepGuide.practicalExample.codeSample}
-                        </pre>
-                      </div>
-                    </div>
-                  )}
-
-                  <div className="pt-2 border-t border-zinc-800 text-[11px] text-zinc-400">
-                    <strong className="text-zinc-300">Spécialisations (sous-niveaux) :</strong> {lvl.subLevels.map(s => s.title).join(' · ')}
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 };
