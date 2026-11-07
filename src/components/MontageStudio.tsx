@@ -41,11 +41,12 @@ import {
   FolderPlus
 } from 'lucide-react';
 import { VideoScene } from '../types';
+import { searchLibrarySounds, buildCredits, LibrarySound, LibraryKind } from '../services/soundLibrary';
 
 interface SoundItem {
   id: string;
   name: string;
-  category: 'Transitions' | 'Impacts' | 'Musiques' | 'ASMR & Réactions';
+  category: 'Transitions' | 'Impacts' | 'ASMR & Réactions';
   duration: number;
   freq: number;
 }
@@ -99,7 +100,7 @@ export const MontageStudio: React.FC = () => {
   const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
 
   // Tracks items
-  const [addedSounds, setAddedSounds] = useState<Array<{ id: string; name: string; startTime: number; duration: number; volume: number }>>([]);
+  const [addedSounds, setAddedSounds] = useState<Array<{ id: string; name: string; startTime: number; duration: number; volume: number; url?: string; credit?: string }>>([]);
   const [textOverlays, setTextOverlays] = useState<TextOverlay[]>([
     { id: 'txt_1', text: 'LE SECRET QUE PERSONNE NE PARTAGE', style: 'Impact', startTime: 0, duration: 4, x: 50, y: 72, fontSize: 13, color: '#facc15' },
     { id: 'txt_2', text: 'Comment doubler votre clarté mentale', style: 'Titre', startTime: 0, duration: 6, x: 50, y: 80, fontSize: 22, color: '#ffffff' },
@@ -111,26 +112,37 @@ export const MontageStudio: React.FC = () => {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [activeAddTab, setActiveAddTab] = useState<'son' | 'texte' | 'stickers' | 'medias'>('son');
   const [soundSearchQuery, setSoundSearchQuery] = useState('');
-  const [soundFilter, setSoundFilter] = useState<'all' | 'favs' | 'Transitions' | 'Impacts' | 'Musiques' | 'ASMR & Réactions'>('all');
+  const [soundFilter, setSoundFilter] = useState<'all' | 'favs' | 'library' | 'Transitions' | 'Impacts' | 'ASMR & Réactions'>('all');
   const [favoriteSoundIds, setFavoriteSoundIds] = useState<string[]>(() => {
     if (typeof window !== 'undefined') {
       try {
-        return JSON.parse(localStorage.getItem('andrea_fav_sounds') || '["snd_1", "snd_3", "snd_11"]');
+        return JSON.parse(localStorage.getItem('andrea_fav_sounds') || '["snd_1", "snd_3"]');
       } catch {}
     }
-    return ['snd_1', 'snd_3', 'snd_11'];
+    return ['snd_1', 'snd_3'];
   });
   const [customTextInput, setCustomTextInput] = useState('Nouvelle accroche percutante');
+
+  // Bibliothèque de sons et musiques libres de droits
+  const [libraryKind, setLibraryKind] = useState<LibraryKind>('sound_effect');
+  const [libraryResults, setLibraryResults] = useState<LibrarySound[]>([]);
+  const [libraryLoading, setLibraryLoading] = useState(false);
+  const [libraryError, setLibraryError] = useState<string | null>(null);
+  const [librarySearched, setLibrarySearched] = useState(false);
+  const [playingLibraryId, setPlayingLibraryId] = useState<string | null>(null);
+  const [creditsCopied, setCreditsCopied] = useState(false);
+  const libraryAudioRef = useRef<HTMLAudioElement | null>(null);
+  const libraryAbortRef = useRef<AbortController | null>(null);
 
   // Video Effects & Filters
   const [activeFilter, setActiveFilter] = useState<string>('normal');
   const [activeEffect, setActiveEffect] = useState<string>('none');
 
-  // Création de visuels State (LibreOffice Toolbar & Frames)
+  // Création de visuels State (barre d'outils & cadres)
   const [selectedFrame, setSelectedFrame] = useState<string>('9:16');
   const [activeStudioTab, setActiveStudioTab] = useState<'cadres' | 'texte' | 'filtres' | 'elements' | 'fond'>('cadres');
 
-  // LibreOffice Toolbar State
+  // État de la barre d'outils de texte
   const [fontFamily, setFontFamily] = useState('Impact');
   const [fontSize, setFontSize] = useState(28);
   const [isBold, setIsBold] = useState(true);
@@ -156,9 +168,6 @@ export const MontageStudio: React.FC = () => {
     { id: 'snd_8', name: 'Cash register Ka-ching vente', category: 'Impacts', duration: 1.8, freq: 950 },
     { id: 'snd_9', name: 'Rire d\'audience comédie', category: 'ASMR & Réactions', duration: 3.0, freq: 350 },
     { id: 'snd_10', name: 'Clavier mécanique tapotement ASMR', category: 'ASMR & Réactions', duration: 4.0, freq: 480 },
-    { id: 'snd_11', name: 'Musique Lofi Chill d\'ambiance', category: 'Musiques', duration: 15.0, freq: 220 },
-    { id: 'snd_12', name: 'Beat Trap dynamique TikTok 9:16', category: 'Musiques', duration: 12.0, freq: 260 },
-    { id: 'snd_13', name: 'Trailer cinéma épique cordes', category: 'Musiques', duration: 18.0, freq: 320 },
     { id: 'snd_14', name: 'Révélation magique scintillement', category: 'Transitions', duration: 2.2, freq: 780 },
     { id: 'snd_15', name: 'Glitch numérique électrique', category: 'Transitions', duration: 1.1, freq: 580 },
     { id: 'snd_16', name: 'Bip d\'alerte / Error tone', category: 'Impacts', duration: 0.9, freq: 800 }
@@ -459,6 +468,92 @@ export const MontageStudio: React.FC = () => {
     }
   };
 
+  const stopLibraryPreview = () => {
+    if (libraryAudioRef.current) {
+      libraryAudioRef.current.pause();
+      libraryAudioRef.current = null;
+    }
+    setPlayingLibraryId(null);
+  };
+
+  useEffect(() => {
+    return () => {
+      libraryAbortRef.current?.abort();
+      libraryAudioRef.current?.pause();
+    };
+  }, []);
+
+  const runLibrarySearch = async (kind: LibraryKind = libraryKind) => {
+    const q = soundSearchQuery.trim();
+    if (!q) {
+      setLibraryError('Tape un mot à chercher (ex : whoosh, pluie, piano).');
+      return;
+    }
+    stopLibraryPreview();
+    libraryAbortRef.current?.abort();
+    const controller = new AbortController();
+    libraryAbortRef.current = controller;
+    setLibraryLoading(true);
+    setLibraryError(null);
+    try {
+      const found = await searchLibrarySounds(q, kind, controller.signal);
+      setLibraryResults(found);
+      setLibrarySearched(true);
+    } catch (err) {
+      if ((err as Error)?.name === 'AbortError') return;
+      setLibraryResults([]);
+      setLibraryError(err instanceof Error ? err.message : 'Recherche impossible.');
+    } finally {
+      if (libraryAbortRef.current === controller) setLibraryLoading(false);
+    }
+  };
+
+  const toggleLibraryPreview = (snd: LibrarySound) => {
+    if (playingLibraryId === snd.id) {
+      stopLibraryPreview();
+      return;
+    }
+    stopLibraryPreview();
+    const audio = new Audio(snd.url);
+    audio.volume = 0.8;
+    audio.onended = () => setPlayingLibraryId(null);
+    audio.onerror = () => {
+      setPlayingLibraryId(null);
+      setLibraryError("Ce son n'a pas pu être lu. Essaie-en un autre.");
+    };
+    libraryAudioRef.current = audio;
+    setPlayingLibraryId(snd.id);
+    audio.play().catch(() => {
+      setPlayingLibraryId(null);
+      setLibraryError("Ce son n'a pas pu être lu. Essaie-en un autre.");
+    });
+  };
+
+  const handleAddLibrarySound = (snd: LibrarySound) => {
+    stopLibraryPreview();
+    setAddedSounds([
+      ...addedSounds,
+      {
+        id: `trk_snd_${Date.now()}`,
+        name: snd.title,
+        startTime: currentTime,
+        duration: snd.duration || 5,
+        volume: 80,
+        url: snd.url,
+        credit: snd.credit,
+      },
+    ]);
+    setIsAddModalOpen(false);
+  };
+
+  const copyCredits = () => {
+    const text = buildCredits(addedSounds);
+    if (!text) return;
+    navigator.clipboard.writeText(text);
+    setCreditsCopied(true);
+    setTimeout(() => setCreditsCopied(false), 2000);
+  };
+
   // Add sound to track
   const handleAddSoundToTrack = (sound: SoundItem) => {
     setAddedSounds([
@@ -510,6 +605,7 @@ export const MontageStudio: React.FC = () => {
   // Filtered sounds
   const filteredSounds = SOUND_CATALOG.filter((s) => {
     const matchesSearch = s.name.toLowerCase().includes(soundSearchQuery.toLowerCase());
+    if (soundFilter === 'library') return false;
     if (soundFilter === 'favs') return matchesSearch && favoriteSoundIds.includes(s.id);
     if (soundFilter === 'all') return matchesSearch;
     return matchesSearch && s.category === soundFilter;
@@ -569,7 +665,7 @@ export const MontageStudio: React.FC = () => {
           </button>
         </div>
 
-        {/* LibreOffice Writer Style Full Formatting Toolbar */}
+        {/* Barre complète de mise en forme du texte */}
         <div className="p-2.5 bg-[#0f1536] border border-[#232f6b] rounded-2xl flex flex-wrap items-center gap-2 text-xs select-none shadow-md">
           {/* Font Family Dropdown */}
           <div className="flex items-center gap-1.5">
@@ -610,7 +706,7 @@ export const MontageStudio: React.FC = () => {
 
           <div className="h-4 w-px bg-[#2b3c8a] hidden sm:block" />
 
-          {/* Bold, Italic, Underline, Strikethrough (LibreOffice Writer style) */}
+          {/* Bold, Italic, Underline, Strikethrough  */}
           <div className="flex items-center gap-0.5 bg-[#172152] border border-[#2b3c8a] rounded-lg p-0.5">
             <button
               onClick={() => setIsBold(!isBold)}
@@ -718,7 +814,7 @@ export const MontageStudio: React.FC = () => {
                 setActiveTextId(newT.id);
               }}
               className="px-3 py-1.5 bg-[#2036a1] hover:bg-[#2c48bf] text-white font-bold rounded-lg transition-all flex items-center gap-1 cursor-pointer"
-              title="Insérer une zone de texte comme dans LibreOffice Writer"
+              title="Insérer une zone de texte"
             >
               <Type className="w-3.5 h-3.5" />
               <span>[T] Zone de texte</span>
@@ -845,7 +941,7 @@ export const MontageStudio: React.FC = () => {
                 <span className="text-4xl">👤</span>
               </div>
 
-              {/* Dynamic Text Boxes Rendered on Canvas with LibreOffice formatting */}
+              {/* Dynamic Text Boxes Rendered on Canvas avec mise en forme */}
               <div className="relative z-20 space-y-2">
                 {textOverlays.map((t) => (
                   <div
@@ -1332,6 +1428,15 @@ export const MontageStudio: React.FC = () => {
               {addedSounds.length > 0 && (
                 <div className="h-8 bg-[#101942] border border-[#233580] rounded-lg flex items-center gap-2 px-3 overflow-x-auto no-scrollbar text-xs">
                   <Music className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                  {addedSounds.some((x) => x.credit) && (
+                    <button
+                      onClick={copyCredits}
+                      className="px-2 py-0.5 rounded bg-[#1e2a66] hover:bg-[#2c3d94] border border-[#3b82f6]/50 text-sky-200 font-bold text-[10px] shrink-0 cursor-pointer"
+                      title="Copier les crédits des sons libres de droits à mettre dans la description de ta vidéo"
+                    >
+                      {creditsCopied ? '✓ Crédits copiés' : '📋 Copier les crédits'}
+                    </button>
+                  )}
                   {addedSounds.map((snd) => (
                     <div
                       key={snd.id}
@@ -1464,7 +1569,7 @@ export const MontageStudio: React.FC = () => {
               </button>
             </div>
 
-            {/* Tab 1: Son universel avec recherche Google et mise en favoris */}
+            {/* Tab 1: Sons de base + bibliothèque libre de droits */}
             {activeAddTab === 'son' && (
               <div className="p-4 space-y-4 overflow-y-auto flex-1 no-scrollbar text-xs">
                 {/* Search Bar */}
@@ -1474,7 +1579,17 @@ export const MontageStudio: React.FC = () => {
                     type="text"
                     value={soundSearchQuery}
                     onChange={(e) => setSoundSearchQuery(e.target.value)}
-                    placeholder="Recherche Google / Catalogue universel de sons (whoosh, basse, impact, rire, pluie, musique)..."
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' && soundFilter === 'library') {
+                        e.preventDefault();
+                        runLibrarySearch();
+                      }
+                    }}
+                    placeholder={
+                      soundFilter === 'library'
+                        ? 'Rechercher un son ou une musique libre de droits (whoosh, pluie, piano...)'
+                        : 'Rechercher dans les sons de base (whoosh, impact, pop...)'
+                    }
                     className="w-full pl-9 pr-4 py-2.5 bg-[#141b3d] border border-[#2b356d] rounded-xl text-white placeholder-slate-400 focus:outline-none focus:border-[#3b82f6]"
                   />
                 </div>
@@ -1507,12 +1622,102 @@ export const MontageStudio: React.FC = () => {
                     Impacts
                   </button>
                   <button
-                    onClick={() => setSoundFilter('Musiques')}
-                    className={`px-2.5 py-1 rounded-lg font-bold cursor-pointer ${soundFilter === 'Musiques' ? 'bg-[#3b82f6] text-white' : 'bg-[#141b3d] text-slate-400'}`}
+                    onClick={() => setSoundFilter('library')}
+                    className={`px-2.5 py-1 rounded-lg font-bold cursor-pointer ${soundFilter === 'library' ? 'bg-emerald-500 text-slate-950' : 'bg-[#141b3d] text-emerald-300'}`}
                   >
-                    Musiques
+                    📚 Libres de droits
                   </button>
                 </div>
+
+                {/* Bibliothèque libre de droits */}
+                {soundFilter === 'library' && (
+                  <div className="space-y-3">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <div className="flex items-center gap-1 bg-[#141b3d] p-1 rounded-lg border border-[#2b356d]">
+                        <button
+                          onClick={() => {
+                            setLibraryKind('sound_effect');
+                            if (librarySearched) runLibrarySearch('sound_effect');
+                          }}
+                          className={`px-2.5 py-1 rounded-md font-bold cursor-pointer ${libraryKind === 'sound_effect' ? 'bg-[#3b82f6] text-white' : 'text-slate-400'}`}
+                        >
+                          Effets sonores
+                        </button>
+                        <button
+                          onClick={() => {
+                            setLibraryKind('music');
+                            if (librarySearched) runLibrarySearch('music');
+                          }}
+                          className={`px-2.5 py-1 rounded-md font-bold cursor-pointer ${libraryKind === 'music' ? 'bg-[#3b82f6] text-white' : 'text-slate-400'}`}
+                        >
+                          Musiques
+                        </button>
+                      </div>
+                      <button
+                        onClick={() => runLibrarySearch()}
+                        disabled={libraryLoading}
+                        className="px-3 py-1.5 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black rounded-lg cursor-pointer disabled:opacity-50"
+                      >
+                        {libraryLoading ? 'Recherche...' : 'Rechercher'}
+                      </button>
+                    </div>
+                    <p className="text-[11px] text-slate-400 leading-relaxed">
+                      Sons et musiques sous licence libre (CC0 ou CC BY), utilisables dans tes vidéos, y compris
+                      commerciales. Le crédit de l'auteur est enregistré : copie-le depuis la piste audio.
+                    </p>
+
+                    {libraryError && (
+                      <div className="p-2.5 rounded-lg bg-rose-950/40 border border-rose-500/40 text-rose-300">
+                        {libraryError}
+                      </div>
+                    )}
+                    {!libraryError && librarySearched && !libraryLoading && libraryResults.length === 0 && (
+                      <div className="p-2.5 rounded-lg bg-[#131a3d] border border-[#232f6b] text-slate-300">
+                        Aucun résultat. Essaie un mot plus simple ou en anglais (ex : rain, whoosh, piano).
+                      </div>
+                    )}
+
+                    <div className="space-y-2 max-h-72 overflow-y-auto no-scrollbar">
+                      {libraryResults.map((snd) => (
+                        <div
+                          key={snd.id}
+                          className="p-3 bg-[#131a3d] border border-[#232f6b] rounded-xl flex items-center justify-between gap-3 hover:border-emerald-400 transition-colors"
+                        >
+                          <div className="flex items-center gap-3 min-w-0">
+                            <button
+                              onClick={() => toggleLibraryPreview(snd)}
+                              className="w-8 h-8 shrink-0 rounded-full bg-[#1e2a66] hover:bg-[#2c3d94] flex items-center justify-center text-white cursor-pointer shadow"
+                              title={playingLibraryId === snd.id ? "Arrêter l'aperçu" : "Écouter l'aperçu"}
+                            >
+                              {playingLibraryId === snd.id ? (
+                                <Pause className="w-3.5 h-3.5 fill-white" />
+                              ) : (
+                                <Play className="w-3.5 h-3.5 fill-white" />
+                              )}
+                            </button>
+                            <div className="min-w-0">
+                              <div className="font-bold text-white flex items-center gap-2">
+                                <span className="truncate">{snd.title}</span>
+                                {snd.duration > 0 && (
+                                  <span className="text-[10px] text-slate-400 font-mono shrink-0">({snd.duration}s)</span>
+                                )}
+                              </div>
+                              <span className="text-[10px] text-emerald-400 font-mono block truncate">
+                                {snd.creator} · {snd.license}
+                              </span>
+                            </div>
+                          </div>
+                          <button
+                            onClick={() => handleAddLibrarySound(snd)}
+                            className="px-3 py-1.5 shrink-0 bg-[#2563eb] hover:bg-[#1d4ed8] text-white font-bold rounded-lg cursor-pointer"
+                          >
+                            Ajouter
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
 
                 {/* Sounds List */}
                 <div className="space-y-2 max-h-72 overflow-y-auto no-scrollbar">

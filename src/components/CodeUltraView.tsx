@@ -13,6 +13,15 @@ import {
   Eye,
   FileCode
 } from 'lucide-react';
+import {
+  buildSite,
+  SECTOR_OPTIONS,
+  OBJECTIVE_OPTIONS,
+  AMBIANCE_OPTIONS,
+  SectorId,
+  ObjectiveId,
+  AmbianceId,
+} from '../services/siteBuilder';
 
 export const CodeUltraView: React.FC = () => {
   const [activeSubTab, setActiveSubTab] = useState<'editor' | 'site'>('editor');
@@ -24,15 +33,17 @@ export const CodeUltraView: React.FC = () => {
   const [executionOutput, setExecutionOutput] = useState<string | null>(null);
   const [isExecuting, setIsExecuting] = useState(false);
 
-  // Site Builder State (Photo 4)
-  const [projectName, setProjectName] = useState('BatiTools Pro');
-  const [sector, setSector] = useState('Bâtiment, Travaux & Outillage');
-  const [siteObjective, setSiteObjective] = useState('Catalogue & Devis en ligne express');
-  const [visualAmbience, setVisualAmbience] = useState('Industriel Pro & Robuste (BTP/Travaux)');
-  const [specificNotes, setSpecificNotes] = useState('Créer moi un site de mes outils de travaux');
-  const [siteMode, setSiteMode] = useState<'guided' | 'prompt'>('guided');
+  // Créateur de site
+  const [projectName, setProjectName] = useState('');
+  const [sector, setSector] = useState<SectorId>('btp');
+  const [siteObjective, setSiteObjective] = useState<ObjectiveId>('devis');
+  const [visualAmbience, setVisualAmbience] = useState<AmbianceId>('industriel');
+  const [specificNotes, setSpecificNotes] = useState('');
+  const [siteContact, setSiteContact] = useState('');
   const [isGeneratingSite, setIsGeneratingSite] = useState(false);
   const [generatedHtml, setGeneratedHtml] = useState<string | null>(null);
+  const [siteError, setSiteError] = useState<string | null>(null);
+  const [siteDevice, setSiteDevice] = useState<'desktop' | 'mobile'>('desktop');
   const [copied, setCopied] = useState(false);
 
   const handleExecutePython = () => {
@@ -60,39 +71,47 @@ export const CodeUltraView: React.FC = () => {
   };
 
   const handleGenerateSite = () => {
+    if (!projectName.trim()) {
+      setSiteError("Indique d'abord le nom de ton projet ou de ton entreprise.");
+      return;
+    }
+    setSiteError(null);
     setIsGeneratingSite(true);
-    setTimeout(() => {
+    try {
+      setGeneratedHtml(
+        buildSite({
+          name: projectName,
+          sector,
+          objective: siteObjective,
+          ambiance: visualAmbience,
+          notes: specificNotes,
+          contact: siteContact,
+        })
+      );
+    } catch {
+      setSiteError('La génération a échoué. Vérifie les informations saisies et réessaie.');
+    } finally {
       setIsGeneratingSite(false);
-      setGeneratedHtml(`<!DOCTYPE html>
-<html lang="fr" class="dark">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>${projectName} — Outillage BTP Pro</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-</head>
-<body class="bg-slate-950 text-slate-100 min-h-screen p-6 font-sans">
-  <div class="max-w-5xl mx-auto space-y-8">
-    <header class="flex items-center justify-between border-b border-slate-800 pb-4">
-      <div class="text-xl font-black text-amber-400">🔨 ${projectName}</div>
-      <div class="text-xs text-slate-400">${sector} · ${visualAmbience}</div>
-      <button class="px-4 py-2 bg-amber-500 hover:bg-amber-400 text-slate-950 font-black rounded-lg text-xs">
-        Devis Express 24h
-      </button>
-    </header>
+    }
+  };
 
-    <div class="p-8 bg-slate-900 border border-slate-800 rounded-3xl space-y-4">
-      <h1 class="text-3xl font-extrabold text-white">Outillage Professionnel pour Artisans & BTP</h1>
-      <p class="text-sm text-slate-300">${specificNotes || 'Catalogue complet de matériel haut rendement avec devis instantané.'}</p>
-      <div class="pt-2 flex gap-3">
-        <button class="px-5 py-2.5 bg-amber-500 text-slate-950 font-bold rounded-xl text-xs">Consulter le Catalogue</button>
-        <button class="px-5 py-2.5 bg-slate-800 text-white font-bold rounded-xl text-xs">Demander un Devis</button>
-      </div>
-    </div>
-  </div>
-</body>
-</html>`);
-    }, 900);
+  const handleCopySite = () => {
+    if (!generatedHtml) return;
+    navigator.clipboard.writeText(generatedHtml);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  const handleDownloadSite = () => {
+    if (!generatedHtml) return;
+    const blob = new Blob([generatedHtml], { type: 'text/html;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    const slug = projectName.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+    a.href = url;
+    a.download = `${slug || 'mon-site'}.html`;
+    a.click();
+    URL.revokeObjectURL(url);
   };
 
   return (
@@ -194,172 +213,180 @@ export const CodeUltraView: React.FC = () => {
         </div>
       )}
 
-      {/* VIEW 2: Créateur de Site Web Pro (Photo 4) */}
+      {/* VUE 2 : Créateur de site */}
       {activeSubTab === 'site' && (
         <div className="space-y-6">
-          {/* Header of Site Creator */}
-          <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
-            <div>
-              <h2 className="text-xl sm:text-2xl font-black text-white flex items-center gap-2">
-                <Globe className="w-5 h-5 text-sky-400" />
-                <span>Créateur de Site Web Pro</span>
-              </h2>
-              <p className="text-xs text-slate-300 mt-1 max-w-2xl leading-relaxed">
-                Générez un site complet avec catalogue, devis interactif et avis clients, prêt à publier sur Vercel, PlayStore ou en Application de Bureau.
-              </p>
-            </div>
-
-            <div className="flex items-center gap-2">
-              <button
-                onClick={() => setSiteMode('guided')}
-                className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-                  siteMode === 'guided'
-                    ? 'bg-[#1f2f7a] text-white border border-[#2e45b0]'
-                    : 'bg-[#101533] text-slate-400'
-                }`}
-              >
-                Mode Guidé (Style IONOS)
-              </button>
-              <button
-                onClick={() => setSiteMode('prompt')}
-                className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-                  siteMode === 'prompt'
-                    ? 'bg-[#1f2f7a] text-white border border-[#2e45b0]'
-                    : 'bg-[#101533] text-slate-400'
-                }`}
-              >
-                Prompt Rapide
-              </button>
-            </div>
+          <div>
+            <h2 className="text-xl sm:text-2xl font-black text-white flex items-center gap-2">
+              <Globe className="w-5 h-5 text-sky-400" />
+              <span>Créateur de Site Web Pro</span>
+            </h2>
+            <p className="text-xs text-slate-300 mt-1 max-w-2xl leading-relaxed">
+              Génère un site complet et responsive : catalogue, devis, rendez-vous ou boutique avec panier, avis, FAQ et contact.
+              Tu télécharges un seul fichier HTML, prêt à héberger où tu veux.
+            </p>
           </div>
 
-          {/* Guided Form matching Photo 4 */}
           <div className="p-6 rounded-3xl bg-[#0f1433] border border-[#202959] space-y-5">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {/* Field 1 */}
               <div className="space-y-1.5">
-                <label className="text-xs font-bold text-slate-200">
-                  1. Nom de votre projet / entreprise :
-                </label>
+                <label htmlFor="site-name" className="text-xs font-bold text-slate-200">1. Nom de ton projet / entreprise :</label>
                 <input
+                  id="site-name"
                   type="text"
                   value={projectName}
+                  maxLength={60}
                   onChange={(e) => setProjectName(e.target.value)}
-                  className="w-full px-3.5 py-2.5 bg-[#171e47] border border-[#28346e] rounded-xl text-xs text-white focus:outline-none focus:border-[#4255b3]"
+                  placeholder="Ex : Atelier Dupont"
+                  className="w-full px-3.5 py-2.5 bg-[#171e47] border border-[#28346e] rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:border-[#4255b3]"
                 />
               </div>
 
-              {/* Field 2 */}
               <div className="space-y-1.5">
-                <label className="text-xs font-bold text-slate-200">
-                  2. Secteur d'activité :
-                </label>
+                <label htmlFor="site-sector" className="text-xs font-bold text-slate-200">2. Secteur d'activité :</label>
                 <select
+                  id="site-sector"
                   value={sector}
-                  onChange={(e) => setSector(e.target.value)}
+                  onChange={(e) => setSector(e.target.value as SectorId)}
                   className="w-full px-3.5 py-2.5 bg-[#171e47] border border-[#28346e] rounded-xl text-xs text-white focus:outline-none cursor-pointer"
                 >
-                  <option value="Bâtiment, Travaux & Outillage">🔨 Bâtiment, Travaux & Outillage</option>
-                  <option value="Immobilier & Architecture">🏠 Immobilier & Architecture</option>
-                  <option value="E-commerce & Mode">🛍️ E-commerce & Mode</option>
-                  <option value="Santé & Cosmétique">✨ Santé & Cosmétique</option>
-                  <option value="Restauration & Gastronomie">🍽️ Restauration & Gastronomie</option>
-                  <option value="Tech & SaaS">💻 Tech & SaaS</option>
+                  {SECTOR_OPTIONS.map((o) => (
+                    <option key={o.id} value={o.id}>{o.label}</option>
+                  ))}
                 </select>
               </div>
 
-              {/* Field 3 */}
               <div className="space-y-1.5">
-                <label className="text-xs font-bold text-slate-200">
-                  3. Objectif prioritaire du site :
-                </label>
+                <label htmlFor="site-objective" className="text-xs font-bold text-slate-200">3. Objectif prioritaire du site :</label>
                 <select
+                  id="site-objective"
                   value={siteObjective}
-                  onChange={(e) => setSiteObjective(e.target.value)}
+                  onChange={(e) => setSiteObjective(e.target.value as ObjectiveId)}
                   className="w-full px-3.5 py-2.5 bg-[#171e47] border border-[#28346e] rounded-xl text-xs text-white focus:outline-none cursor-pointer"
                 >
-                  <option value="Catalogue & Devis en ligne express">Catalogue & Devis en ligne express</option>
-                  <option value="Prise de rendez-vous immédiate">Prise de rendez-vous immédiate</option>
-                  <option value="Vente directe de produits">Vente directe de produits</option>
-                  <option value="Présentation institutionnelle">Présentation institutionnelle</option>
+                  {OBJECTIVE_OPTIONS.map((o) => (
+                    <option key={o.id} value={o.id}>{o.label}</option>
+                  ))}
                 </select>
               </div>
 
-              {/* Field 4 */}
               <div className="space-y-1.5">
-                <label className="text-xs font-bold text-slate-200">
-                  4. Ambiance & Style visuel :
-                </label>
+                <label htmlFor="site-ambiance" className="text-xs font-bold text-slate-200">4. Ambiance & style visuel :</label>
                 <select
+                  id="site-ambiance"
                   value={visualAmbience}
-                  onChange={(e) => setVisualAmbience(e.target.value)}
+                  onChange={(e) => setVisualAmbience(e.target.value as AmbianceId)}
                   className="w-full px-3.5 py-2.5 bg-[#171e47] border border-[#28346e] rounded-xl text-xs text-white focus:outline-none cursor-pointer"
                 >
-                  <option value="Industriel Pro & Robuste (BTP/Travaux)">Industriel Pro & Robuste (BTP/Travaux)</option>
-                  <option value="Minimaliste & Sombre (Dark Luxe)">Minimaliste & Sombre (Dark Luxe)</option>
-                  <option value="Épuré & Lumineux (Clean White)">Épuré & Lumineux (Clean White)</option>
-                  <option value="Néon & Cyber Futuriste">Néon & Cyber Futuriste</option>
+                  {AMBIANCE_OPTIONS.map((o) => (
+                    <option key={o.id} value={o.id}>{o.label}</option>
+                  ))}
                 </select>
               </div>
             </div>
 
-            {/* Field 5 */}
             <div className="space-y-1.5">
-              <div className="flex justify-between text-xs">
-                <label className="font-bold text-slate-200">
-                  5. Précisions ou fonctionnalités spécifiques :
-                </label>
-                <span className="text-[11px] text-slate-400 italic">
-                  Ex: "Créer moi un site de mes outils de travaux"
-                </span>
-              </div>
+              <label htmlFor="site-notes" className="text-xs font-bold text-slate-200">
+                5. Présentation de ton activité (affichée en haut du site) :
+              </label>
               <input
+                id="site-notes"
                 type="text"
                 value={specificNotes}
+                maxLength={300}
                 onChange={(e) => setSpecificNotes(e.target.value)}
-                placeholder="Ex: Créer moi un site de mes outils de travaux"
-                className="w-full px-3.5 py-2.5 bg-[#171e47] border border-[#28346e] rounded-xl text-xs text-white focus:outline-none focus:border-[#4255b3]"
+                placeholder="Ex : Outillage professionnel pour artisans, avec conseils et devis rapides"
+                className="w-full px-3.5 py-2.5 bg-[#171e47] border border-[#28346e] rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:border-[#4255b3]"
               />
             </div>
 
-            {/* Action button */}
+            <div className="space-y-1.5">
+              <label htmlFor="site-contact" className="text-xs font-bold text-slate-200">
+                6. E-mail ou téléphone de contact (facultatif) :
+              </label>
+              <input
+                id="site-contact"
+                type="text"
+                value={siteContact}
+                maxLength={80}
+                onChange={(e) => setSiteContact(e.target.value)}
+                placeholder="contact@monsite.fr ou 06 12 34 56 78"
+                className="w-full px-3.5 py-2.5 bg-[#171e47] border border-[#28346e] rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:border-[#4255b3]"
+              />
+              <p className="text-[11px] text-slate-400">
+                Avec un e-mail, les formulaires du site ouvrent la messagerie du visiteur avec la demande déjà rédigée.
+              </p>
+            </div>
+
+            {siteError && (
+              <div className="p-2.5 rounded-lg bg-rose-950/40 border border-rose-500/40 text-rose-300 text-xs">{siteError}</div>
+            )}
+
             <button
               onClick={handleGenerateSite}
               disabled={isGeneratingSite}
-              className="w-full py-3.5 bg-gradient-to-r from-[#2036a1] to-[#3a58e8] hover:from-[#2a45c7] hover:to-[#4e6df5] text-white font-extrabold text-sm rounded-2xl shadow-xl transition-all cursor-pointer flex items-center justify-center gap-2 disabled:opacity-50"
+              className="w-full py-3.5 bg-gradient-to-r from-[#2036a1] to-[#3a58e8] hover:from-[#2a45c7] hover:to-[#4e6df5] text-white font-extrabold text-sm rounded-2xl shadow-xl transition-all cursor-pointer flex items-center justify-center gap-2 disabled:opacity-60"
             >
               <Sparkles className="w-4 h-4 text-amber-300" />
-              <span>{isGeneratingSite ? 'Génération du site complet en cours...' : 'Générer mon site complet (Pack Pro)'}</span>
+              <span>{isGeneratingSite ? 'Génération...' : 'Générer mon site complet'}</span>
             </button>
           </div>
 
-          {/* Generated Site Preview */}
           {generatedHtml && (
             <div className="p-4 bg-[#0a0f26] rounded-3xl border border-[#202959] space-y-3">
-              <div className="flex items-center justify-between text-xs text-slate-300">
+              <div className="flex flex-wrap items-center justify-between gap-2 text-xs text-slate-300">
                 <span className="font-bold">Aperçu en direct : {projectName}</span>
-                <button
-                  onClick={() => {
-                    const blob = new Blob([generatedHtml], { type: 'text/html' });
-                    const url = URL.createObjectURL(blob);
-                    const a = document.createElement('a');
-                    a.href = url;
-                    a.download = `${projectName.toLowerCase().replace(/\s+/g, '_')}.html`;
-                    a.click();
-                  }}
-                  className="px-3 py-1 bg-[#171e47] hover:bg-[#253073] border border-[#28346e] rounded-lg text-white font-bold cursor-pointer"
-                >
-                  Télécharger HTML
-                </button>
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => setSiteDevice('desktop')}
+                    className={`p-1.5 rounded border cursor-pointer ${siteDevice === 'desktop' ? 'bg-[#253073] border-[#3b4fb8] text-white' : 'bg-[#171e47] border-[#28346e] text-slate-400'}`}
+                    title="Bureau"
+                  >
+                    <Laptop className="w-4 h-4" />
+                  </button>
+                  <button
+                    onClick={() => setSiteDevice('mobile')}
+                    className={`p-1.5 rounded border cursor-pointer ${siteDevice === 'mobile' ? 'bg-[#253073] border-[#3b4fb8] text-white' : 'bg-[#171e47] border-[#28346e] text-slate-400'}`}
+                    title="Mobile"
+                  >
+                    <Smartphone className="w-4 h-4" />
+                  </button>
+                  <button
+                    onClick={handleCopySite}
+                    className="px-3 py-1 bg-[#171e47] hover:bg-[#253073] border border-[#28346e] rounded-lg text-white font-bold cursor-pointer flex items-center gap-1.5"
+                  >
+                    {copied ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
+                    <span>{copied ? 'Copié !' : 'Copier le code'}</span>
+                  </button>
+                  <button
+                    onClick={handleDownloadSite}
+                    className="px-3 py-1 bg-[#2563eb] hover:bg-[#1d4ed8] rounded-lg text-white font-bold cursor-pointer flex items-center gap-1.5"
+                  >
+                    <Download className="w-3.5 h-3.5" />
+                    <span>Télécharger HTML</span>
+                  </button>
+                </div>
               </div>
 
-              <div className="w-full h-96 rounded-2xl overflow-hidden border border-slate-800 bg-white shadow-xl">
-                <iframe
-                  title="Site Preview"
-                  srcDoc={generatedHtml}
-                  className="w-full h-full border-0"
-                />
+              <div className="flex justify-center">
+                <div
+                  className={`h-[520px] rounded-2xl overflow-hidden border border-slate-800 bg-white shadow-xl transition-all ${
+                    siteDevice === 'mobile' ? 'w-[390px] max-w-full' : 'w-full'
+                  }`}
+                >
+                  <iframe
+                    title="Aperçu du site"
+                    srcDoc={generatedHtml}
+                    sandbox="allow-scripts allow-forms"
+                    className="w-full h-full border-0"
+                  />
+                </div>
               </div>
+
+              <p className="text-[11px] text-slate-400 leading-relaxed">
+                À faire avant de publier : remplace les avis d'exemple, vérifie les textes et, pour une boutique,
+                modifie les prix d'exemple dans le code.
+              </p>
             </div>
           )}
         </div>

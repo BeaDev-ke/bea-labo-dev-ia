@@ -66,7 +66,7 @@ export const AccountPage: React.FC<AccountPageProps> = ({
       desc: 'La suite intégrale : application web autonome, code copilot et studio complet.',
       features: [
         'Tout Andrea Pro en illimité',
-        'Créateur de site web pro (style IONOS)',
+        'Créateur de site web pro (catalogue, devis, rendez-vous, boutique)',
         'Éditeur Python & Streamlit Copilote',
         'Studio de composition plein écran multi-formats',
         'Accès prioritaire file d\'attente Wan 2.1',

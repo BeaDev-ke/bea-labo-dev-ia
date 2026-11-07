@@ -80,6 +80,12 @@ export const STARTER_CARDS: Record<string, string[]> = {
   ],
 };
 
+// Une vidéo n'est lancée que sur une demande explicite de création
+// (ex : "crée une vidéo TikTok sur…") ou quand le mode vidéo est activé.
+// Un simple mot comme "vidéo" ou "caméra" dans une question ne suffit plus.
+const VIDEO_INTENT =
+  /(cr[ée]e|cr[ée]er|g[ée]n[èe]re|g[ée]n[ée]rer|fais|fabrique|produis|r[ée]alise)[\s-][^.?!]{0,40}(vid[ée]o|tiktok|reel|short)/i;
+
 export const AndreaChat: React.FC<AndreaChatProps> = ({
   userProfile = 'createur',
   displayName = 'Saydou',
@@ -88,6 +94,7 @@ export const AndreaChat: React.FC<AndreaChatProps> = ({
   const [inputPrompt, setInputPrompt] = useState('');
   const [modelChoice, setModelChoice] = useState<'rapide' | 'puissant'>('puissant');
   const [selectedMovement, setSelectedMovement] = useState<CameraMovementId>('orbit');
+  const [videoMode, setVideoMode] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
   const [liveQueueStatus, setLiveQueueStatus] = useState<string | null>(null);
   const [showPlusPopover, setShowPlusPopover] = useState(false);
@@ -146,15 +153,7 @@ export const AndreaChat: React.FC<AndreaChatProps> = ({
     setShowPlusPopover(false);
     setIsGenerating(true);
 
-    const isVideoRequest =
-      textToSend.toLowerCase().includes('vidéo') ||
-      textToSend.toLowerCase().includes('video') ||
-      textToSend.toLowerCase().includes('tiktok') ||
-      textToSend.toLowerCase().includes('reel') ||
-      textToSend.toLowerCase().includes('shorts') ||
-      textToSend.toLowerCase().includes('mouvement') ||
-      textToSend.toLowerCase().includes('wan') ||
-      textToSend.toLowerCase().includes('caméra');
+    const isVideoRequest = videoMode || VIDEO_INTENT.test(textToSend);
 
     try {
       if (isVideoRequest) {
@@ -615,6 +614,16 @@ export const AndreaChat: React.FC<AndreaChatProps> = ({
               <Sparkles className="w-3 h-3 text-sky-400" />
               <span>Instant</span>
             </div>
+            {videoMode && (
+              <button
+                onClick={() => setVideoMode(false)}
+                className="flex items-center gap-1 px-2.5 py-1 rounded-full bg-[#5A33FF] border border-[#8B70FF] text-[11px] font-bold text-white cursor-pointer"
+                title="Désactiver le mode vidéo"
+              >
+                <span>🎬 Mode vidéo</span>
+                <span>✕</span>
+              </button>
+            )}
 
             {/* Plus Popover */}
             {showPlusPopover && (
@@ -646,6 +655,16 @@ export const AndreaChat: React.FC<AndreaChatProps> = ({
                 </div>
 
                 <div className="h-px bg-[#5A33FF22]" />
+
+                <label className="flex items-center justify-between gap-2 cursor-pointer p-1.5 rounded-lg hover:bg-[#201844]">
+                  <span className="text-slate-200">🎬 Créer une vidéo 9:16 avec mon message</span>
+                  <input
+                    type="checkbox"
+                    checked={videoMode}
+                    onChange={(e) => setVideoMode(e.target.checked)}
+                    className="accent-[#8B70FF]"
+                  />
+                </label>
 
                 <div>
                   <div className="font-bold text-white mb-1.5">📎 Ajouter un fichier</div>
