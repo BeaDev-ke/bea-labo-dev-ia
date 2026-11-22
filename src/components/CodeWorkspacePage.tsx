@@ -15,6 +15,12 @@ import {
   ShieldCheck,
   FileCode2,
   Plus,
+  Github,
+  X,
+  Lock,
+  Globe,
+  ExternalLink,
+  Loader2,
 } from 'lucide-react';
 import { generateAppCodeFromPrompt } from '../services/andreaSkillsService';
 import {
@@ -23,6 +29,11 @@ import {
   CodeAuditSummary,
   GeneratedCodeFiles,
 } from '../services/andreaCodeArchitect';
+import {
+  fetchGitHubUser,
+  pushFilesToGitHub,
+  slugifyRepoName,
+} from '../services/githubPushService';
 
 export interface ActiveCodeProject {
   id: string;
@@ -52,6 +63,21 @@ export const CodeWorkspacePage: React.FC<CodeWorkspacePageProps> = ({
   const [refinePrompt, setRefinePrompt] = useState('');
   const [copied, setCopied] = useState(false);
   const [undoStack, setUndoStack] = useState<Array<{ html: string; files?: GeneratedCodeFiles }>>([]);
+
+  // Push to GitHub modal state
+  const [isGitHubModalOpen, setIsGitHubModalOpen] = useState(false);
+  const [ghToken, setGhToken] = useState('');
+  const [showGhToken, setShowGhToken] = useState(false);
+  const [ghOwner, setGhOwner] = useState('');
+  const [ghRepoName, setGhRepoName] = useState(() => slugifyRepoName(project.title));
+  const [ghBranch, setGhBranch] = useState('main');
+  const [ghIsPrivate, setGhIsPrivate] = useState(false);
+  const [ghCommitMsg, setGhCommitMsg] = useState('Initial commit from Andrea Code Workspace');
+  const [ghProgress, setGhProgress] = useState<string | null>(null);
+  const [ghError, setGhError] = useState<string | null>(null);
+  const [ghPushedUrl, setGhPushedUrl] = useState<string | null>(null);
+  const [isPushingGh, setIsPushingGh] = useState(false);
+  const [copiedRepoUrl, setCopiedRepoUrl] = useState(false);
 
   const activeFiles: GeneratedCodeFiles = project.files || {
     html: project.html,
@@ -143,6 +169,61 @@ export const CodeWorkspacePage: React.FC<CodeWorkspacePageProps> = ({
     a.download = `${project.title.toLowerCase().replace(/[^a-z0-9]+/g, '_')}.html`;
     a.click();
     URL.revokeObjectURL(url);
+  };
+
+  const handleOpenGitHubModal = () => {
+    setGhRepoName(slugifyRepoName(project.title));
+    setGhError(null);
+    setGhProgress(null);
+    setGhPushedUrl(null);
+    setIsGitHubModalOpen(true);
+  };
+
+  const handleDetectGitHubUser = async () => {
+    setGhError(null);
+    try {
+      const user = await fetchGitHubUser(ghToken);
+      setGhOwner(user.login);
+      setGhProgress(`Compte GitHub vérifié : @${user.login}`);
+    } catch (err) {
+      setGhError(err instanceof Error ? err.message : 'Impossible de vérifier le token GitHub.');
+    }
+  };
+
+  const handlePushToGitHub = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (isPushingGh) return;
+    setGhError(null);
+    setGhPushedUrl(null);
+    setIsPushingGh(true);
+
+    try {
+      const readme = `# ${project.title}\n\n${project.prompt || 'Application web générée dans Andrea Code Workspace.'}\n\n## Fichiers inclus\n- \`index.html\`\n- \`styles.css\`\n- \`app.js\`\n`;
+      const result = await pushFilesToGitHub({
+        token: ghToken,
+        owner: ghOwner,
+        repo: ghRepoName,
+        branch: ghBranch,
+        isPrivate: ghIsPrivate,
+        description: project.prompt?.slice(0, 140) || project.title,
+        commitMessage: ghCommitMsg,
+        files: [
+          { path: 'index.html', content: activeFiles.html },
+          { path: 'styles.css', content: activeFiles.css },
+          { path: 'app.js', content: activeFiles.js },
+          { path: 'README.md', content: readme },
+        ],
+        onProgress: (msg) => setGhProgress(msg),
+      });
+
+      setGhOwner(result.owner);
+      setGhPushedUrl(result.repoUrl);
+      setGhProgress(`${result.filesPushed} fichiers poussés sur la branche ${result.branch}.`);
+    } catch (err) {
+      setGhError(err instanceof Error ? err.message : 'Erreur lors du push vers GitHub.');
+    } finally {
+      setIsPushingGh(false);
+    }
   };
 
   const QUICK_BLOCKS = [
@@ -281,6 +362,17 @@ export const CodeWorkspacePage: React.FC<CodeWorkspacePageProps> = ({
           </button>
 
           <button
+            onClick={handleOpenGitHubModal}
+            aria-label="Push to GitHub"
+            className="px-2.5 sm:px-3 py-1.5 bg-[#18182b] hover:bg-[#242442] border border-[#3b3b66] text-white font-bold rounded-xl flex items-center gap-1.5 cursor-pointer whitespace-nowrap shrink-0"
+            title="Pousser ce projet vers un dépôt GitHub"
+          >
+            <Github className="w-3.5 h-3.5 text-white" />
+            <span className="hidden sm:inline">Push to GitHub</span>
+            <span className="sm:hidden">GitHub</span>
+          </button>
+
+          <button
             onClick={handleDownloadHtml}
             aria-label="Télécharger le fichier HTML complet"
             className="px-3 py-1.5 bg-[#2563eb] hover:bg-[#1d4ed8] text-white font-bold rounded-xl flex items-center gap-1.5 cursor-pointer whitespace-nowrap shrink-0"
@@ -404,6 +496,213 @@ export const CodeWorkspacePage: React.FC<CodeWorkspacePageProps> = ({
           )}
         </div>
       </div>
+
+      {/* Modal Push to GitHub */}
+      {isGitHubModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
+          <div className="w-full max-w-lg bg-[#0e1329] border border-[#2b356d] rounded-3xl shadow-2xl overflow-hidden flex flex-col">
+            <div className="p-4 bg-[#141b3d] border-b border-[#2b356d] flex items-center justify-between">
+              <div className="flex items-center gap-2 font-extrabold text-white text-sm">
+                <Github className="w-4 h-4 text-sky-400" />
+                <span>Push to GitHub</span>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsGitHubModalOpen(false)}
+                aria-label="Fermer la fenêtre GitHub"
+                className="text-slate-400 hover:text-white p-1 rounded-lg cursor-pointer"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <form onSubmit={handlePushToGitHub} className="p-4 space-y-3 text-xs">
+              <div>
+                <div className="flex items-center justify-between mb-1">
+                  <label htmlFor="gh-pat-input" className="font-bold text-slate-200">
+                    Token d&apos;accès personnel GitHub (PAT · scope <span className="font-mono text-sky-300">repo</span>)
+                  </label>
+                  <button
+                    type="button"
+                    onClick={handleDetectGitHubUser}
+                    disabled={!ghToken.trim() || isPushingGh}
+                    className="text-[11px] font-bold text-sky-300 hover:text-white disabled:opacity-40 cursor-pointer"
+                  >
+                    Vérifier le compte
+                  </button>
+                </div>
+                <div className="relative">
+                  <input
+                    id="gh-pat-input"
+                    type={showGhToken ? 'text' : 'password'}
+                    value={ghToken}
+                    onChange={(e) => setGhToken(e.target.value)}
+                    placeholder="ghp_... ou github_pat_..."
+                    required
+                    className="w-full px-3 py-2 pr-16 bg-[#141b3d] border border-[#2b3c8a] rounded-xl text-white placeholder-slate-400 focus:outline-none focus:border-sky-400 font-mono"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowGhToken((v) => !v)}
+                    className="absolute right-2.5 top-2 text-[11px] font-bold text-slate-300 hover:text-white cursor-pointer"
+                  >
+                    {showGhToken ? 'Masquer' : 'Voir'}
+                  </button>
+                </div>
+                <p className="mt-1 text-[10px] text-slate-400">
+                  Utilisé uniquement en direct depuis votre navigateur pour créer/mettre à jour votre dépôt. Jamais enregistré.
+                </p>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                <div>
+                  <label htmlFor="gh-owner-input" className="font-bold text-slate-200 block mb-1">
+                    Propriétaire (Username)
+                  </label>
+                  <input
+                    id="gh-owner-input"
+                    type="text"
+                    value={ghOwner}
+                    onChange={(e) => setGhOwner(e.target.value)}
+                    placeholder="Auto-détecté via token"
+                    className="w-full px-3 py-2 bg-[#141b3d] border border-[#2b3c8a] rounded-xl text-white placeholder-slate-400 focus:outline-none focus:border-sky-400"
+                  />
+                </div>
+                <div>
+                  <label htmlFor="gh-repo-input" className="font-bold text-slate-200 block mb-1">
+                    Nom du dépôt
+                  </label>
+                  <input
+                    id="gh-repo-input"
+                    type="text"
+                    value={ghRepoName}
+                    onChange={(e) => setGhRepoName(e.target.value)}
+                    required
+                    className="w-full px-3 py-2 bg-[#141b3d] border border-[#2b3c8a] rounded-xl text-white placeholder-slate-400 focus:outline-none focus:border-sky-400 font-mono"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                <div>
+                  <label htmlFor="gh-branch-input" className="font-bold text-slate-200 block mb-1">
+                    Branche cible
+                  </label>
+                  <input
+                    id="gh-branch-input"
+                    type="text"
+                    value={ghBranch}
+                    onChange={(e) => setGhBranch(e.target.value)}
+                    className="w-full px-3 py-2 bg-[#141b3d] border border-[#2b3c8a] rounded-xl text-white focus:outline-none focus:border-sky-400 font-mono"
+                  />
+                </div>
+                <div>
+                  <span className="font-bold text-slate-200 block mb-1">Visibilité</span>
+                  <div className="grid grid-cols-2 gap-1.5">
+                    <button
+                      type="button"
+                      onClick={() => setGhIsPrivate(false)}
+                      className={`py-2 px-2.5 rounded-xl border font-bold flex items-center justify-center gap-1 cursor-pointer ${
+                        !ghIsPrivate
+                          ? 'bg-[#2563eb] border-sky-400 text-white'
+                          : 'bg-[#141b3d] border-[#2b3c8a] text-slate-300'
+                      }`}
+                    >
+                      <Globe className="w-3.5 h-3.5" />
+                      <span>Public</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setGhIsPrivate(true)}
+                      className={`py-2 px-2.5 rounded-xl border font-bold flex items-center justify-center gap-1 cursor-pointer ${
+                        ghIsPrivate
+                          ? 'bg-[#2563eb] border-sky-400 text-white'
+                          : 'bg-[#141b3d] border-[#2b3c8a] text-slate-300'
+                      }`}
+                    >
+                      <Lock className="w-3.5 h-3.5" />
+                      <span>Privé</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <label htmlFor="gh-commit-input" className="font-bold text-slate-200 block mb-1">
+                  Message de commit
+                </label>
+                <input
+                  id="gh-commit-input"
+                  type="text"
+                  value={ghCommitMsg}
+                  onChange={(e) => setGhCommitMsg(e.target.value)}
+                  className="w-full px-3 py-2 bg-[#141b3d] border border-[#2b3c8a] rounded-xl text-white focus:outline-none focus:border-sky-400"
+                />
+              </div>
+
+              <div className="p-2.5 rounded-xl bg-[#11173b] border border-[#232f6b] flex flex-wrap items-center justify-between gap-2 text-[11px] text-slate-300">
+                <span>Fichiers inclus :</span>
+                <span className="font-mono text-sky-300">index.html · styles.css · app.js · README.md</span>
+              </div>
+
+              {ghError && (
+                <div className="p-2.5 rounded-xl bg-rose-950/70 border border-rose-500/50 text-rose-200 text-[11px]">
+                  {ghError}
+                </div>
+              )}
+
+              {ghProgress && !ghError && (
+                <div className="p-2.5 rounded-xl bg-emerald-950/60 border border-emerald-500/40 text-emerald-200 text-[11px]">
+                  {ghProgress}
+                </div>
+              )}
+
+              {ghPushedUrl && (
+                <div className="p-3 rounded-xl bg-[#141b3d] border border-emerald-500/50 flex flex-wrap items-center justify-between gap-2">
+                  <a
+                    href={ghPushedUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="font-bold text-sky-300 hover:text-white flex items-center gap-1.5 underline truncate"
+                  >
+                    <ExternalLink className="w-3.5 h-3.5 shrink-0" />
+                    <span className="truncate">{ghPushedUrl}</span>
+                  </a>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      navigator.clipboard.writeText(ghPushedUrl);
+                      setCopiedRepoUrl(true);
+                      setTimeout(() => setCopiedRepoUrl(false), 1800);
+                    }}
+                    className="px-2.5 py-1 rounded-lg bg-[#2563eb] text-white font-bold text-[11px] cursor-pointer shrink-0"
+                  >
+                    {copiedRepoUrl ? 'Copié' : 'Copier lien'}
+                  </button>
+                </div>
+              )}
+
+              <div className="flex items-center justify-end gap-2 pt-1">
+                <button
+                  type="button"
+                  onClick={() => setIsGitHubModalOpen(false)}
+                  className="px-3.5 py-2 rounded-xl bg-[#141b3d] hover:bg-[#1e2a66] border border-[#2b3c8a] text-slate-200 font-bold cursor-pointer"
+                >
+                  Fermer
+                </button>
+                <button
+                  type="submit"
+                  disabled={isPushingGh || !ghToken.trim() || !ghRepoName.trim()}
+                  className="px-4 py-2 rounded-xl bg-[#2563eb] hover:bg-[#1d4ed8] disabled:opacity-50 text-white font-bold flex items-center gap-1.5 cursor-pointer"
+                >
+                  {isPushingGh ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Github className="w-3.5 h-3.5" />}
+                  <span>{isPushingGh ? 'Push en cours...' : 'Créer & Pousser sur GitHub'}</span>
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

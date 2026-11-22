@@ -478,3 +478,188 @@ export const VISUAL_ELEMENTS: VisualLibraryElement[] = [
     `),
   },
 ];
+
+export interface MontageGifItem {
+  id: string;
+  name: string;
+  category: 'Réactions' | 'Hype' | 'CTA' | 'Effets';
+  duration: number;
+  src: string;
+}
+
+export const MONTAGE_ANIMATED_GIFS: MontageGifItem[] = [
+  {
+    id: 'mgif_lol',
+    name: 'MDR / Rire',
+    category: 'Réactions',
+    duration: 3,
+    src: toSvgDataUrl(`
+      <circle cx="60" cy="60" r="52" fill="#2e1065" stroke="#facc15" stroke-width="3"/>
+      <g>
+        <animateTransform attributeName="transform" type="rotate" values="-8 60 60; 8 60 60; -8 60 60" dur="0.5s" repeatCount="indefinite"/>
+        <circle cx="60" cy="60" r="36" fill="#fde047"/>
+        <path d="M38 50 Q45 42 52 50 M68 50 Q75 42 82 50" fill="none" stroke="#1e1b4b" stroke-width="4" stroke-linecap="round"/>
+        <path d="M40 66 Q60 88 80 66 Z" fill="#991b1b"/>
+        <ellipse cx="30" cy="62" rx="6" ry="4" fill="#38bdf8">
+          <animate attributeName="opacity" values="0.3;1;0.3" dur="0.6s" repeatCount="indefinite"/>
+        </ellipse>
+        <ellipse cx="90" cy="62" rx="6" ry="4" fill="#38bdf8">
+          <animate attributeName="opacity" values="0.3;1;0.3" dur="0.6s" repeatCount="indefinite"/>
+        </ellipse>
+      </g>
+    `),
+  },
+  {
+    id: 'mgif_fire',
+    name: 'Feu / Hype',
+    category: 'Hype',
+    duration: 3,
+    src: toSvgDataUrl(`
+      <circle cx="60" cy="60" r="52" fill="#2a0a12" stroke="#f97316" stroke-width="3"/>
+      <g>
+        <animateTransform attributeName="transform" type="scale" additive="sum" values="1,1; 1.07,0.93; 1,1" dur="0.55s" repeatCount="indefinite"/>
+        <path d="M62 18 C82 38 92 58 84 78 C76 92 60 98 48 92 C34 86 30 68 38 54 C44 40 54 32 62 18Z" fill="#f97316"/>
+        <path d="M60 46 C72 58 74 72 66 84 C58 90 48 88 44 78 C42 66 50 56 60 46Z" fill="#fde047"/>
+      </g>
+    `),
+  },
+  {
+    id: 'mgif_heart',
+    name: 'Cœur Love',
+    category: 'Réactions',
+    duration: 3,
+    src: toSvgDataUrl(`
+      <circle cx="60" cy="60" r="52" fill="#2d0a1e" stroke="#f43f5e" stroke-width="3"/>
+      <g transform="translate(60 62)">
+        <animateTransform attributeName="transform" type="scale" additive="sum" values="0.86;1.14;0.9;1.08;0.86" dur="0.9s" repeatCount="indefinite"/>
+        <path d="M0 28 C0 28 -34 6 -34 -14 C-34 -26 -24 -34 -14 -34 C-6 -34 -2 -29 0 -24 C2 -29 6 -34 14 -34 C24 -34 34 -26 34 -14 C34 6 0 28 0 28Z" fill="#f43f5e"/>
+      </g>
+    `),
+  },
+  {
+    id: 'mgif_clap',
+    name: 'Bravo / Clap',
+    category: 'Réactions',
+    duration: 3,
+    src: toSvgDataUrl(`
+      <rect x="8" y="8" width="104" height="104" rx="24" fill="#172554" stroke="#34d399" stroke-width="3"/>
+      <text x="60" y="72" text-anchor="middle" font-size="48">
+        👏
+        <animateTransform attributeName="transform" type="scale" additive="sum" values="0.92;1.12;0.92" dur="0.5s" repeatCount="indefinite"/>
+      </text>
+      <circle cx="24" cy="26" r="5" fill="#fde047"><animate attributeName="opacity" values="0;1;0" dur="0.6s" repeatCount="indefinite"/></circle>
+      <circle cx="96" cy="28" r="5" fill="#38bdf8"><animate attributeName="opacity" values="1;0;1" dur="0.6s" repeatCount="indefinite"/></circle>
+    `),
+  },
+  {
+    id: 'mgif_thumbs',
+    name: 'Top / Validé',
+    category: 'Réactions',
+    duration: 3,
+    src: toSvgDataUrl(`
+      <circle cx="60" cy="60" r="52" fill="#064e3b" stroke="#34d399" stroke-width="3"/>
+      <g>
+        <animateTransform attributeName="transform" type="rotate" values="-10 60 70; 8 60 70; -10 60 70" dur="0.75s" repeatCount="indefinite"/>
+        <rect x="26" y="54" width="16" height="36" rx="4" fill="#38bdf8"/>
+        <path d="M46 56 L58 26 C62 20 70 22 68 32 L64 48 H88 C94 48 96 56 94 62 L88 84 C86 88 80 90 74 90 H46 Z" fill="#fde047"/>
+      </g>
+    `),
+  },
+  {
+    id: 'mgif_100',
+    name: '100% Pur',
+    category: 'Hype',
+    duration: 2.5,
+    src: toSvgDataUrl(`
+      <rect x="10" y="20" width="100" height="80" rx="20" fill="#450a0a" stroke="#ef4444" stroke-width="3"/>
+      <g>
+        <animateTransform attributeName="transform" type="translate" values="0,-4;0,4;0,-4" dur="0.6s" repeatCount="indefinite"/>
+        <text x="60" y="66" text-anchor="middle" font-family="Arial, sans-serif" font-weight="900" font-size="38" fill="#fde047">100</text>
+        <line x1="24" y1="76" x2="96" y2="72" stroke="#ef4444" stroke-width="5" stroke-linecap="round"/>
+        <line x1="28" y1="86" x2="92" y2="82" stroke="#ef4444" stroke-width="5" stroke-linecap="round"/>
+      </g>
+    `),
+  },
+  {
+    id: 'mgif_omg',
+    name: 'Choc / OMG!',
+    category: 'Réactions',
+    duration: 2.5,
+    src: toSvgDataUrl(`
+      <rect x="10" y="16" width="100" height="88" rx="24" fill="#3b0764" stroke="#e879f9" stroke-width="3"/>
+      <g>
+        <animateTransform attributeName="transform" type="scale" additive="sum" values="0.92;1.08;0.92" dur="0.45s" repeatCount="indefinite"/>
+        <text x="60" y="72" text-anchor="middle" font-family="Arial, sans-serif" font-weight="900" font-size="30" fill="#fde047">OMG!</text>
+      </g>
+    `),
+  },
+  {
+    id: 'mgif_rocket',
+    name: 'Fusée Boost',
+    category: 'Hype',
+    duration: 3,
+    src: toSvgDataUrl(`
+      <circle cx="60" cy="60" r="52" fill="#172554" stroke="#38bdf8" stroke-width="3"/>
+      <g>
+        <animateTransform attributeName="transform" type="translate" values="-3,4; 4,-6; -3,4" dur="0.65s" repeatCount="indefinite"/>
+        <path d="M60 20 C76 34 80 56 76 74 L44 74 C40 56 44 34 60 20Z" fill="#38bdf8"/>
+        <circle cx="60" cy="48" r="7" fill="#ffffff"/>
+        <path d="M52 74 L60 98 L68 74 Z" fill="#fbbf24"/>
+      </g>
+    `),
+  },
+  {
+    id: 'mgif_bolt',
+    name: 'Éclair Choc',
+    category: 'Effets',
+    duration: 2,
+    src: toSvgDataUrl(`
+      <circle cx="60" cy="60" r="52" fill="#1e1b4b" stroke="#facc15" stroke-width="3"/>
+      <polygon points="68,16 32,64 56,64 48,104 88,52 62,52" fill="#facc15">
+        <animate attributeName="opacity" values="1;0.3;1;0.8;1" dur="0.55s" repeatCount="indefinite"/>
+      </polygon>
+    `),
+  },
+  {
+    id: 'mgif_arrow',
+    name: 'Flèche CTA',
+    category: 'CTA',
+    duration: 3,
+    src: toSvgDataUrl(`
+      <circle cx="60" cy="60" r="52" fill="#172554" stroke="#60a5fa" stroke-width="3"/>
+      <g>
+        <animateTransform attributeName="transform" type="translate" values="0,-8; 0,10; 0,-8" dur="0.8s" repeatCount="indefinite"/>
+        <rect x="52" y="24" width="16" height="38" rx="6" fill="#fde047"/>
+        <polygon points="34,58 86,58 60,92" fill="#fde047"/>
+      </g>
+    `),
+  },
+  {
+    id: 'mgif_bell',
+    name: 'Cloche Abonné',
+    category: 'CTA',
+    duration: 3.5,
+    src: toSvgDataUrl(`
+      <circle cx="60" cy="60" r="52" fill="#172554" stroke="#fbbf24" stroke-width="3"/>
+      <g>
+        <animateTransform attributeName="transform" type="rotate" values="-14 60 30; 14 60 30; -14 60 30" dur="0.65s" repeatCount="indefinite"/>
+        <path d="M60 24 C44 24 36 36 36 56 L28 74 H92 L84 56 C84 36 76 24 60 24Z" fill="#fbbf24"/>
+        <circle cx="60" cy="84" r="8" fill="#fef08a"/>
+      </g>
+    `),
+  },
+  {
+    id: 'mgif_live',
+    name: 'Badge LIVE',
+    category: 'CTA',
+    duration: 3,
+    src: toSvgDataUrl(`
+      <rect x="10" y="34" width="100" height="52" rx="16" fill="#dc2626" stroke="#fecaca" stroke-width="3"/>
+      <circle cx="32" cy="60" r="9" fill="#ffffff">
+        <animate attributeName="opacity" values="1;0.2;1" dur="0.8s" repeatCount="indefinite"/>
+      </circle>
+      <text x="50" y="67" font-family="Arial, sans-serif" font-weight="900" font-size="22" fill="#ffffff">LIVE</text>
+    `),
+  },
+];
+

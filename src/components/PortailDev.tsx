@@ -5,7 +5,6 @@ import {
   Film,
   Camera,
   Mic,
-  ArrowLeft,
   Sparkles,
   Layers,
   Code as CodeIcon,
@@ -82,15 +81,6 @@ export const PortailDev: React.FC<PortailDevProps> = ({ onNavigateHome, initialT
       <header className="border-b border-[#5A33FF33] bg-[#0c0b17]/90 backdrop-blur-md sticky top-0 z-50 px-4 sm:px-6 py-3 flex items-center justify-between gap-4">
         {/* Brand Zone */}
         <div className="flex items-center gap-3 shrink-0">
-          <button
-            onClick={onNavigateHome}
-            className="flex items-center gap-2 text-slate-400 hover:text-white transition-colors text-xs font-semibold cursor-pointer"
-            title="Revenir sur la page vitrine d'accueil (/)"
-          >
-            <ArrowLeft className="w-4 h-4" />
-            <span className="hidden sm:inline">Accueil Vitrine</span>
-          </button>
-          <div className="h-4 w-px bg-[#5A33FF33]" />
           <div className="flex items-center gap-2">
             <span className="w-2.5 h-2.5 rounded-full bg-[#5A33FF] animate-pulse" />
             <span className="text-sm sm:text-base font-extrabold tracking-tight text-white whitespace-nowrap">

@@ -180,13 +180,24 @@ export const AndreaChat: React.FC<AndreaChatProps> = ({
       lower.includes('reproduire') ||
       lower.includes('rebrand');
 
+    // Questions / demandes d'explication : toujours une vraie réponse écrite, jamais une génération média
+    const isExplainIntent =
+      /^(comment|pourquoi|qu'est|qu’est|quel|quelle|quels|quelles|c'est quoi|explique|expliquer|peux-tu|peux tu|pourrais-tu|aide-moi|aide moi|donne-moi des (idées|conseils)|comprendre)/.test(lower.trim()) ||
+      /(comprendre|psychologie|rétention|retention|stratégie|strategie|conseil|idées? de|script|pourquoi|comment )/.test(lower);
+
+    // Une génération média n'est lancée que si l'utilisateur la demande explicitement (verbe d'action + média)
+    const GEN_VERB = '(génère|genere|générer|generer|crée|cree|créer|creer|fais|faire|produis|produire|réalise|realise|anime|animer|monte|monter)';
+    const asksToMake = (nouns: string) =>
+      new RegExp(`\\b${GEN_VERB}\\b[^.!?\\n]{0,35}\\b(${nouns})`, 'i').test(lower);
+
     const isIllustrateRequest =
-      lower.includes('illustrer') ||
-      lower.includes('illustration animée') ||
-      lower.includes('mini-film') ||
-      lower.includes('film animé') ||
-      lower.includes('croquis') ||
-      lower.includes('schéma animé');
+      !isExplainIntent &&
+      (lower.includes('illustrer') ||
+        lower.includes('illustration animée') ||
+        lower.includes('mini-film') ||
+        lower.includes('film animé') ||
+        lower.includes('schéma animé') ||
+        asksToMake('croquis'));
 
     const isPhotoTextSkillRequest =
       lower.includes('effacer le texte') ||
@@ -200,9 +211,11 @@ export const AndreaChat: React.FC<AndreaChatProps> = ({
       lower.includes('retoucher cette image');
 
     const isAvatarRequest =
-      lower.includes('avatar') ||
-      lower.includes('personnage parlant') ||
-      lower.includes('visage qui parle');
+      !isExplainIntent &&
+      (lower.includes('avatar parlant') ||
+        lower.includes('personnage parlant') ||
+        lower.includes('visage qui parle') ||
+        asksToMake('avatar'));
 
     const isImageRequest =
       !isPhotoTextSkillRequest &&
@@ -218,10 +231,9 @@ export const AndreaChat: React.FC<AndreaChatProps> = ({
       !isSiteOrAppRequest &&
       !isIllustrateRequest &&
       !isAvatarRequest &&
-      (lower.includes('vidéo') ||
-        lower.includes('video') ||
-        lower.includes('mouvement') ||
-        lower.includes('caméra'));
+      !isExplainIntent &&
+      (asksToMake('vidéo|video|vidéos|videos|clip|reel|short') ||
+        /(mouvement de caméra|mouvement de camera|travelling|plan orbital)/.test(lower));
 
     try {
       if (isSiteOrAppRequest) {
