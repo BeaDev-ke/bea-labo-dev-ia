@@ -25,8 +25,8 @@ export async function generateVoice(
     headers['Authorization'] = `Bearer ${hfToken}`;
   }
 
-  // 1. Essai F5-TTS de SWIVID sur Hugging Face (Principal)
-  if (onStatusUpdate) onStatusUpdate('Génération voix humaine avec F5-TTS (SWIVID Hugging Face)...');
+  // 1. Synthèse vocale principale
+  if (onStatusUpdate) onStatusUpdate('Génération de la voix off Andrea...');
 
   try {
     const f5Controller = new AbortController();
@@ -58,11 +58,11 @@ export async function generateVoice(
       }
     }
   } catch {
-    // Continue to XTTS-v2
+    // Continue to fallback
   }
 
-  // 2. Fallback sur Coqui XTTS-v2
-  if (onStatusUpdate) onStatusUpdate('F5-TTS saturé. Bascule sur Coqui XTTS-v2...');
+  // 2. Fallback vocal secondaire
+  if (onStatusUpdate) onStatusUpdate('Moteur principal occupé. Bascule sur le moteur vocal secondaire...');
   try {
     const xttsController = new AbortController();
     const xttsTimeout = setTimeout(() => xttsController.abort(), 4000);

@@ -3,40 +3,40 @@ import { AndreaHeader } from './components/AndreaHeader';
 import { AndreaSidebar, MainNavTab } from './components/AndreaSidebar';
 import { AndreaChat } from './components/AndreaChat';
 import { MontageStudio } from './components/MontageStudio';
-import { CodeUltraView } from './components/CodeUltraView';
+import { CodeWorkspacePage, ActiveCodeProject } from './components/CodeWorkspacePage';
 import { AccountPage } from './components/AccountPage';
 import { MemoryPage } from './components/MemoryPage';
 import { AIParametersPage } from './components/AIParametersPage';
-import { DevLab } from './components/DevLab';
 import { OnboardingModal } from './components/OnboardingModal';
 import { VitrinePage } from './components/VitrinePage';
-import { UserPreferences, PlanType, AIParameters } from './types';
+import { UserPreferences, PlanType, AIParameters, AppTheme, AppLanguage } from './types';
 
 export default function App() {
-  // Session Persistence: Refreshing does NOT log the user out
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(() => {
     if (typeof window !== 'undefined') {
       const stored = localStorage.getItem('andrea_logged_in');
       if (stored === 'false') return false;
-      return true; // Reconnexion automatique par défaut
+      return true;
     }
     return true;
   });
 
-  // Routing: Reconnexion automatique active -> arrivée DIRECTE sur la discussion
+  // Vitrine par défaut sur "/", Portail Dev sur "/portail-dev"
   const [currentPath, setCurrentPath] = useState<string>(() => {
     if (typeof window !== 'undefined') {
-      const stored = localStorage.getItem('andrea_logged_in');
-      if (stored === 'false') {
-        return window.location.pathname.startsWith('/portail-dev') ? '/portail-dev' : '/';
-      }
-      // Arrivée directe sur le workspace et la discussion
-      return '/portail-dev';
+      return window.location.pathname.startsWith('/portail-dev') ? '/portail-dev' : '/';
     }
-    return '/portail-dev';
+    return '/';
   });
 
-  // User Authentication State
+  const [theme, setTheme] = useState<AppTheme>(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('andrea_theme');
+      if (saved === 'light' || saved === 'dark') return saved;
+    }
+    return 'dark';
+  });
+
   const [userEmail, setUserEmail] = useState<string>(() => {
     if (typeof window !== 'undefined') {
       return localStorage.getItem('andrea_user_email') || 'saydoukebe31@gmail.com';
@@ -57,7 +57,8 @@ export default function App() {
       displayName: 'Saydoukebe31',
       profile: 'createur',
       tone: 'expert',
-      objective: 'Publier chaque jour sans blocage de montage et maximiser la rétention',
+      objective: 'Avancer concrètement chaque jour sur mes projets',
+      language: 'fr',
     };
   });
 
@@ -68,19 +69,39 @@ export default function App() {
     return 'free';
   });
 
-  const [aiParams, setAiParams] = useState<AIParameters>({
-    modelSpeed: 'puissant',
-    creativity: 0.7,
-    useMemory: true,
-    hfToken: '',
+  const [aiParams, setAiParams] = useState<AIParameters>(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('andrea_ai_params');
+      if (saved) {
+        try {
+          return JSON.parse(saved);
+        } catch {}
+      }
+    }
+    return {
+      modelSpeed: 'puissant',
+      creativity: 0.7,
+      useMemory: true,
+      hfToken: '',
+      language: 'fr',
+      posture: 'Pédagogique & Détaillé',
+    };
   });
 
-  // Navigation State inside Portail Dev
   const [activeTab, setActiveTab] = useState<MainNavTab>('discussion');
+  const [isVisualStudioOpen, setIsVisualStudioOpen] = useState(false);
+  const [activeCodeProject, setActiveCodeProject] = useState<ActiveCodeProject | null>(null);
   const [isOnboardingOpen, setIsOnboardingOpen] = useState(false);
   const [chatKey, setChatKey] = useState(1);
 
-  // Sync with browser back/forward buttons
+  useEffect(() => {
+    if (typeof document !== 'undefined') {
+      document.documentElement.classList.toggle('theme-light', theme === 'light');
+      document.documentElement.classList.toggle('dark', theme === 'dark');
+      localStorage.setItem('andrea_theme', theme);
+    }
+  }, [theme]);
+
   useEffect(() => {
     const handlePopState = () => {
       const path = window.location.pathname.startsWith('/portail-dev') ? '/portail-dev' : '/';
@@ -90,18 +111,22 @@ export default function App() {
     return () => window.removeEventListener('popstate', handlePopState);
   }, []);
 
+  const toggleTheme = () => {
+    setTheme((prev) => (prev === 'dark' ? 'light' : 'dark'));
+  };
+
   const navigateTo = (path: string, tab?: MainNavTab) => {
     if (typeof window !== 'undefined') {
       window.history.pushState({}, '', path);
     }
     setCurrentPath(path);
     if (tab) {
+      setActiveCodeProject(null);
+      setIsVisualStudioOpen(false);
       setActiveTab(tab);
     }
-    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  // Save changes to localStorage & log in
   const handleSavePreferences = (email: string, newPrefs: UserPreferences, newPlan: PlanType) => {
     setUserEmail(email);
     setPreferences(newPrefs);
@@ -115,7 +140,20 @@ export default function App() {
     }
   };
 
-  // Logout sends the user directly to the Vitrine page at "/"
+  const handleSaveAIParameters = (params: AIParameters) => {
+    setAiParams(params);
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('andrea_ai_params', JSON.stringify(params));
+    }
+    if (params.language && params.language !== preferences.language) {
+      const updated = { ...preferences, language: params.language };
+      setPreferences(updated);
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('andrea_preferences', JSON.stringify(updated));
+      }
+    }
+  };
+
   const handleLogout = () => {
     setIsLoggedIn(false);
     if (typeof window !== 'undefined') {
@@ -125,24 +163,26 @@ export default function App() {
   };
 
   const handleNewChat = () => {
+    setActiveCodeProject(null);
+    setIsVisualStudioOpen(false);
     setChatKey((prev) => prev + 1);
     setActiveTab('discussion');
   };
 
-  // Check if current user is admin
-  const isDevAdmin = userEmail.trim().toLowerCase() === 'saydoukebe31@gmail.com';
+  const activeLanguage: AppLanguage = aiParams.language || preferences.language || 'fr';
+  const sidebarCollapsed = activeTab === 'montage' && isVisualStudioOpen;
 
-  // PAGE 1: Vitrine by default on "/"
+  // PAGE 1: Vitrine par défaut sur "/"
   if (currentPath === '/') {
     return (
-      <div className="min-h-screen bg-[#0d091e] text-slate-100 font-sans antialiased selection:bg-[#5A33FF] selection:text-white">
+      <div className="min-h-screen lg:h-screen overflow-y-auto lg:overflow-hidden overflow-x-hidden bg-[#0d091e] text-slate-100 font-sans antialiased selection:bg-[#5A33FF] selection:text-white">
         <VitrinePage
           onLogin={(email, newPrefs, newPlan) => {
             handleSavePreferences(email, newPrefs || preferences, newPlan || plan);
-            navigateTo('/portail-dev');
+            navigateTo('/portail-dev', 'discussion');
           }}
-          savedEmail={userEmail}
           savedPreferences={preferences}
+          savedEmail={userEmail}
           isLoggedIn={isLoggedIn}
         />
         <OnboardingModal
@@ -157,95 +197,94 @@ export default function App() {
     );
   }
 
-  // PAGE 2: Portail Dev on "/portail-dev"
+  // PAGE 2: Portail Dev sur "/portail-dev"
   return (
-    <div className="min-h-screen bg-[#070914] text-slate-100 flex flex-col font-sans antialiased selection:bg-[#3b82f6] selection:text-white">
-      {/* Top Header matching Photos */}
+    <div className="h-screen overflow-hidden bg-[#070914] text-slate-100 flex flex-col font-sans antialiased selection:bg-[#3b82f6] selection:text-white">
       <AndreaHeader
         onOpenProfile={() => setIsOnboardingOpen(true)}
         onLogout={handleLogout}
         isLoggedIn={isLoggedIn}
         userEmail={userEmail}
         onNavigateHome={() => navigateTo('/')}
+        theme={theme}
+        onToggleTheme={toggleTheme}
       />
 
-      {/* Main Layout: Sidebar on Left, Content on Right */}
-      <div className="flex-1 flex overflow-hidden">
+      <div className="flex-1 min-h-0 flex overflow-hidden">
         <AndreaSidebar
           activeTab={activeTab}
-          onSelectTab={(tab) => setActiveTab(tab)}
+          onSelectTab={(tab) => {
+            setActiveCodeProject(null);
+            if (tab !== 'montage') setIsVisualStudioOpen(false);
+            setActiveTab(tab);
+          }}
           onNewChat={handleNewChat}
           displayName={preferences.displayName}
           plan={plan}
-          userEmail={userEmail}
-          onOpenDevLab={() => setActiveTab('dev_lab')}
+          collapsed={sidebarCollapsed}
         />
 
-        {/* Main Workspace Area */}
-        <main className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 no-scrollbar bg-[#090d1f]">
-          {activeTab === 'discussion' && (
-            <AndreaChat
-              key={chatKey}
-              userProfile={preferences.profile}
-              displayName={preferences.displayName}
+        <main className="flex-1 min-w-0 min-h-0 overflow-y-auto md:overflow-hidden overflow-x-hidden p-2 sm:p-3 bg-[#090d1f] flex flex-col">
+          {activeCodeProject ? (
+            <CodeWorkspacePage
+              project={activeCodeProject}
+              onUpdateProject={(next) => setActiveCodeProject(next)}
+              onBackToDiscussion={() => {
+                setActiveCodeProject(null);
+                setActiveTab('discussion');
+              }}
             />
-          )}
+          ) : (
+            <>
+              {activeTab === 'discussion' && (
+                <AndreaChat
+                  key={chatKey}
+                  userProfile={preferences.profile}
+                  displayName={preferences.displayName}
+                  language={activeLanguage}
+                  onOpenCodeBuilder={(project) => {
+                    setActiveCodeProject(project);
+                  }}
+                />
+              )}
 
-          {activeTab === 'montage' && <MontageStudio />}
+              {activeTab === 'montage' && (
+                <MontageStudio
+                  onViewModeChange={(mode) => setIsVisualStudioOpen(mode === 'fullscreen_studio')}
+                />
+              )}
 
-          {activeTab === 'code' && <CodeUltraView />}
+              {activeTab === 'tarifs' && (
+                <AccountPage
+                  currentPlan={plan}
+                  onUpgrade={(newPlan) => setPlan(newPlan)}
+                  chatUsed={42}
+                  chatLimit={1000}
+                  codeUsed={18}
+                  codeLimit={150}
+                  onClearHistory={() => setChatKey((prev) => prev + 1)}
+                />
+              )}
 
-          {activeTab === 'tarifs' && (
-            <AccountPage
-              currentPlan={plan}
-              onUpgrade={(newPlan) => setPlan(newPlan)}
-              chatUsed={42}
-              chatLimit={1000}
-              codeUsed={18}
-              codeLimit={150}
-              onClearHistory={() => alert('Historique effacé.')}
-            />
-          )}
+              {activeTab === 'memoire' && (
+                <MemoryPage
+                  preferences={preferences}
+                  plan={plan}
+                  onOpenEditModal={() => setIsOnboardingOpen(true)}
+                />
+              )}
 
-          {activeTab === 'memoire' && (
-            <MemoryPage
-              preferences={preferences}
-              plan={plan}
-              onOpenEditModal={() => setIsOnboardingOpen(true)}
-            />
-          )}
-
-          {activeTab === 'parametres' && (
-            <AIParametersPage
-              parameters={aiParams}
-              onSaveParameters={(params) => setAiParams(params)}
-            />
-          )}
-
-          {/* Dev Lab view: ONLY accessible if logged in as saydoukebe31@gmail.com */}
-          {activeTab === 'dev_lab' && isDevAdmin && (
-            <div className="space-y-4">
-              <div className="flex items-center justify-between pb-3 border-b border-[#2b356d]">
-                <div className="flex items-center gap-2">
-                  <span className="px-2.5 py-1 rounded-lg bg-purple-900/40 text-purple-300 font-mono text-xs font-bold border border-purple-500/40">
-                    Mode Admin Actif
-                  </span>
-                  <span className="text-xs text-slate-400 font-mono">{userEmail}</span>
-                </div>
-                <button
-                  onClick={() => setActiveTab('discussion')}
-                  className="px-3 py-1.5 bg-[#141b3d] hover:bg-[#202959] text-xs font-bold text-white rounded-xl cursor-pointer"
-                >
-                  ← Retour au Chat
-                </button>
-              </div>
-              <DevLab onNavigateToPortal={() => setActiveTab('discussion')} />
-            </div>
+              {activeTab === 'parametres' && (
+                <AIParametersPage
+                  parameters={{ ...aiParams, language: activeLanguage }}
+                  onSaveParameters={handleSaveAIParameters}
+                />
+              )}
+            </>
           )}
         </main>
       </div>
 
-      {/* Onboarding & Prompt Personalization Questions Modal */}
       <OnboardingModal
         isOpen={isOnboardingOpen}
         onClose={() => setIsOnboardingOpen(false)}

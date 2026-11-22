@@ -2,14 +2,39 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 @layer base {
+  html,
+  body,
+  #root {
+    height: 100%;
+    overflow: hidden;
+  }
+
   body {
     background-color: #0F0E1E;
     color: #FFFFFF;
     font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  button:focus-visible,
+  a:focus-visible,
+  input:focus-visible,
+  select:focus-visible,
+  textarea:focus-visible {
+    outline: 2px solid #38bdf8;
+    outline-offset: 2px;
   }
 }
 
-/* THÈME OFFICIEL BEA / ANDREA (BehaviorLab AI) */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* THÈME OFFICIEL ANDREA */
 :root {
   --bea-bg: #0F0E1E;
   --bea-sidebar: #0c0b17;
@@ -20,6 +45,203 @@
   --bea-grad: linear-gradient(90deg, #1E1B8C 0%, #5A33FF 100%);
   --bea-accent: #8B70FF;
   --bea-text-sec: #A89CFF;
+}
+
+/* MODE CLAIR GLOBAL : Blanc cassé lumineux conservant les teintes indigo/violet éclaircies */
+html.theme-light body {
+  background-color: #f4f2f7;
+  color: #17153b;
+}
+
+/* Fond principal blanc cassé */
+html.theme-light .bg-\[\#070914\],
+html.theme-light .bg-\[\#090d1f\],
+html.theme-light .bg-\[\#0d091e\],
+html.theme-light .bg-\[\#060914\],
+html.theme-light .bg-\[\#050814\] {
+  background-color: #f3f1f6 !important;
+  color: #17153b !important;
+}
+
+/* En-têtes et barre latérale (blanc cassé légèrement lavande/perle) */
+html.theme-light .bg-\[\#0a0d1e\],
+html.theme-light .bg-\[\#0c081e\],
+html.theme-light .bg-\[\#0c081e\]\/90,
+html.theme-light .bg-\[\#0a0e24\],
+html.theme-light .bg-\[\#0c1024\],
+html.theme-light .bg-\[\#0b1024\],
+html.theme-light .bg-\[\#090c1b\],
+html.theme-light .bg-\[\#080c1f\] {
+  background-color: #eae7f5 !important;
+  color: #17153b !important;
+}
+
+/* Cartes indigo/bleu éclaircies (conservent la nuance bleu-indigo) */
+html.theme-light .bg-\[\#0d122c\],
+html.theme-light .bg-\[\#0e1329\],
+html.theme-light .bg-\[\#0e1430\],
+html.theme-light .bg-\[\#0f1433\],
+html.theme-light .bg-\[\#0f1536\],
+html.theme-light .bg-\[\#101636\],
+html.theme-light .bg-\[\#101638\],
+html.theme-light .bg-\[\#101942\],
+html.theme-light .bg-\[\#11173b\],
+html.theme-light .bg-\[\#131838\],
+html.theme-light .bg-\[\#131a3d\],
+html.theme-light .bg-\[\#141b3d\],
+html.theme-light .bg-\[\#141c45\],
+html.theme-light .bg-\[\#151c42\],
+html.theme-light .bg-\[\#151c44\],
+html.theme-light .bg-\[\#171e47\],
+html.theme-light .bg-\[\#171f4c\],
+html.theme-light .bg-\[\#172152\] {
+  background-color: #eaedfb !important;
+  color: #17153b !important;
+}
+
+/* Cartes violet/améthyste éclaircies (conservent la nuance violette Andrea) */
+html.theme-light .bg-\[\#0f0b24\],
+html.theme-light .bg-\[\#150f33\],
+html.theme-light .bg-\[\#15112a\],
+html.theme-light .bg-\[\#161036\],
+html.theme-light .bg-\[\#161233\],
+html.theme-light .bg-\[\#171038\],
+html.theme-light .bg-\[\#1a1535\],
+html.theme-light .bg-\[\#1A1930\],
+html.theme-light .bg-\[\#20174c\],
+html.theme-light .bg-\[\#201844\],
+html.theme-light .bg-\[\#231a4a\],
+html.theme-light .bg-\[\#131835\] {
+  background-color: #ece8fa !important;
+  color: #1a1540 !important;
+}
+
+/* États actifs et surlignages conservant les couleurs éclaircies */
+html.theme-light .bg-\[\#182561\],
+html.theme-light .bg-\[\#1b2b73\],
+html.theme-light .bg-\[\#1b2352\],
+html.theme-light .bg-\[\#1b2559\],
+html.theme-light .bg-\[\#1b2668\],
+html.theme-light .bg-\[\#1b2766\],
+html.theme-light .bg-\[\#1e2a66\],
+html.theme-light .bg-\[\#1f3382\],
+html.theme-light .bg-\[\#2a2057\],
+html.theme-light .bg-\[\#372b6e\] {
+  background-color: #d6defc !important;
+  color: #16236b !important;
+}
+
+/* Bordures douces indigo/violet éclaircies */
+html.theme-light .border-\[\#1a2044\],
+html.theme-light .border-\[\#1a2248\],
+html.theme-light .border-\[\#1d254f\],
+html.theme-light .border-\[\#1d2757\],
+html.theme-light .border-\[\#1e2754\],
+html.theme-light .border-\[\#202959\],
+html.theme-light .border-\[\#222c5e\],
+html.theme-light .border-\[\#232b5c\],
+html.theme-light .border-\[\#232f6b\],
+html.theme-light .border-\[\#233580\],
+html.theme-light .border-\[\#273473\],
+html.theme-light .border-\[\#28346e\],
+html.theme-light .border-\[\#293675\],
+html.theme-light .border-\[\#2b356d\],
+html.theme-light .border-\[\#2b3a82\],
+html.theme-light .border-\[\#2b3c8a\],
+html.theme-light .border-\[\#2e40a6\],
+html.theme-light .border-\[\#384fa6\],
+html.theme-light .border-\[\#5A33FF33\],
+html.theme-light .border-\[\#5A33FF44\],
+html.theme-light .border-\[\#5A33FF55\],
+html.theme-light .border-\[\#5A33FF66\] {
+  border-color: #c5c1e5 !important;
+}
+
+/* Champs de saisie en blanc cassé */
+html.theme-light input:not([type="color"]):not([type="range"]):not([type="checkbox"]):not([type="radio"]),
+html.theme-light textarea,
+html.theme-light select {
+  background-color: #faf9f6 !important;
+  color: #17153b !important;
+  border-color: #bdb8df !important;
+}
+
+html.theme-light input::placeholder,
+html.theme-light textarea::placeholder {
+  color: #6b6796 !important;
+}
+
+/* Hiérarchie de texte contrastée WCAG AA en mode clair */
+html.theme-light .text-white {
+  color: #17153b !important;
+}
+
+html.theme-light .bg-\[\#2563eb\],
+html.theme-light .bg-\[\#2036a1\],
+html.theme-light .bg-\[\#202f78\],
+html.theme-light .bg-\[\#3b82f6\],
+html.theme-light .bg-emerald-600,
+html.theme-light .bg-pink-600,
+html.theme-light .bg-rose-600,
+html.theme-light .bg-gradient-to-r {
+  color: #ffffff !important;
+}
+
+html.theme-light .bg-\[\#2563eb\] *,
+html.theme-light .bg-\[\#2036a1\] *,
+html.theme-light .bg-\[\#202f78\] *,
+html.theme-light .bg-\[\#3b82f6\] *,
+html.theme-light .bg-emerald-600 *,
+html.theme-light .bg-pink-600 *,
+html.theme-light .bg-rose-600 *,
+html.theme-light .bg-gradient-to-r * {
+  color: #ffffff !important;
+}
+
+html.theme-light .text-slate-100,
+html.theme-light .text-slate-200,
+html.theme-light .text-slate-300,
+html.theme-light .text-\[\#c4b5fd\] {
+  color: #2f2b5e !important;
+}
+
+html.theme-light .text-slate-400,
+html.theme-light .text-slate-500 {
+  color: #5a5687 !important;
+}
+
+html.theme-light .text-sky-300,
+html.theme-light .text-sky-400 {
+  color: #0369a1 !important;
+}
+
+html.theme-light .text-indigo-300,
+html.theme-light .text-indigo-400,
+html.theme-light .text-purple-300,
+html.theme-light .text-purple-400,
+html.theme-light .text-\[\#8B70FF\] {
+  color: #5b21b6 !important;
+}
+
+html.theme-light .text-emerald-300,
+html.theme-light .text-emerald-400 {
+  color: #047857 !important;
+}
+
+html.theme-light .text-amber-300,
+html.theme-light .text-amber-400 {
+  color: #b45309 !important;
+}
+
+html.theme-light .text-rose-300,
+html.theme-light .text-rose-400 {
+  color: #be123c !important;
+}
+
+/* Préserver les fonds et couleurs réelles sur le canevas d'œuvre visuelle */
+html.theme-light .studio-artwork-canvas,
+html.theme-light .studio-artwork-canvas * {
+  color: inherit;
 }
 
 .bea-card {

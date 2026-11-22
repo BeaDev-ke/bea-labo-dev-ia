@@ -2,17 +2,15 @@ import React from 'react';
 import {
   MessageSquare,
   Film,
-  Code2,
   CreditCard,
   Globe,
   Sliders,
   Plus,
-  Wand2,
-  Bell
+  Bell,
 } from 'lucide-react';
 import { PlanType } from '../types';
 
-export type MainNavTab = 'discussion' | 'montage' | 'code' | 'tarifs' | 'memoire' | 'parametres' | 'dev_lab';
+export type MainNavTab = 'discussion' | 'montage' | 'tarifs' | 'memoire' | 'parametres';
 
 interface AndreaSidebarProps {
   activeTab: MainNavTab;
@@ -20,8 +18,7 @@ interface AndreaSidebarProps {
   onNewChat: () => void;
   displayName: string;
   plan: PlanType;
-  userEmail: string;
-  onOpenDevLab: () => void;
+  collapsed?: boolean;
 }
 
 export const AndreaSidebar: React.FC<AndreaSidebarProps> = ({
@@ -30,11 +27,8 @@ export const AndreaSidebar: React.FC<AndreaSidebarProps> = ({
   onNewChat,
   displayName,
   plan,
-  userEmail,
-  onOpenDevLab,
+  collapsed = false,
 }) => {
-  const isDevAdmin = userEmail.trim().toLowerCase() === 'saydoukebe31@gmail.com';
-
   const PLAN_TAGS: Record<PlanType, { label: string; color: string }> = {
     free: { label: 'FREE', color: 'bg-[#10b981]/20 text-[#10b981] border-[#10b981]/40' },
     bea: { label: 'ANDREA', color: 'bg-[#3b82f6]/20 text-[#3b82f6] border-[#3b82f6]/40' },
@@ -49,79 +43,92 @@ export const AndreaSidebar: React.FC<AndreaSidebarProps> = ({
       id: 'discussion' as MainNavTab,
       label: 'Discussion',
       icon: MessageSquare,
-      hasBadge: false,
     },
     {
       id: 'montage' as MainNavTab,
       label: 'Montage',
       icon: Film,
-      hasBadge: false,
-    },
-    {
-      id: 'code' as MainNavTab,
-      label: 'Code (Ultra)',
-      icon: Code2,
-      hasBadge: true,
-      badgeText: 'Ultra',
     },
     {
       id: 'tarifs' as MainNavTab,
       label: 'Offres & Tarifs',
       icon: CreditCard,
-      hasBadge: false,
     },
     {
       id: 'memoire' as MainNavTab,
       label: 'Mémoire',
       icon: Globe,
-      hasBadge: false,
     },
     {
       id: 'parametres' as MainNavTab,
       label: 'Paramètres',
       icon: Sliders,
-      hasBadge: false,
     },
   ];
 
-  return (
-    <aside className="w-64 sm:w-72 bg-[#090c1b] border-r border-[#1a2044] flex flex-col h-[calc(100vh-3.5rem)] select-none shrink-0 overflow-y-auto no-scrollbar text-white justify-between">
-      {/* Top User Info & New Chat Button */}
-      <div className="p-4 space-y-4">
-        {/* User Card */}
-        <div className="space-y-1">
-          <div className="flex items-center justify-between">
-            <span className="font-extrabold text-sm text-white tracking-tight truncate">
-              {displayName || 'Saydoukebe31'}
-            </span>
-            <span
-              className={`px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider border ${planTag.color}`}
-            >
-              {planTag.label}
-            </span>
-          </div>
+  // Sur téléphone (< md) ou en mode Création de visuels (collapsed), la barre se rétrécit aux logos seuls
+  const railWidth = collapsed ? 'w-12 sm:w-14' : 'w-12 md:w-56';
 
-          <div className="flex items-center gap-1.5 text-xs text-slate-400 font-medium">
-            <span>Appel :</span>
-            <span className="text-slate-300 font-semibold truncate">« {displayName || 'Saydoukebe31'} »</span>
-            <div className="flex items-center gap-0.5 text-amber-400 font-bold ml-auto shrink-0 text-[11px]">
-              <Bell className="w-3 h-3 fill-amber-400" />
-              <span>1j</span>
-            </div>
+  return (
+    <aside
+      className={`${railWidth} bg-[#090c1b] border-r border-[#1a2044] flex flex-col h-full select-none shrink-0 overflow-hidden text-white justify-between transition-all duration-200`}
+    >
+      <div className={collapsed ? 'p-1.5 space-y-2' : 'p-1.5 md:p-3.5 space-y-2 md:space-y-3'}>
+        {/* User Card: avatar initial on icon rail, full card on expanded desktop */}
+        {collapsed ? (
+          <div
+            className="w-9 h-9 mx-auto rounded-xl bg-[#1b2668] border border-[#2e40a6] flex items-center justify-center font-black text-xs text-white"
+            title={`${displayName || 'Utilisateur'} (${planTag.label})`}
+          >
+            {(displayName || 'A').slice(0, 1).toUpperCase()}
           </div>
-        </div>
+        ) : (
+          <>
+            <div
+              className="md:hidden w-9 h-9 mx-auto rounded-xl bg-[#1b2668] border border-[#2e40a6] flex items-center justify-center font-black text-xs text-white"
+              title={`${displayName || 'Utilisateur'} (${planTag.label})`}
+            >
+              {(displayName || 'A').slice(0, 1).toUpperCase()}
+            </div>
+            <div className="hidden md:block space-y-1">
+              <div className="flex items-center justify-between gap-2">
+                <span className="font-extrabold text-sm text-white tracking-tight truncate">
+                  {displayName || 'Utilisateur'}
+                </span>
+                <span
+                  className={`px-2 py-0.5 rounded-md text-[10px] font-black uppercase tracking-wider border shrink-0 ${planTag.color}`}
+                >
+                  {planTag.label}
+                </span>
+              </div>
+
+              <div className="flex items-center gap-1.5 text-xs text-slate-400 font-medium">
+                <span>Appel :</span>
+                <span className="text-slate-300 font-semibold truncate">« {displayName || 'Utilisateur'} »</span>
+                <div className="flex items-center gap-0.5 text-amber-400 font-bold ml-auto shrink-0 text-[11px] tabular-nums">
+                  <Bell className="w-3 h-3 fill-amber-400" />
+                  <span>1j</span>
+                </div>
+              </div>
+            </div>
+          </>
+        )}
 
         {/* New Chat Button */}
         <button
           onClick={onNewChat}
-          className="w-full py-2.5 px-3 bg-[#131835] hover:bg-[#1a2147] text-slate-100 hover:text-white border border-[#232b5c] rounded-2xl text-xs font-bold transition-all flex items-center justify-center gap-2 cursor-pointer shadow-sm"
+          title="Nouvelle discussion"
+          aria-label="Nouvelle discussion"
+          className={`w-full bg-[#131835] hover:bg-[#1a2147] text-slate-100 hover:text-white border border-[#232b5c] rounded-xl text-xs font-bold transition-all flex items-center justify-center cursor-pointer whitespace-nowrap ${
+            collapsed ? 'p-2.5' : 'p-2.5 md:py-2 md:px-3 md:gap-2'
+          }`}
         >
-          <Plus className="w-3.5 h-3.5" />
-          <span>+ Nouvelle discussion</span>
+          <Plus className="w-4 h-4 shrink-0" />
+          {!collapsed && <span className="hidden md:inline">Nouvelle discussion</span>}
         </button>
 
         {/* Navigation List */}
-        <nav className="space-y-1.5 pt-1">
+        <nav aria-label="Navigation principale" className="space-y-1 pt-1">
           {navItems.map((item) => {
             const isActive = activeTab === item.id;
             const Icon = item.icon;
@@ -130,46 +137,38 @@ export const AndreaSidebar: React.FC<AndreaSidebarProps> = ({
               <button
                 key={item.id}
                 onClick={() => onSelectTab(item.id)}
-                className={`w-full text-left px-3.5 py-2.5 rounded-2xl text-xs font-bold transition-all flex items-center justify-between cursor-pointer ${
+                title={item.label}
+                aria-label={item.label}
+                aria-current={isActive ? 'page' : undefined}
+                className={`w-full rounded-xl text-xs font-bold transition-all flex items-center cursor-pointer whitespace-nowrap ${
+                  collapsed
+                    ? 'justify-center p-2.5'
+                    : 'justify-center md:justify-start p-2.5 md:px-3 md:py-2.5 md:gap-3'
+                } ${
                   isActive
                     ? 'bg-[#1b2668] text-white shadow-md border border-[#2e40a6]'
                     : 'text-slate-300 hover:bg-[#131735] hover:text-white'
                 }`}
               >
-                <div className="flex items-center gap-3">
-                  <Icon className={`w-4 h-4 ${isActive ? 'text-sky-400' : 'text-slate-400'}`} />
-                  <span>{item.label}</span>
-                </div>
-
-                {item.hasBadge && (
-                  <span className="px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider bg-[#253380] text-sky-300 border border-[#3b4db8]">
-                    {item.badgeText}
-                  </span>
-                )}
+                <Icon className={`w-4 h-4 shrink-0 ${isActive ? 'text-sky-400' : 'text-slate-400'}`} />
+                {!collapsed && <span className="hidden md:inline truncate">{item.label}</span>}
               </button>
             );
           })}
         </nav>
       </div>
 
-      {/* Bottom Area: ONLY show Labo Dev Admin if userEmail is saydoukebe31@gmail.com */}
-      <div className="p-4 border-t border-[#1a2044]">
-        {isDevAdmin ? (
-          <button
-            onClick={onOpenDevLab}
-            className="w-full p-2.5 rounded-2xl bg-gradient-to-r from-[#291b54] to-[#432378] hover:from-[#36236e] hover:to-[#552d96] border border-[#6b35bf]/50 text-purple-200 text-xs font-semibold flex flex-col items-center justify-center gap-0.5 cursor-pointer shadow-lg shadow-purple-950/40 transition-all hover:scale-[1.01]"
-            title="Accès Administrateur Développeur"
-          >
-            <div className="flex items-center gap-1.5 font-extrabold text-white">
-              <Wand2 className="w-3.5 h-3.5 text-amber-300" />
-              <span>Labo Dev Admin</span>
-            </div>
-            <span className="text-[10px] text-purple-300 font-mono">saydoukebe31@gmail.com</span>
-          </button>
+      {/* Footer brand mark */}
+      <div className="p-2 border-t border-[#1a2044] shrink-0 flex items-center justify-center">
+        {collapsed ? (
+          <img src="/logo_andrea.svg" alt="Andrea" className="w-6 h-6 object-contain opacity-90" />
         ) : (
-          <div className="text-center text-[10px] text-slate-500 font-mono">
-            Andrea v2.4 · BehaviorLab AI
-          </div>
+          <>
+            <img src="/logo_andrea.svg" alt="Andrea" className="md:hidden w-6 h-6 object-contain opacity-90" />
+            <div className="hidden md:block text-center text-[10px] text-slate-400 font-mono">
+              Andrea Studio
+            </div>
+          </>
         )}
       </div>
     </aside>

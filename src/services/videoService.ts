@@ -1,7 +1,8 @@
 import { CameraMovement, CameraMovementId, VideoGenerationOptions, VideoGenerationResult, AspectRatio } from '../types';
+import { isSupabaseConfigured, supabase } from '../utils/supabase';
 
 /**
- * 10 Mouvements de caméra cinéma les plus utilisés (style Higgsfield)
+ * 10 Mouvements de caméra cinéma les plus utilisés
  * Traduits en instructions textuelles directes pour le modèle Wan 2.1
  */
 export const CAMERA_MOVEMENTS: CameraMovement[] = [
@@ -105,7 +106,7 @@ export function translateCameraMovementToPrompt(basePrompt: string, movementId?:
   const move = CAMERA_MOVEMENTS.find(m => m.id === movementId);
   if (!move) return `${basePrompt}, cinematic motion`;
 
-  return `${basePrompt}, camera direction: ${move.promptModifier}, photorealistic, Wan 2.1 hyper-detailed rendering, professional lighting`;
+  return `${basePrompt}, camera direction: ${move.promptModifier}, photorealistic, hyper-detailed rendering, professional lighting`;
 }
 
 /**
@@ -145,6 +146,15 @@ class SupabaseFreeQueueCache {
       localStorage.setItem(this.getStorageKey(promptKey), JSON.stringify(result));
     } catch {
       // quota or storage disabled
+    }
+    if (isSupabaseConfigured) {
+      Promise.resolve(
+        supabase.from('video_queue_cache').upsert({
+          cache_key: promptKey,
+          payload: result,
+          created_at: new Date().toISOString(),
+        })
+      ).catch(() => {});
     }
   }
 
@@ -269,7 +279,7 @@ function drawFrame(
 
   ctx.save();
 
-  // Apply Camera Movement Transformations (Higgsfield Style)
+  // Apply Cinema Camera Movement Transformations
   const moveId = cameraMovement?.id || 'dolly_in';
   const centerX = width / 2;
   const centerY = height / 2;
@@ -355,12 +365,12 @@ function drawFrame(
   ctx.fillStyle = bottomGrad;
   ctx.fillRect(0, height - 200, width, 200);
 
-  // Wan 2.1 Engine & Camera metadata badge
+  // Engine & Camera metadata badge
   ctx.font = '600 20px "Plus Jakarta Sans", sans-serif';
   ctx.fillStyle = '#ffffff';
   ctx.shadowBlur = 4;
   ctx.shadowColor = 'rgba(0,0,0,0.9)';
-  ctx.fillText('WAN 2.1 · 9:16', 36, 60);
+  ctx.fillText('ANDREA STUDIO · 9:16', 36, 60);
 
   if (cameraMovement) {
     ctx.font = '500 16px "JetBrains Mono", monospace';
@@ -389,10 +399,10 @@ export async function generateVideo(
 ): Promise<VideoGenerationResult> {
   const cacheKey = `${options.prompt}_${options.cameraMovement || 'none'}_${options.aspectRatio || '9:16'}`;
 
-  // 1. Check local Supabase cache
+  // 1. Check local cache
   const cached = freeQueueCache.get(cacheKey);
   if (cached) {
-    if (onQueueUpdate) onQueueUpdate('Récupéré depuis le cache Supabase ultra-rapide.');
+    if (onQueueUpdate) onQueueUpdate('Récupéré depuis le cache rapide.');
     return { ...cached, isCached: true };
   }
 
@@ -410,11 +420,10 @@ export async function generateVideo(
   }
 
   try {
-    // Étape 1 : Essai Wan 2.1 (Principal Hugging Face gratuit)
-    if (onQueueUpdate) onQueueUpdate('Connexion au cluster Wan 2.1 (Hugging Face gratuit)...');
+    if (onQueueUpdate) onQueueUpdate('Connexion au moteur vidéo Andrea...');
 
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 6000); // 6s timeout max for free tier check
+    const timeoutId = setTimeout(() => controller.abort(), 6000);
 
     let hfSuccessUrl: string | null = null;
     let providerName: 'Wan 2.1 (HF Space)' | 'CogVideoX-5B (HF)' | 'AnimateDiff SD1.5' | 'Client Synthesis Fallback' = 'Wan 2.1 (HF Space)';
@@ -444,12 +453,11 @@ export async function generateVideo(
         }
       }
     } catch {
-      // Continue to Fallback 1: CogVideoX
+      // Continue to fallback 1
     }
 
-    // Étape 2 : Si Wan 2.1 indisponible, essai CogVideoX 5B
     if (!hfSuccessUrl) {
-      if (onQueueUpdate) onQueueUpdate('Wan 2.1 occupé. Bascule sur CogVideoX-5B (Hugging Face fallback)...');
+      if (onQueueUpdate) onQueueUpdate('Moteur principal occupé. Bascule sur le moteur secondaire...');
       try {
         const cogController = new AbortController();
         const cogTimeout = setTimeout(() => cogController.abort(), 5000);
@@ -471,13 +479,12 @@ export async function generateVideo(
           }
         }
       } catch {
-        // Continue to Fallback 2: AnimateDiff
+        // Continue to fallback 2
       }
     }
 
-    // Étape 3 : Si CogVideoX indisponible, essai AnimateDiff SD 1.5
     if (!hfSuccessUrl) {
-      if (onQueueUpdate) onQueueUpdate('Bascule sur AnimateDiff SD 1.5...');
+      if (onQueueUpdate) onQueueUpdate('Activation du moteur de secours...');
       try {
         const adController = new AbortController();
         const adTimeout = setTimeout(() => adController.abort(), 4000);
@@ -503,8 +510,6 @@ export async function generateVideo(
       }
     }
 
-    // Étape 4 : Si Hugging Face est saturé / indisponible :
-    // Message exact spécifié : "file d'attente gratuite saturée réessaye dans deux minutes avec un fallback"
     let finalVideoUrl = hfSuccessUrl;
     if (!finalVideoUrl) {
       const busyNotice = "file d'attente gratuite saturée réessaye dans deux minutes avec un fallback";
@@ -577,7 +582,7 @@ export async function generateImageFlux(prompt: string): Promise<string> {
 
     ctx.fillStyle = '#38bdf8';
     ctx.font = 'bold 36px "Plus Jakarta Sans", sans-serif';
-    ctx.fillText('FLUX.1 SCHNELL · VISUEL 9:16', 80, 140);
+    ctx.fillText('ANDREA STUDIO · VISUEL 9:16', 80, 140);
 
     ctx.fillStyle = '#ffffff';
     ctx.font = '28px "Plus Jakarta Sans", sans-serif';
@@ -585,23 +590,54 @@ export async function generateImageFlux(prompt: string): Promise<string> {
     return canvas.toDataURL('image/jpeg', 0.9);
   }
 
-  return `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="1920"><rect width="100%" height="100%" fill="%230f172a"/><text x="50%" y="50%" fill="white" font-size="36" text-anchor="middle">Flux 1 Schnell</text></svg>`;
+  return `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="1920"><rect width="100%" height="100%" fill="%230f172a"/><text x="50%" y="50%" fill="white" font-size="36" text-anchor="middle">Andrea Visuel</text></svg>`;
 }
 
 /**
- * Générateur Avatar Parlant LivePortrait / SadTalker sur Hugging Face Space
+ * Générateur Avatar Parlant (LivePortrait en principal -> SadTalker en fallback -> Rendu procédural)
  */
 export async function generateTalkingAvatar(
   text: string,
   imageInput?: string
 ): Promise<{ videoUrl: string; provider: string }> {
-  // LivePortrait or SadTalker free HF Space integration
-  try {
-    const hfToken = (typeof import.meta !== 'undefined' && import.meta.env?.VITE_HF_TOKEN) || '';
-    const headers: Record<string, string> = { 'Content-Type': 'application/json' };
-    if (hfToken) headers['Authorization'] = `Bearer ${hfToken}`;
+  const hfToken = (typeof import.meta !== 'undefined' && import.meta.env?.VITE_HF_TOKEN) || '';
+  const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+  if (hfToken) headers['Authorization'] = `Bearer ${hfToken}`;
 
-    // Test SadTalker / LivePortrait free space
+  // 1. LivePortrait sur Hugging Face
+  try {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 4500);
+    const lpRes = await fetch('https://api-inference.huggingface.co/models/KwaiVGI/LivePortrait', {
+      method: 'POST',
+      headers,
+      body: JSON.stringify({
+        inputs: {
+          text,
+          source_image: imageInput || 'default_avatar',
+        },
+      }),
+      signal: controller.signal,
+    });
+    clearTimeout(timer);
+
+    if (lpRes.ok) {
+      const blob = await lpRes.blob();
+      if (blob.type.includes('video') || blob.size > 15000) {
+        return {
+          videoUrl: URL.createObjectURL(blob),
+          provider: 'LivePortrait (HF Space)',
+        };
+      }
+    }
+  } catch {
+    // Fallback SadTalker
+  }
+
+  // 2. SadTalker sur Hugging Face
+  try {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 4500);
     const res = await fetch('https://api-inference.huggingface.co/models/vinthony/SadTalker', {
       method: 'POST',
       headers,
@@ -611,20 +647,23 @@ export async function generateTalkingAvatar(
           source_image: imageInput || 'default_avatar',
         },
       }),
+      signal: controller.signal,
     });
+    clearTimeout(timer);
 
     if (res.ok) {
       const blob = await res.blob();
-      return {
-        videoUrl: URL.createObjectURL(blob),
-        provider: 'LivePortrait / SadTalker (HF Space)',
-      };
+      if (blob.type.includes('video') || blob.size > 15000) {
+        return {
+          videoUrl: URL.createObjectURL(blob),
+          provider: 'SadTalker (HF Space)',
+        };
+      }
     }
   } catch {
-    // fallback
+    // Fallback local avatar
   }
 
-  // High quality procedural talking avatar simulation
   const proceduralUrl = await generateCanvasProceduralVideo(
     `Avatar parlant Andrea: "${text.slice(0, 45)}..."`,
     CAMERA_MOVEMENTS[3],
@@ -634,6 +673,6 @@ export async function generateTalkingAvatar(
 
   return {
     videoUrl: proceduralUrl,
-    provider: 'LivePortrait Fallback Émulation',
+    provider: 'Moteur Avatar Studio',
   };
 }

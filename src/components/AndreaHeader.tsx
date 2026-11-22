@@ -1,5 +1,6 @@
 import React from 'react';
-import { Zap, ShieldCheck, LogOut, User, ArrowLeft } from 'lucide-react';
+import { Zap, ShieldCheck, LogOut, User, ArrowLeft, Sun, Moon } from 'lucide-react';
+import { AppTheme } from '../types';
 
 interface AndreaHeaderProps {
   onOpenProfile: () => void;
@@ -7,6 +8,8 @@ interface AndreaHeaderProps {
   isLoggedIn: boolean;
   userEmail: string;
   onNavigateHome?: () => void;
+  theme: AppTheme;
+  onToggleTheme: () => void;
 }
 
 export const AndreaHeader: React.FC<AndreaHeaderProps> = ({
@@ -15,64 +18,89 @@ export const AndreaHeader: React.FC<AndreaHeaderProps> = ({
   isLoggedIn,
   userEmail,
   onNavigateHome,
+  theme,
+  onToggleTheme,
 }) => {
   return (
-    <header className="h-14 bg-[#0a0d1e] border-b border-[#1d254f] px-4 sm:px-6 flex items-center justify-between select-none z-30 shrink-0">
+    <header className="h-14 bg-[#0a0d1e] border-b border-[#1d254f] px-2.5 sm:px-6 flex items-center justify-between gap-2 select-none z-30 shrink-0 overflow-hidden">
       {/* Left: Accueil Vitrine, Andrea Logo & Profil button */}
-      <div className="flex items-center gap-3 sm:gap-6">
+      <div className="flex items-center gap-1.5 sm:gap-5 min-w-0">
         {onNavigateHome && (
           <button
             onClick={onNavigateHome}
-            className="text-xs font-semibold text-slate-300 hover:text-white px-2.5 py-1 rounded-lg hover:bg-[#161c3b] transition-colors cursor-pointer flex items-center gap-1.5 border border-[#1d254f]"
+            className="text-xs font-semibold text-slate-300 hover:text-white p-1.5 sm:px-2.5 sm:py-1 rounded-lg hover:bg-[#161c3b] transition-colors cursor-pointer flex items-center gap-1.5 border border-[#1d254f] whitespace-nowrap shrink-0"
             title="Revenir sur la page vitrine d'accueil (/)"
           >
-            <ArrowLeft className="w-3.5 h-3.5 text-sky-400" />
-            <span className="hidden sm:inline">Accueil Vitrine</span>
+            <ArrowLeft className="w-3.5 h-3.5 text-sky-400 shrink-0" />
+            <span className="hidden md:inline">Accueil Vitrine</span>
           </button>
         )}
 
-        <div className="flex items-center gap-2.5">
+        <div className="flex items-center gap-1.5 sm:gap-2.5 shrink-0">
           <img
             src="/logo_andrea.svg"
-            alt="Andrea Logo"
-            className="w-7 h-7 rounded-xl object-contain drop-shadow"
+            alt="Andrea"
+            className="w-7 h-7 sm:w-8 sm:h-8 object-contain shrink-0"
           />
-          <span className="font-extrabold text-base tracking-tight text-white">Andrea</span>
+          <span className="font-extrabold text-sm sm:text-base tracking-tight text-white">Andrea</span>
         </div>
 
         <button
           onClick={onOpenProfile}
-          className="text-xs font-semibold text-slate-300 hover:text-white px-3 py-1 rounded-lg hover:bg-[#161c3b] transition-colors cursor-pointer flex items-center gap-1.5"
+          className="text-xs font-semibold text-slate-300 hover:text-white px-2 sm:px-3 py-1 rounded-lg hover:bg-[#161c3b] transition-colors cursor-pointer flex items-center gap-1 whitespace-nowrap shrink-0"
           title="Modifier les questions de personnalisation du prompt"
         >
-          <User className="w-3.5 h-3.5 text-indigo-400" />
-          <span>Profil</span>
+          <User className="w-3.5 h-3.5 text-indigo-400 shrink-0" />
+          <span className="hidden xs:inline sm:inline">Profil</span>
         </button>
       </div>
 
-      {/* Right status tokens, security, logout */}
-      <div className="flex items-center gap-3 sm:gap-5 text-xs">
+      {/* Right status tokens, security, Clair/Sombre toggle, logout */}
+      <div className="flex items-center gap-1.5 sm:gap-3.5 text-xs shrink-0">
         {/* Tokens */}
-        <div className="flex items-center gap-1.5 text-slate-300 font-medium">
-          <Zap className="w-3.5 h-3.5 text-amber-400 fill-amber-400" />
-          <span className="hidden sm:inline text-slate-400">Tokens +0 série |</span>
-          <span className="font-bold text-slate-100">10 000 restants</span>
+        <div className="flex items-center gap-1 text-slate-300 font-medium shrink-0">
+          <Zap className="w-3.5 h-3.5 text-amber-400 fill-amber-400 shrink-0" />
+          <span className="hidden lg:inline text-slate-400">Tokens +0 série |</span>
+          <span className="font-bold text-slate-100 tabular-nums text-[11px] sm:text-xs">
+            10 000<span className="hidden md:inline"> restants</span>
+          </span>
         </div>
 
         {/* Security badge */}
-        <div className="flex items-center gap-1.5 text-emerald-400 font-semibold">
-          <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+        <div className="hidden md:flex items-center gap-1.5 text-emerald-400 font-semibold shrink-0">
           <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
-          <span className="hidden sm:inline">Sécurisé</span>
+          <span className="hidden lg:inline">Sécurisé</span>
         </div>
+
+        {/* Light / Dark Toggle right before Déconnexion */}
+        <button
+          type="button"
+          onClick={onToggleTheme}
+          className="flex items-center gap-1.5 p-1.5 sm:px-2.5 sm:py-1 rounded-lg border border-[#1d254f] bg-[#141b3d] hover:bg-[#1e2959] text-slate-200 font-semibold transition-colors cursor-pointer whitespace-nowrap shrink-0"
+          title={theme === 'dark' ? 'Passer au mode Clair' : 'Passer au mode Sombre'}
+          aria-label={theme === 'dark' ? 'Passer au mode Clair' : 'Passer au mode Sombre'}
+        >
+          {theme === 'dark' ? (
+            <>
+              <Sun className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+              <span className="hidden sm:inline">Clair</span>
+            </>
+          ) : (
+            <>
+              <Moon className="w-3.5 h-3.5 text-indigo-400 shrink-0" />
+              <span className="hidden sm:inline">Sombre</span>
+            </>
+          )}
+        </button>
 
         {/* Logout / Login button */}
         <button
           onClick={onLogout}
-          className="flex items-center gap-1.5 text-slate-400 hover:text-white transition-colors cursor-pointer font-medium pl-2 sm:pl-3 border-l border-[#1d254f]"
+          className="flex items-center gap-1.5 text-slate-300 hover:text-white transition-colors cursor-pointer font-medium pl-1.5 sm:pl-3 border-l border-[#1d254f] whitespace-nowrap shrink-0"
           title={isLoggedIn ? `Connecté (${userEmail}) - Déconnexion` : 'Se connecter'}
+          aria-label={isLoggedIn ? 'Déconnexion' : 'Connexion'}
         >
-          <LogOut className="w-3.5 h-3.5" />
+          <LogOut className="w-3.5 h-3.5 shrink-0" />
           <span className="hidden sm:inline">{isLoggedIn ? 'Déconnexion' : 'Connexion'}</span>
         </button>
       </div>

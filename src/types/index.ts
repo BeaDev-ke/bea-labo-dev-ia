@@ -72,6 +72,42 @@ export interface VoiceGenerationResult {
   createdAt: number;
 }
 
+export type ClipTransitionType =
+  | 'cut'
+  | 'masking'
+  | 'slide'
+  | 'push'
+  | 'zoom_in'
+  | 'zoom_out'
+  | 'fade'
+  | 'white_flash'
+  | 'whip_pan';
+
+export interface MaskConfig {
+  type: 'none' | 'rect' | 'circle';
+  feather: number;
+  scale: number;
+  x: number;
+  y: number;
+}
+
+export interface KeyframePoint {
+  id: string;
+  time: number;
+  x: number;
+  y: number;
+  scale: number;
+  opacity: number;
+  rotation: number;
+}
+
+export interface SceneAnimationConfig {
+  inAnim: string;
+  outAnim: string;
+  comboAnim: string;
+  duration: number;
+}
+
 export interface VideoScene {
   id: string;
   sceneNumber: number;
@@ -83,7 +119,98 @@ export interface VideoScene {
   cameraMovement: string;
   colorGrade: string;
   subtitleSnippet?: string;
-  transitionToNext?: 'cut' | 'fade' | 'whip_pan' | 'zoom_in';
+  transitionToNext?: ClipTransitionType;
+  transitionDuration?: number;
+  speed?: number;
+  speedCurve?: 'normal' | 'montage' | 'hero' | 'bullet' | 'jump' | 'flash';
+  isReversed?: boolean;
+  isFrozen?: boolean;
+  cropRatio?: AspectRatio;
+  mask?: MaskConfig;
+  animation?: SceneAnimationConfig;
+  keyframes?: KeyframePoint[];
+  motionBlur?: number;
+  pipOverlayUrl?: string;
+  pipOpacity?: number;
+}
+
+export interface ReplicaBlueprint {
+  id: string;
+  targetName: string;
+  brandName: string;
+  sector: string;
+  architectureStack: string[];
+  coreFlows: string[];
+  parityChecklist: { label: string; status: 'done' | 'verified' }[];
+  generatedHtml: string;
+  createdAt: number;
+}
+
+export type OpuscarStyleId =
+  | 'edit_documentary'
+  | 'painting_illustration'
+  | 'sketch_board'
+  | 'line_diagrams'
+  | 'print_printmaking';
+
+export interface OpuscarScene {
+  id: string;
+  sceneNumber: number;
+  title: string;
+  narration: string;
+  visualDirective: string;
+  duration: number;
+  accentColor: string;
+}
+
+export interface OpuscarProject {
+  id: string;
+  title: string;
+  style: OpuscarStyleId;
+  styleLabel: string;
+  scenes: OpuscarScene[];
+  videoUrl: string;
+  audioUrl?: string;
+  subtitles?: SubtitleCue[];
+  srtContent?: string;
+  totalDuration: number;
+  createdAt: number;
+}
+
+export interface PhototextEraseBox {
+  id: string;
+  x: number; // percentage 0-100
+  y: number; // percentage 0-100
+  width: number; // percentage 0-100
+  height: number; // percentage 0-100
+  sampledColor: string;
+  label?: string;
+}
+
+export interface PhototextLayer {
+  id: string;
+  text: string;
+  x: number; // percentage 0-100
+  y: number; // percentage 0-100
+  fontSize: number;
+  fontFamily: string;
+  color: string;
+  gradientEnabled: boolean;
+  gradientStart: string;
+  gradientEnd: string;
+  strokeEnabled: boolean;
+  strokeColor: string;
+  strokeWidth: number;
+  shadowEnabled: boolean;
+  shadowColor: string;
+  curveAngle: number; // -120 to 120
+  rotateX: number; // -45 to 45
+  rotateY: number; // -45 to 45
+  rotateZ: number; // -180 to 180
+  isBold: boolean;
+  isItalic: boolean;
+  isUnderline: boolean;
+  replacedOriginalText?: string;
 }
 
 export interface ChatMessage {
@@ -93,6 +220,9 @@ export interface ChatMessage {
   timestamp: number;
   hook?: string;
   video?: VideoGenerationResult;
+  imageUrl?: string;
+  replica?: ReplicaBlueprint;
+  opuscar?: OpuscarProject;
   queueStatus?: string;
   isLoading?: boolean;
   attachmentName?: string;
@@ -130,6 +260,9 @@ export interface MemoryItem {
   date?: string;
 }
 
+export type AppLanguage = 'fr' | 'en' | 'es' | 'de' | 'pt' | 'ar';
+export type AppTheme = 'dark' | 'light';
+
 export interface UserPreferences {
   displayName: string;
   style?: 'Direct' | 'Doux' | 'Détaillé' | 'Expert comportemental';
@@ -142,6 +275,7 @@ export interface UserPreferences {
   profile?: string;
   tone?: string;
   objective?: string;
+  language?: AppLanguage;
 }
 
 export interface AIParameters {
@@ -156,6 +290,9 @@ export interface AIParameters {
   creativity?: number;
   useMemory?: boolean;
   hfToken?: string;
+  language?: AppLanguage;
+  posture?: string;
+  theme?: AppTheme;
 }
 
 export type PlanType = 'free' | 'bea' | 'pro' | 'abo';

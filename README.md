@@ -1,9 +1,20 @@
-# Andrea — Bea Labo Dev IA
+<div align="center">
+<img width="1200" height="475" alt="GHBanner" src="https://ai.google.dev/static/site-assets/images/share-ais-513315318.png" />
+</div>
 
-Application React (Vite).
+# Run and deploy your AI Studio app
 
-## Lancer en local
+This contains everything you need to run your app locally.
 
-1. `npm install`
-2. (Optionnel) copier `.env.example` vers `.env.local` et renseigner `VITE_HF_TOKEN`
-3. `npm run dev`
+View your app in AI Studio: https://ai.studio/apps/31a4f7be-4251-44e5-920c-abe56a51c9cd
+
+## Run Locally
+
+**Prerequisites:**  Node.js
+
+
+1. Install dependencies:
+   `npm install`
+2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
+3. Run the app:
+   `npm run dev`

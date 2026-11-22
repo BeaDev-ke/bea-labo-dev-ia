@@ -101,9 +101,9 @@ export const VideoPlayer916: React.FC<VideoPlayer916Props> = ({ video, autoPlay 
   };
 
   return (
-    <div className="flex flex-col items-center">
+    <div className="flex flex-col items-center w-full">
       {/* 9:16 Vertical Container */}
-      <div className="relative w-[270px] sm:w-[300px] aspect-[9/16] rounded-2xl overflow-hidden bg-slate-950 border border-slate-800 shadow-2xl group select-none">
+      <div className="relative w-full max-w-[260px] sm:max-w-[300px] aspect-[9/16] rounded-2xl overflow-hidden bg-slate-950 border border-slate-800 shadow-2xl group select-none">
         {/* Video Element */}
         <video
           ref={videoRef}
@@ -128,7 +128,7 @@ export const VideoPlayer916: React.FC<VideoPlayer916Props> = ({ video, autoPlay 
         <div className="absolute top-3 left-3 right-3 flex items-center justify-between pointer-events-none z-10">
           <div className="flex items-center gap-1.5 px-2.5 py-1 bg-black/60 backdrop-blur-md rounded-md text-[11px] font-semibold text-white border border-white/10">
             <Video className="w-3.5 h-3.5 text-sky-400" />
-            <span>Wan 2.1 · 9:16</span>
+            <span>Andrea Studio · 9:16</span>
           </div>
 
           {video.cameraMovement && (
@@ -242,8 +242,8 @@ export const VideoPlayer916: React.FC<VideoPlayer916Props> = ({ video, autoPlay 
 
       {/* Model Provider Info */}
       <div className="mt-1.5 text-[11px] text-slate-400 text-center flex items-center gap-2">
-        <span>Généré avec : {video.providerUsed}</span>
-        {video.isCached && <span className="text-emerald-400 font-mono text-[10px]">(Cache Supabase)</span>}
+        <span>Rendu Vidéo 9:16 Andrea</span>
+        {video.isCached && <span className="text-emerald-400 font-mono text-[10px]">(Cache rapide)</span>}
       </div>
     </div>
   );

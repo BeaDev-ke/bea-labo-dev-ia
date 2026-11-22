@@ -1,14 +1,5 @@
 import React, { useState } from 'react';
-import {
-  Globe,
-  Pencil,
-  Plus,
-  Trash2,
-  Check,
-  Brain,
-  Sparkles,
-  Briefcase
-} from 'lucide-react';
+import { Globe, Pencil, Trash2, Brain, Briefcase, ChevronLeft, ChevronRight } from 'lucide-react';
 import { UserPreferences, PlanType, MemoryItem } from '../types';
 
 interface MemoryPageProps {
@@ -26,24 +17,25 @@ export const MemoryPage: React.FC<MemoryPageProps> = ({
     {
       id: 'm_1',
       category: 'Objectif de création',
-      content: 'Publication de 3 réels et TikToks 9:16 par semaine avec accroche percutante et sous-titres synchronisés.',
+      content: 'Publication de 3 vidéos 9:16 par semaine avec accroche percutante et sous-titres synchronisés.',
       date: '05 nov. 2026',
     },
     {
       id: 'm_2',
       category: 'Identité visuelle',
-      content: 'Couleurs officielles : bleu nuit #0A0D1E et indigo électrique #3B82F6, style cinématographique.',
+      content: 'Palette bleu nuit #0A0D1E et indigo électrique #3B82F6, rendu cinématographique.',
       date: '04 nov. 2026',
     },
     {
       id: 'm_3',
       category: 'Tonalité',
-      content: 'Préfère des réponses directes, concises et sans flatterie superficielle, axées sur le passage à l\'action.',
+      content: "Préfère des réponses directes, concises et axées sur le passage à l'action immédiat.",
       date: '02 nov. 2026',
     },
   ]);
 
   const [newContent, setNewContent] = useState('');
+  const [page, setPage] = useState(0);
 
   const handleAdd = () => {
     if (!newContent.trim()) return;
@@ -52,11 +44,12 @@ export const MemoryPage: React.FC<MemoryPageProps> = ({
         id: `m_${Date.now()}`,
         category: 'Information personnalisée',
         content: newContent.trim(),
-        date: 'Aujourd\'hui',
+        date: "Aujourd'hui",
       },
       ...memories,
     ]);
     setNewContent('');
+    setPage(0);
   };
 
   const handleDelete = (id: string) => {
@@ -70,153 +63,114 @@ export const MemoryPage: React.FC<MemoryPageProps> = ({
     abo: 'ULTRA',
   };
 
+  const PER_PAGE = 3;
+  const totalPages = Math.max(1, Math.ceil(memories.length / PER_PAGE));
+  const safePage = Math.min(page, totalPages - 1);
+  const visibleMemories = memories.slice(safePage * PER_PAGE, safePage * PER_PAGE + PER_PAGE);
+
   return (
-    <div className="space-y-6 max-w-5xl mx-auto">
-      {/* Top Header matching Photo 2 */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#1d254f] pb-4">
-        <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-xl bg-[#1e2a66] flex items-center justify-center">
+    <div className="h-full flex flex-col justify-between gap-3 max-w-5xl mx-auto overflow-y-auto md:overflow-hidden overflow-x-hidden">
+      {/* Header */}
+      <div className="shrink-0 flex flex-wrap items-center justify-between gap-2.5 border-b border-[#1d254f] pb-3">
+        <div className="flex items-center gap-2.5 min-w-0">
+          <div className="w-8 h-8 rounded-xl bg-[#1e2a66] flex items-center justify-center shrink-0">
             <Globe className="w-4 h-4 text-sky-400" />
           </div>
-          <h2 className="text-xl sm:text-2xl font-black text-white">
-            Mémoire contextuelle d'Andrea
-          </h2>
+          <h2 className="text-base sm:text-xl font-black text-white truncate">Mémoire contextuelle d'Andrea</h2>
         </div>
 
         <button
           onClick={onOpenEditModal}
-          className="px-4 py-2 bg-[#202f78] hover:bg-[#2b3ea1] border border-[#384fa6] text-white text-xs font-bold rounded-xl transition-all shadow-md flex items-center gap-2 cursor-pointer self-start sm:self-auto"
+          className="px-3 sm:px-4 py-2 bg-[#202f78] hover:bg-[#2b3ea1] border border-[#384fa6] text-white text-xs font-bold rounded-xl flex items-center gap-2 cursor-pointer whitespace-nowrap shrink-0"
         >
           <Pencil className="w-3.5 h-3.5" />
           <span>Modifier mes informations</span>
         </button>
       </div>
 
-      <p className="text-xs text-slate-300">
-        Informations enregistrées pour adapter vos conseils et montages :
-      </p>
-
-      {/* Main 4 Structured Context Cards matching Photo 2 */}
-      <div className="space-y-3">
-        {/* Prénom préféré */}
-        <div className="p-4 bg-[#101636] border border-[#222c5e] rounded-2xl flex items-center justify-between">
+      {/* 4 Structured Context Cards */}
+      <div className="shrink-0 grid grid-cols-1 md:grid-cols-2 gap-2.5">
+        <div className="p-3 bg-[#101636] border border-[#222c5e] rounded-2xl flex items-center justify-between gap-2">
           <span className="text-xs font-bold text-slate-300">Prénom préféré :</span>
-          <div className="flex items-center gap-2">
-            <span className="text-xs font-mono font-bold text-slate-100">
-              « {preferences.displayName || 'Saydoukebe31'} »
-            </span>
-            <button
-              onClick={onOpenEditModal}
-              className="p-1 text-slate-400 hover:text-white cursor-pointer"
-            >
-              <Pencil className="w-3.5 h-3.5" />
-            </button>
-          </div>
+          <span className="text-xs font-mono font-bold text-slate-100 truncate">« {preferences.displayName || 'Utilisateur'} »</span>
         </div>
 
-        {/* Rôle principal */}
-        <div className="p-4 bg-[#101636] border border-[#222c5e] rounded-2xl flex items-center justify-between">
+        <div className="p-3 bg-[#101636] border border-[#222c5e] rounded-2xl flex items-center justify-between gap-2">
           <span className="text-xs font-bold text-slate-300">Rôle principal :</span>
-          <div className="flex items-center gap-2">
-            <span className="text-xs font-bold text-slate-100 flex items-center gap-1.5">
-              <Briefcase className="w-3.5 h-3.5 text-indigo-400" />
-              <span>
-                {preferences.profile === 'createur'
-                  ? 'Créateur de contenu'
-                  : preferences.profile === 'entreprise'
-                  ? 'Dirigeant & Entreprise'
-                  : preferences.profile === 'independant'
-                  ? 'Indépendant & Freelance'
-                  : preferences.profile || 'Créateur de contenu'}
-              </span>
+          <span className="text-xs font-bold text-slate-100 flex items-center gap-1.5 truncate">
+            <Briefcase className="w-3.5 h-3.5 text-indigo-400 shrink-0" />
+            <span className="truncate">
+              {preferences.profile === 'createur'
+                ? 'Créateur de contenu'
+                : preferences.profile === 'entreprise'
+                ? 'Dirigeant & Entreprise'
+                : preferences.profile || 'Créateur de contenu'}
             </span>
-            <button
-              onClick={onOpenEditModal}
-              className="p-1 text-slate-400 hover:text-white cursor-pointer"
-            >
-              <Pencil className="w-3.5 h-3.5" />
-            </button>
-          </div>
+          </span>
         </div>
 
-        {/* Style préféré */}
-        <div className="p-4 bg-[#101636] border border-[#222c5e] rounded-2xl flex items-center justify-between">
+        <div className="p-3 bg-[#101636] border border-[#222c5e] rounded-2xl flex items-center justify-between gap-2">
           <span className="text-xs font-bold text-slate-300">Style préféré :</span>
-          <div className="flex items-center gap-2">
-            <span className="text-xs font-mono font-bold text-slate-100">
-              {preferences.tone || 'expert'}
-            </span>
-            <button
-              onClick={onOpenEditModal}
-              className="p-1 text-slate-400 hover:text-white cursor-pointer"
-            >
-              <Pencil className="w-3.5 h-3.5" />
-            </button>
-          </div>
+          <span className="text-xs font-mono font-bold text-slate-100 truncate">{preferences.tone || 'expert'}</span>
         </div>
 
-        {/* Formule active */}
-        <div className="p-4 bg-[#101636] border border-[#222c5e] rounded-2xl flex items-center justify-between">
+        <div className="p-3 bg-[#101636] border border-[#222c5e] rounded-2xl flex items-center justify-between gap-2">
           <span className="text-xs font-bold text-slate-300">Formule active :</span>
-          <div className="flex items-center gap-2">
-            <span className="text-xs font-black font-mono text-[#10b981]">
-              {PLAN_LABELS[plan] || 'FREE'}
-            </span>
-            <button
-              onClick={onOpenEditModal}
-              className="p-1 text-slate-400 hover:text-white cursor-pointer"
-            >
-              <Pencil className="w-3.5 h-3.5" />
-            </button>
-          </div>
+          <span className="text-xs font-black font-mono text-[#10b981]">{PLAN_LABELS[plan] || 'FREE'}</span>
         </div>
       </div>
 
-      {/* Additional Behavioral Memories */}
-      <div className="pt-6 space-y-4">
-        <h3 className="text-sm font-bold text-white flex items-center gap-2">
-          <Brain className="w-4 h-4 text-sky-400" />
-          <span>Faits clés mémorisés dynamiquement</span>
-        </h3>
+      {/* Dynamic Behavioral Memories */}
+      <div className="flex-1 min-h-0 flex flex-col justify-between gap-2.5 md:overflow-hidden">
+        <div className="shrink-0 flex items-center justify-between gap-2">
+          <h3 className="text-sm font-bold text-white flex items-center gap-2">
+            <Brain className="w-4 h-4 text-sky-400 shrink-0" />
+            <span>Faits clés mémorisés dynamiquement</span>
+          </h3>
+          {totalPages > 1 && (
+            <div className="flex items-center gap-1.5 text-xs tabular-nums shrink-0">
+              <button onClick={() => setPage((p) => Math.max(0, p - 1))} disabled={safePage === 0} className="p-1 rounded bg-[#141c45] disabled:opacity-30 cursor-pointer"><ChevronLeft className="w-3.5 h-3.5" /></button>
+              <span className="font-mono text-slate-300">{safePage + 1}/{totalPages}</span>
+              <button onClick={() => setPage((p) => Math.min(totalPages - 1, p + 1))} disabled={safePage >= totalPages - 1} className="p-1 rounded bg-[#141c45] disabled:opacity-30 cursor-pointer"><ChevronRight className="w-3.5 h-3.5" /></button>
+            </div>
+          )}
+        </div>
 
-        {/* Add Memory Form */}
-        <div className="flex gap-2">
+        <div className="shrink-0 flex gap-2">
           <input
             type="text"
             value={newContent}
             onChange={(e) => setNewContent(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && handleAdd()}
-            placeholder="Ajouter une consigne spécifique à mémoriser..."
-            className="flex-1 px-4 py-2.5 bg-[#101636] border border-[#222c5e] rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:border-[#4255b3]"
+            placeholder="Ajouter une consigne à mémoriser..."
+            className="flex-1 min-w-0 px-3 sm:px-4 py-2 bg-[#101636] border border-[#222c5e] rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:border-[#4255b3]"
           />
           <button
             onClick={handleAdd}
             disabled={!newContent.trim()}
-            className="px-4 py-2.5 bg-[#202f78] hover:bg-[#2b3ea1] text-white text-xs font-bold rounded-xl transition-all cursor-pointer disabled:opacity-40"
+            className="px-3 sm:px-4 py-2 bg-[#202f78] hover:bg-[#2b3ea1] text-white text-xs font-bold rounded-xl cursor-pointer disabled:opacity-40 shrink-0"
           >
             Ajouter
           </button>
         </div>
 
-        {/* List of items */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-          {memories.map((m) => (
+        <div className="flex-1 min-h-0 grid grid-cols-1 md:grid-cols-3 gap-3 md:overflow-hidden">
+          {visibleMemories.map((m) => (
             <div
               key={m.id}
-              className="p-4 rounded-2xl bg-[#0d122c] border border-[#1e2754] flex flex-col justify-between group"
+              className="p-4 rounded-2xl bg-[#0d122c] border border-[#1e2754] flex flex-col justify-between group overflow-hidden"
             >
               <div>
                 <div className="flex items-center justify-between text-[10px] text-slate-400 font-mono mb-1.5">
                   <span className="text-sky-300 font-semibold">{m.category}</span>
                   <span>{m.date}</span>
                 </div>
-                <p className="text-xs text-slate-200 leading-relaxed">{m.content}</p>
+                <p className="text-xs text-slate-200 leading-relaxed line-clamp-4">{m.content}</p>
               </div>
-
-              <div className="pt-2 mt-2 border-t border-[#1e2754] flex justify-end">
+              <div className="pt-2 border-t border-[#1e2754] flex justify-end">
                 <button
                   onClick={() => handleDelete(m.id)}
-                  className="p-1 text-slate-500 hover:text-rose-400 opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
+                  className="p-1 text-slate-500 hover:text-rose-400 cursor-pointer"
                   title="Supprimer"
                 >
                   <Trash2 className="w-3.5 h-3.5" />
