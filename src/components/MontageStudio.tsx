@@ -2328,7 +2328,7 @@ export const MontageStudio: React.FC<MontageStudioProps> = ({
   );
 
   return (
-    <div className="h-full flex flex-col gap-2 max-w-7xl mx-auto overflow-y-auto lg:overflow-hidden overflow-x-hidden select-none pb-2 lg:pb-0">
+    <div className="h-full min-h-0 flex flex-col gap-2 max-w-7xl mx-auto w-full overflow-y-auto overflow-x-hidden select-none pb-3 bea-scroll">
       {/* 1. TOP BAR (Sans bouton Réinitialiser, responsive sur téléphone) */}
       <div className="shrink-0 p-2 bg-[#0a0e24] border border-[#1d2757] rounded-2xl flex flex-wrap items-center justify-between gap-2 text-xs">
         <div className="flex items-center gap-2">
@@ -2365,7 +2365,7 @@ export const MontageStudio: React.FC<MontageStudioProps> = ({
       </div>
 
       {/* 2. MAIN GRID: ESPACE ANDREA IA + GRANDE CASE MONITEUR */}
-      <div className="lg:flex-1 lg:min-h-0 grid grid-cols-1 lg:grid-cols-12 gap-2.5 lg:overflow-hidden">
+      <div className="lg:flex-1 lg:min-h-[360px] grid grid-cols-1 lg:grid-cols-12 gap-2.5 lg:overflow-hidden">
         {/* Left: Espace Andrea IA */}
         <div className="lg:col-span-4 bg-[#0d122c] border border-[#1e2754] rounded-2xl p-3 flex flex-col justify-between gap-2 overflow-hidden">
           <div className="space-y-2 overflow-hidden">

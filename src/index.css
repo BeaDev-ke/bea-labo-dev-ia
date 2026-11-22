@@ -54,6 +54,7 @@ html.theme-light body {
 }
 
 /* Fond principal blanc cassé */
+html.theme-light .bg-\[\#0F0E1E\],
 html.theme-light .bg-\[\#070914\],
 html.theme-light .bg-\[\#090d1f\],
 html.theme-light .bg-\[\#0d091e\],
@@ -64,6 +65,7 @@ html.theme-light .bg-\[\#050814\] {
 }
 
 /* En-têtes et barre latérale (blanc cassé légèrement lavande/perle) */
+html.theme-light .bg-\[\#0c0b17\],
 html.theme-light .bg-\[\#0a0d1e\],
 html.theme-light .bg-\[\#0c081e\],
 html.theme-light .bg-\[\#0c081e\]\/90,
@@ -294,3 +296,29 @@ html.theme-light .studio-artwork-canvas * {
   font-size: 11px;
   color: #c4b5fd;
 }
+
+/* ---------- Finitions interface ---------- */
+
+/* Bouton d'envoi : dégradé violet, icône toujours blanche (même en mode clair) */
+.bea-send-btn {
+  background: linear-gradient(135deg, #5A33FF 0%, #1E1B8C 100%);
+  color: #ffffff !important;
+  box-shadow: 0 4px 14px rgba(90, 51, 255, 0.4);
+  transition: transform 0.15s ease, box-shadow 0.15s ease, opacity 0.15s ease;
+}
+.bea-send-btn svg { color: #ffffff !important; }
+.bea-send-btn:not(:disabled):hover {
+  transform: translateY(-1px) scale(1.04);
+  box-shadow: 0 6px 20px rgba(90, 51, 255, 0.6);
+}
+
+/* Barres de défilement discrètes aux couleurs du site */
+.bea-scroll { scrollbar-width: thin; scrollbar-color: rgba(139, 112, 255, 0.45) transparent; }
+.bea-scroll::-webkit-scrollbar { width: 8px; height: 8px; }
+.bea-scroll::-webkit-scrollbar-track { background: transparent; }
+.bea-scroll::-webkit-scrollbar-thumb { background: rgba(139, 112, 255, 0.4); border-radius: 999px; }
+.bea-scroll::-webkit-scrollbar-thumb:hover { background: rgba(139, 112, 255, 0.7); }
+
+/* Le bouton Nouvelle discussion garde un texte blanc en mode clair */
+html.theme-light .bea-btn-primary,
+html.theme-light .bea-btn-primary * { color: #ffffff !important; }

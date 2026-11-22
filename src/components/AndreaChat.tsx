@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
   Send,
   Sparkles,
@@ -16,9 +16,9 @@ import {
   Mic,
   Edit2,
   Code2,
-  ChevronLeft,
-  ChevronRight,
   Film,
+  X,
+  Zap,
 } from 'lucide-react';
 import { ChatMessage, CameraMovementId, VideoGenerationResult, OpuscarStyleId, AppLanguage } from '../types';
 import { generateVideo, generateImageFlux, generateTalkingAvatar } from '../services/videoService';
@@ -87,8 +87,6 @@ export const STARTER_CARDS: Record<string, string[]> = {
   ],
 };
 
-const MESSAGES_PER_PAGE = 2;
-
 export const AndreaChat: React.FC<AndreaChatProps> = ({
   userProfile = 'createur',
   displayName = 'Utilisateur',
@@ -96,7 +94,6 @@ export const AndreaChat: React.FC<AndreaChatProps> = ({
   onOpenCodeBuilder,
 }) => {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
-  const [msgPage, setMsgPage] = useState(0);
   const [inputPrompt, setInputPrompt] = useState('');
   const [modelChoice, setModelChoice] = useState<'rapide' | 'puissant'>('puissant');
   const [selectedMovement] = useState<CameraMovementId>('orbit');
@@ -109,9 +106,12 @@ export const AndreaChat: React.FC<AndreaChatProps> = ({
   const [editingMsgId, setEditingMsgId] = useState<string | null>(null);
   const [editingText, setEditingText] = useState('');
   const [attachedFile, setAttachedFile] = useState<File | null>(null);
-  const [textChunkPage, setTextChunkPage] = useState<Record<string, number>>({});
-
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' });
+  }, [messages.length, isGenerating]);
 
   const profileKey = STARTER_CARDS[userProfile] ? userProfile : 'createur';
   const starters = STARTER_CARDS[profileKey];
@@ -134,12 +134,7 @@ export const AndreaChat: React.FC<AndreaChatProps> = ({
   };
 
   const appendMessagesAndFocusLast = (newMsgs: ChatMessage[]) => {
-    setMessages((prev) => {
-      const next = [...prev, ...newMsgs];
-      const totalPages = Math.max(1, Math.ceil(next.length / MESSAGES_PER_PAGE));
-      setMsgPage(totalPages - 1);
-      return next;
-    });
+    setMessages((prev) => [...prev, ...newMsgs]);
   };
 
   const handleSendMessage = async (customPrompt?: string) => {
@@ -498,36 +493,12 @@ export const AndreaChat: React.FC<AndreaChatProps> = ({
     a.click();
   };
 
-  const splitTextIntoPages = (txt: string, maxChars = 540): string[] => {
-    if (txt.length <= maxChars) return [txt];
-    const paragraphs = txt.split('\n\n');
-    const pages: string[] = [];
-    let current = '';
-    for (const para of paragraphs) {
-      if ((current + '\n\n' + para).trim().length > maxChars && current.trim().length > 0) {
-        pages.push(current.trim());
-        current = para;
-      } else {
-        current = current ? `${current}\n\n${para}` : para;
-      }
-    }
-    if (current.trim()) pages.push(current.trim());
-    return pages.length > 0 ? pages : [txt];
-  };
-
-  const totalPages = Math.max(1, Math.ceil(messages.length / MESSAGES_PER_PAGE));
-  const safePage = Math.min(msgPage, totalPages - 1);
-  const visibleMessages = messages.slice(
-    safePage * MESSAGES_PER_PAGE,
-    safePage * MESSAGES_PER_PAGE + MESSAGES_PER_PAGE
-  );
-
   return (
-    <div className="flex flex-col h-full max-w-[960px] mx-auto w-full px-1.5 sm:px-6 select-text overflow-hidden">
+    <div className="flex flex-col h-full min-h-0 max-w-[960px] mx-auto w-full px-1.5 sm:px-6 select-text overflow-hidden">
       {/* Top Sub-Bar */}
-      <div className="shrink-0 flex flex-wrap items-center justify-between gap-2 py-2 border-b border-[#1d254f] mb-2 text-xs">
+      <div className="shrink-0 flex items-center justify-between gap-2 py-2.5 border-b border-[#5A33FF33] mb-2 text-xs">
         <div className="flex items-center gap-2 sm:gap-3 min-w-0">
-          <span className="inline-flex items-center gap-1.5 text-sky-300 font-bold truncate">
+          <span className="inline-flex items-center gap-1.5 text-[#c4b5fd] font-bold truncate">
             <span className="truncate">Andrea · {displayName}</span>
           </span>
           <span className="text-slate-400 hidden sm:inline">·</span>
@@ -547,7 +518,7 @@ export const AndreaChat: React.FC<AndreaChatProps> = ({
         <button
           onClick={exportConversation}
           aria-label="Partager la discussion"
-          className="text-slate-300 hover:text-white flex items-center gap-1.5 text-xs font-semibold cursor-pointer whitespace-nowrap shrink-0"
+          className="text-slate-200 hover:text-white flex items-center gap-1.5 text-xs font-semibold cursor-pointer whitespace-nowrap shrink-0 px-3 py-1.5 rounded-xl bg-[#231a4a] hover:bg-[#2a2057] border border-[#5A33FF55] transition-colors"
         >
           <Share2 className="w-3.5 h-3.5" />
           <span>Partager</span>
@@ -555,9 +526,9 @@ export const AndreaChat: React.FC<AndreaChatProps> = ({
       </div>
 
       {/* Main Content Area */}
-      <div className="flex-1 min-h-0 flex flex-col justify-between overflow-y-auto sm:overflow-hidden overflow-x-hidden">
+      <div className="flex-1 min-h-0 flex flex-col overflow-hidden">
         {messages.length === 0 ? (
-          <div className="flex-1 min-h-0 flex flex-col justify-center gap-3">
+          <div className="flex-1 min-h-0 flex flex-col justify-center gap-3 overflow-y-auto overflow-x-hidden py-1">
             <div className="bg-[#231a4a] border border-[#5A33FF55] rounded-2xl p-3.5 sm:p-5 shadow-xl">
               <div className="flex items-center gap-3 mb-2">
                 <img src="/logo_andrea.svg" alt="Andrea" className="w-9 h-9 sm:w-10 sm:h-10 object-contain shrink-0" />
@@ -590,8 +561,8 @@ export const AndreaChat: React.FC<AndreaChatProps> = ({
           </div>
         ) : (
           <div className="flex-1 min-h-0 flex flex-col gap-2 overflow-hidden">
-            {/* Action + Pagination Bar */}
-            <div className="shrink-0 flex flex-wrap items-center justify-between gap-1.5 p-2 rounded-xl bg-[#1A1930] border border-[#5A33FF33] text-xs">
+            {/* Barre d'actions */}
+            <div className="shrink-0 flex flex-wrap items-center gap-1.5 p-1.5 rounded-2xl bg-[#1A1930] border border-[#5A33FF33] text-xs">
               <div className="flex flex-wrap items-center gap-1.5">
                 <button
                   onClick={regenerateLast}
@@ -617,7 +588,6 @@ export const AndreaChat: React.FC<AndreaChatProps> = ({
                 <button
                   onClick={() => {
                     setMessages([]);
-                    setMsgPage(0);
                   }}
                   className="px-2 sm:px-2.5 py-1 bg-[#231a4a] hover:bg-rose-950/60 text-slate-300 hover:text-rose-300 rounded-lg cursor-pointer flex items-center gap-1 whitespace-nowrap"
                 >
@@ -626,49 +596,24 @@ export const AndreaChat: React.FC<AndreaChatProps> = ({
                 </button>
               </div>
 
-              {totalPages > 1 && (
-                <div className="flex items-center gap-1.5 tabular-nums">
-                  <button
-                    onClick={() => setMsgPage((p) => Math.max(0, p - 1))}
-                    disabled={safePage === 0}
-                    aria-label="Page de messages précédente"
-                    className="p-1 rounded bg-[#231a4a] text-slate-200 disabled:opacity-30 cursor-pointer"
-                  >
-                    <ChevronLeft className="w-3.5 h-3.5" />
-                  </button>
-                  <span className="text-[11px] font-mono text-slate-300">
-                    Page {safePage + 1}/{totalPages}
-                  </span>
-                  <button
-                    onClick={() => setMsgPage((p) => Math.min(totalPages - 1, p + 1))}
-                    disabled={safePage >= totalPages - 1}
-                    aria-label="Page de messages suivante"
-                    className="p-1 rounded bg-[#231a4a] text-slate-200 disabled:opacity-30 cursor-pointer"
-                  >
-                    <ChevronRight className="w-3.5 h-3.5" />
-                  </button>
-                </div>
-              )}
             </div>
 
             {/* Visible Messages */}
-            <div className="flex-1 min-h-0 flex flex-col gap-2 overflow-hidden justify-start">
-              {visibleMessages.map((m) => {
+            <div className="flex-1 min-h-0 flex flex-col gap-3 overflow-y-auto overflow-x-hidden pr-1 pb-2 scroll-smooth bea-scroll">
+              {messages.map((m) => {
                 const isUser = m.sender === 'user';
                 const isEditing = editingMsgId === m.id;
-                const chunks = isUser || m.video || m.imageUrl ? [m.text] : splitTextIntoPages(m.text, 560);
-                const chunkIdx = Math.min(textChunkPage[m.id] || 0, chunks.length - 1);
 
                 return (
                   <div
                     key={m.id}
-                    className={`p-3.5 rounded-2xl border shadow-lg overflow-hidden ${
+                    className={`p-3.5 sm:p-4 rounded-2xl border shadow-lg shrink-0 ${
                       isUser
-                        ? 'bg-[#201844] border-[#5A33FF44] ml-auto max-w-[85%] shrink-0'
-                        : 'bg-[#231a4a] border-[#5A33FF55] w-full flex-1 min-h-0 flex flex-col justify-between'
+                        ? 'bg-[#201844] border-[#5A33FF44] ml-auto max-w-[88%] sm:max-w-[80%]'
+                        : 'bg-[#231a4a] border-[#5A33FF55] w-full flex flex-col'
                     }`}
                   >
-                    <div className="space-y-1.5 overflow-hidden flex-1 min-h-0 flex flex-col justify-start">
+                    <div className="space-y-2 flex flex-col justify-start min-w-0">
                       <div className="flex items-center justify-between text-xs shrink-0">
                         <div className="flex items-center gap-2 font-bold text-white">
                           {isUser ? (
@@ -686,36 +631,6 @@ export const AndreaChat: React.FC<AndreaChatProps> = ({
                           )}
                         </div>
                         <div className="flex items-center gap-2">
-                          {chunks.length > 1 && (
-                            <div className="flex items-center gap-1 tabular-nums">
-                              <button
-                                onClick={() =>
-                                  setTextChunkPage((p) => ({ ...p, [m.id]: Math.max(0, chunkIdx - 1) }))
-                                }
-                                disabled={chunkIdx === 0}
-                                aria-label="Extrait précédent"
-                                className="px-1.5 py-0.5 rounded bg-[#140E2D] text-slate-200 disabled:opacity-30 cursor-pointer"
-                              >
-                                ‹
-                              </button>
-                              <span className="text-[10px] font-mono text-sky-300">
-                                {chunkIdx + 1}/{chunks.length}
-                              </span>
-                              <button
-                                onClick={() =>
-                                  setTextChunkPage((p) => ({
-                                    ...p,
-                                    [m.id]: Math.min(chunks.length - 1, chunkIdx + 1),
-                                  }))
-                                }
-                                disabled={chunkIdx >= chunks.length - 1}
-                                aria-label="Extrait suivant"
-                                className="px-1.5 py-0.5 rounded bg-[#140E2D] text-slate-200 disabled:opacity-30 cursor-pointer"
-                              >
-                                ›
-                              </button>
-                            </div>
-                          )}
                           <span className="text-[10px] text-slate-400 font-mono tabular-nums">
                             {new Date(m.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                           </span>
@@ -756,8 +671,8 @@ export const AndreaChat: React.FC<AndreaChatProps> = ({
                           </div>
                         </div>
                       ) : (
-                        <p className="text-xs sm:text-sm text-slate-100 whitespace-pre-wrap leading-relaxed overflow-hidden">
-                          {chunks[chunkIdx]}
+                        <p className="text-sm text-slate-100 whitespace-pre-wrap break-words leading-relaxed">
+                          {m.text}
                         </p>
                       )}
 
@@ -786,13 +701,13 @@ export const AndreaChat: React.FC<AndreaChatProps> = ({
                       )}
                     </div>
 
-                    <div className="mt-2 pt-1.5 border-t border-[#5A33FF22] flex items-center justify-between text-xs text-slate-400 shrink-0">
+                    <div className="mt-3 pt-2 border-t border-[#5A33FF33] flex items-center justify-between text-xs text-slate-400 shrink-0">
                       <div className="flex items-center gap-1">
                         {!isUser && (
                           <>
                             <button
                               onClick={() => speakMessage(m.text)}
-                              className="p-1 hover:text-white rounded cursor-pointer"
+                              className="p-1.5 hover:text-white hover:bg-white/5 rounded-lg cursor-pointer transition-colors"
                               title="Écouter"
                               aria-label="Écouter la réponse"
                             >
@@ -800,7 +715,7 @@ export const AndreaChat: React.FC<AndreaChatProps> = ({
                             </button>
                             <button
                               onClick={() => copyMessage(m.text)}
-                              className="p-1 hover:text-white rounded cursor-pointer"
+                              className="p-1.5 hover:text-white hover:bg-white/5 rounded-lg cursor-pointer transition-colors"
                               title="Copier"
                               aria-label="Copier le message"
                             >
@@ -809,14 +724,14 @@ export const AndreaChat: React.FC<AndreaChatProps> = ({
                             <button
                               onClick={() => (m.feedback = 1)}
                               aria-label="Utile"
-                              className="p-1 hover:text-emerald-400 rounded cursor-pointer"
+                              className="p-1.5 hover:text-emerald-400 hover:bg-white/5 rounded-lg cursor-pointer transition-colors"
                             >
                               <ThumbsUp className="w-3.5 h-3.5" />
                             </button>
                             <button
                               onClick={() => (m.feedback = -1)}
                               aria-label="À améliorer"
-                              className="p-1 hover:text-rose-400 rounded cursor-pointer"
+                              className="p-1.5 hover:text-rose-400 hover:bg-white/5 rounded-lg cursor-pointer transition-colors"
                             >
                               <ThumbsDown className="w-3.5 h-3.5" />
                             </button>
@@ -847,6 +762,7 @@ export const AndreaChat: React.FC<AndreaChatProps> = ({
                   <span>{liveQueueStatus || 'Traitement en cours...'}</span>
                 </div>
               )}
+              <div ref={messagesEndRef} className="h-px shrink-0" />
             </div>
           </div>
         )}
@@ -858,12 +774,24 @@ export const AndreaChat: React.FC<AndreaChatProps> = ({
         </div>
       )}
 
-      {/* Prompt Input Fixed at Bottom */}
-      <div className="shrink-0 w-full pt-2 pb-1 z-30">
-        <div
-          className="relative w-full bg-[#201844] border border-[#5A33FF55] hover:border-[#8B70FF] rounded-[22px] shadow-2xl p-2.5 pb-11 transition-all"
-          style={{ minHeight: '90px' }}
-        >
+      {/* Zone de saisie : toujours visible en bas, boutons dans le flux (jamais coupés) */}
+      <div className="shrink-0 w-full pt-2 pb-[max(0.5rem,env(safe-area-inset-bottom))] z-30">
+        <div className="relative w-full bg-[#1A1930] border border-[#5A33FF55] focus-within:border-[#8B70FF] focus-within:shadow-[0_0_0_3px_rgba(90,51,255,0.18)] rounded-3xl shadow-2xl p-2.5 transition-all">
+          {attachedFile && (
+            <div className="mb-1.5 ml-1 inline-flex max-w-full items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#231a4a] border border-[#5A33FF55] text-[11px] text-emerald-300">
+              <Paperclip className="w-3 h-3 shrink-0" />
+              <span className="truncate max-w-[200px]">{attachedFile.name}</span>
+              <button
+                type="button"
+                onClick={() => setAttachedFile(null)}
+                aria-label="Retirer le fichier joint"
+                className="p-0.5 rounded-full hover:bg-white/10 cursor-pointer shrink-0"
+              >
+                <X className="w-3 h-3" />
+              </button>
+            </div>
+          )}
+
           <textarea
             value={inputPrompt}
             onChange={(e) => setInputPrompt(e.target.value)}
@@ -874,125 +802,143 @@ export const AndreaChat: React.FC<AndreaChatProps> = ({
               }
             }}
             placeholder={`Envoyer un message à Andrea (${displayName})...`}
-            className="w-full bg-transparent text-white placeholder-slate-400 text-sm outline-none resize-none px-2 pt-0.5 leading-relaxed"
+            className="w-full bg-transparent text-white placeholder-slate-400 text-sm outline-none resize-none px-2 pt-1 leading-relaxed min-h-[44px] max-h-36"
             rows={2}
           />
 
-          <div className="absolute left-[14px] bottom-[8px] z-30 flex items-center gap-2">
-            <button
-              onClick={() => setShowPlusPopover(!showPlusPopover)}
-              className="w-8 h-8 rounded-full bg-[#1b2352] hover:bg-[#253073] border border-[#2b3c8a] text-slate-200 hover:text-white flex items-center justify-center text-base font-bold cursor-pointer"
-              title="Actions & Fichiers"
-              aria-label="Actions et fichiers"
-              aria-expanded={showPlusPopover}
-            >
-              +
-            </button>
-            <span className="text-[11px] font-bold text-slate-300 select-none hidden sm:inline">
-              {modelChoice === 'puissant' ? 'Mode Puissant' : 'Mode Instant'}
-            </span>
+          <div className="flex items-center justify-between gap-2 pt-1.5">
+            <div className="relative flex items-center gap-2 min-w-0">
+              <button
+                type="button"
+                onClick={() => setShowPlusPopover(!showPlusPopover)}
+                className="w-9 h-9 shrink-0 rounded-full bg-[#231a4a] hover:bg-[#2a2057] border border-[#5A33FF66] text-slate-200 hover:text-white flex items-center justify-center text-lg font-bold cursor-pointer transition-colors"
+                title="Actions & Fichiers"
+                aria-label="Actions et fichiers"
+                aria-expanded={showPlusPopover}
+              >
+                +
+              </button>
 
-            {showPlusPopover && (
-              <div className="absolute bottom-10 left-0 w-[min(18rem,calc(100vw-4.5rem))] bg-[#1A1930] border border-[#5A33FF55] rounded-2xl p-3.5 shadow-2xl z-50 text-xs space-y-2.5">
-                <div className="space-y-1">
-                  <div className="font-bold text-white">Modèle</div>
-                  <div className="grid grid-cols-2 gap-1.5">
-                    <button
-                      onClick={() => setModelChoice('rapide')}
-                      className={`py-1.5 px-2 rounded-lg font-bold cursor-pointer ${
-                        modelChoice === 'rapide' ? 'bg-[#2563eb] text-white' : 'bg-[#201844] text-slate-300'
-                      }`}
-                    >
-                      Instant
-                    </button>
-                    <button
-                      onClick={() => setModelChoice('puissant')}
-                      className={`py-1.5 px-2 rounded-lg font-bold cursor-pointer ${
-                        modelChoice === 'puissant' ? 'bg-[#2563eb] text-white' : 'bg-[#201844] text-slate-300'
-                      }`}
-                    >
-                      Puissant
-                    </button>
-                  </div>
-                </div>
+              <button
+                type="button"
+                onClick={() => setModelChoice(modelChoice === 'puissant' ? 'rapide' : 'puissant')}
+                className="inline-flex items-center gap-1.5 h-9 px-3 rounded-full bg-[#231a4a] hover:bg-[#2a2057] border border-[#5A33FF44] text-[11px] font-bold text-slate-200 hover:text-white cursor-pointer whitespace-nowrap transition-colors"
+                title="Changer de mode (Instant / Puissant)"
+                aria-label="Changer de mode"
+              >
+                <Zap className="w-3 h-3 text-amber-400 fill-amber-400 shrink-0" />
+                <span>{modelChoice === 'puissant' ? 'Puissant' : 'Instant'}</span>
+              </button>
 
-                <div className="h-px bg-[#5A33FF22]" />
-
-                <div>
-                  <input
-                    ref={fileInputRef}
-                    type="file"
-                    className="hidden"
-                    onChange={(e) => {
-                      if (e.target.files?.[0]) {
-                        setAttachedFile(e.target.files[0]);
-                        setShowPlusPopover(false);
-                      }
-                    }}
+              {showPlusPopover && (
+                <>
+                  <button
+                    type="button"
+                    aria-label="Fermer le menu"
+                    className="fixed inset-0 z-40 cursor-default"
+                    onClick={() => setShowPlusPopover(false)}
                   />
-                  <button
-                    onClick={() => fileInputRef.current?.click()}
-                    className="w-full py-1.5 px-3 bg-[#201844] hover:bg-[#2a2057] text-[#c4b5fd] rounded-xl border border-[#5A33FF44] font-medium flex items-center justify-center gap-1.5 cursor-pointer"
-                  >
-                    <Paperclip className="w-3.5 h-3.5" />
-                    <span>Joindre un fichier</span>
-                  </button>
-                  {attachedFile && <div className="mt-1 text-[11px] text-emerald-400 truncate">✓ {attachedFile.name}</div>}
-                </div>
+                  <div className="absolute bottom-full mb-2 left-0 w-[min(18rem,calc(100vw-3rem))] max-h-[60vh] overflow-y-auto bg-[#1A1930] border border-[#5A33FF55] rounded-2xl p-3.5 shadow-2xl z-50 text-xs space-y-2.5">
+                    <div className="space-y-1">
+                      <div className="font-bold text-white">Modèle</div>
+                      <div className="grid grid-cols-2 gap-1.5">
+                        <button
+                          onClick={() => setModelChoice('rapide')}
+                          className={`py-1.5 px-2 rounded-lg font-bold cursor-pointer ${
+                            modelChoice === 'rapide' ? 'bg-[#2563eb] text-white' : 'bg-[#201844] text-slate-300'
+                          }`}
+                        >
+                          Instant
+                        </button>
+                        <button
+                          onClick={() => setModelChoice('puissant')}
+                          className={`py-1.5 px-2 rounded-lg font-bold cursor-pointer ${
+                            modelChoice === 'puissant' ? 'bg-[#2563eb] text-white' : 'bg-[#201844] text-slate-300'
+                          }`}
+                        >
+                          Puissant
+                        </button>
+                      </div>
+                    </div>
 
-                <div className="h-px bg-[#5A33FF22]" />
+                    <div className="h-px bg-[#5A33FF22]" />
 
-                <div className="space-y-1.5">
-                  <button
-                    onClick={() => {
-                      setShowPlusPopover(false);
-                      handleSendMessage('Créer un site web moderne pour mon activité');
-                    }}
-                    className="w-full py-1.5 px-2.5 bg-[#201844] hover:bg-[#2a2057] text-left text-slate-200 rounded-lg font-medium flex items-center gap-2 cursor-pointer"
-                  >
-                    <Code2 className="w-3.5 h-3.5 text-sky-400" />
-                    <span>Créer un site ou une app</span>
-                  </button>
-                  <button
-                    onClick={() => {
-                      setShowPlusPopover(false);
-                      handleSendMessage('Illustrer mon texte en vidéo animée');
-                    }}
-                    className="w-full py-1.5 px-2.5 bg-[#201844] hover:bg-[#2a2057] text-left text-slate-200 rounded-lg font-medium flex items-center gap-2 cursor-pointer"
-                  >
-                    <Film className="w-3.5 h-3.5 text-purple-400" />
-                    <span>Illustrer votre texte</span>
-                  </button>
-                </div>
-              </div>
-            )}
-          </div>
+                    <div>
+                      <input
+                        ref={fileInputRef}
+                        type="file"
+                        className="hidden"
+                        onChange={(e) => {
+                          if (e.target.files?.[0]) {
+                            setAttachedFile(e.target.files[0]);
+                            setShowPlusPopover(false);
+                          }
+                        }}
+                      />
+                      <button
+                        onClick={() => fileInputRef.current?.click()}
+                        className="w-full py-1.5 px-3 bg-[#201844] hover:bg-[#2a2057] text-[#c4b5fd] rounded-xl border border-[#5A33FF44] font-medium flex items-center justify-center gap-1.5 cursor-pointer"
+                      >
+                        <Paperclip className="w-3.5 h-3.5" />
+                        <span>Joindre un fichier</span>
+                      </button>
+                    </div>
 
-          <div className="absolute right-[54px] bottom-[8px] z-30">
-            <button
-              onClick={toggleVoiceInput}
-              className={`w-8 h-8 rounded-full flex items-center justify-center cursor-pointer ${
-                isListening
-                  ? 'bg-rose-600 text-white animate-pulse'
-                  : 'bg-[#2a2057] hover:bg-[#372b6e] border border-[#5A33FF66] text-[#c4b5fd] hover:text-white'
-              }`}
-              title="Dictée vocale"
-              aria-label="Activer la dictée vocale"
-            >
-              <Mic className="w-4 h-4" />
-            </button>
-          </div>
+                    <div className="h-px bg-[#5A33FF22]" />
 
-          <div className="absolute right-[12px] bottom-[8px] z-30">
-            <button
-              onClick={() => handleSendMessage()}
-              disabled={!inputPrompt.trim() || isGenerating}
-              className="w-8 h-8 rounded-full bg-[#2563eb] hover:bg-[#1d4ed8] disabled:opacity-40 flex items-center justify-center text-white shadow-lg cursor-pointer"
-              title="Envoyer"
-              aria-label="Envoyer le message"
-            >
-              <Send className="w-3.5 h-3.5 text-white fill-white -rotate-45" />
-            </button>
+                    <div className="space-y-1.5">
+                      <button
+                        onClick={() => {
+                          setShowPlusPopover(false);
+                          handleSendMessage('Créer un site web moderne pour mon activité');
+                        }}
+                        className="w-full py-1.5 px-2.5 bg-[#201844] hover:bg-[#2a2057] text-left text-slate-200 rounded-lg font-medium flex items-center gap-2 cursor-pointer"
+                      >
+                        <Code2 className="w-3.5 h-3.5 text-sky-400" />
+                        <span>Créer un site ou une app</span>
+                      </button>
+                      <button
+                        onClick={() => {
+                          setShowPlusPopover(false);
+                          handleSendMessage('Illustrer mon texte en vidéo animée');
+                        }}
+                        className="w-full py-1.5 px-2.5 bg-[#201844] hover:bg-[#2a2057] text-left text-slate-200 rounded-lg font-medium flex items-center gap-2 cursor-pointer"
+                      >
+                        <Film className="w-3.5 h-3.5 text-purple-400" />
+                        <span>Illustrer votre texte</span>
+                      </button>
+                    </div>
+                  </div>
+                </>
+              )}
+            </div>
+
+            <div className="flex items-center gap-2 shrink-0">
+              <button
+                type="button"
+                onClick={toggleVoiceInput}
+                className={`w-9 h-9 rounded-full flex items-center justify-center cursor-pointer transition-colors ${
+                  isListening
+                    ? 'bg-rose-600 text-white animate-pulse'
+                    : 'bg-[#2a2057] hover:bg-[#372b6e] border border-[#5A33FF66] text-[#c4b5fd] hover:text-white'
+                }`}
+                title="Dictée vocale"
+                aria-label="Activer la dictée vocale"
+              >
+                <Mic className="w-4 h-4" />
+              </button>
+
+              <button
+                type="button"
+                onClick={() => handleSendMessage()}
+                disabled={!inputPrompt.trim() || isGenerating}
+                className="bea-send-btn w-9 h-9 rounded-full disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center cursor-pointer"
+                title="Envoyer"
+                aria-label="Envoyer le message"
+              >
+                <Send className="w-4 h-4 -rotate-45 ml-0.5" />
+              </button>
+            </div>
           </div>
         </div>
       </div>

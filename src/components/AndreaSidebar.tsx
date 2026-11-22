@@ -71,13 +71,13 @@ export const AndreaSidebar: React.FC<AndreaSidebarProps> = ({
 
   return (
     <aside
-      className={`${railWidth} bg-[#090c1b] border-r border-[#1a2044] flex flex-col h-full select-none shrink-0 overflow-hidden text-white justify-between transition-all duration-200`}
+      className={`${railWidth} bg-[#0c0b17] border-r border-[#5A33FF33] flex flex-col h-full min-h-0 select-none shrink-0 overflow-hidden text-white transition-all duration-200`}
     >
-      <div className={collapsed ? 'p-1.5 space-y-2' : 'p-1.5 md:p-3.5 space-y-2 md:space-y-3'}>
+      <div className={`flex-1 min-h-0 overflow-y-auto overflow-x-hidden bea-scroll ${collapsed ? 'p-1.5 space-y-2' : 'p-1.5 md:p-3.5 space-y-2 md:space-y-3'}`}>
         {/* User Card: avatar initial on icon rail, full card on expanded desktop */}
         {collapsed ? (
           <div
-            className="w-9 h-9 mx-auto rounded-xl bg-[#1b2668] border border-[#2e40a6] flex items-center justify-center font-black text-xs text-white"
+            className="w-9 h-9 mx-auto rounded-xl bg-[#2a2057] border border-[#5A33FF66] flex items-center justify-center font-black text-xs text-white"
             title={`${displayName || 'Utilisateur'} (${planTag.label})`}
           >
             {(displayName || 'A').slice(0, 1).toUpperCase()}
@@ -85,7 +85,7 @@ export const AndreaSidebar: React.FC<AndreaSidebarProps> = ({
         ) : (
           <>
             <div
-              className="md:hidden w-9 h-9 mx-auto rounded-xl bg-[#1b2668] border border-[#2e40a6] flex items-center justify-center font-black text-xs text-white"
+              className="md:hidden w-9 h-9 mx-auto rounded-xl bg-[#2a2057] border border-[#5A33FF66] flex items-center justify-center font-black text-xs text-white"
               title={`${displayName || 'Utilisateur'} (${planTag.label})`}
             >
               {(displayName || 'A').slice(0, 1).toUpperCase()}
@@ -119,7 +119,7 @@ export const AndreaSidebar: React.FC<AndreaSidebarProps> = ({
           onClick={onNewChat}
           title="Nouvelle discussion"
           aria-label="Nouvelle discussion"
-          className={`w-full bg-[#131835] hover:bg-[#1a2147] text-slate-100 hover:text-white border border-[#232b5c] rounded-xl text-xs font-bold transition-all flex items-center justify-center cursor-pointer whitespace-nowrap ${
+          className={`w-full bea-btn-primary text-white rounded-xl text-xs font-bold flex items-center justify-center cursor-pointer whitespace-nowrap ${
             collapsed ? 'p-2.5' : 'p-2.5 md:py-2 md:px-3 md:gap-2'
           }`}
         >
@@ -128,7 +128,7 @@ export const AndreaSidebar: React.FC<AndreaSidebarProps> = ({
         </button>
 
         {/* Navigation List */}
-        <nav aria-label="Navigation principale" className="space-y-1 pt-1">
+        <nav aria-label="Navigation principale" className="space-y-1.5 pt-1">
           {navItems.map((item) => {
             const isActive = activeTab === item.id;
             const Icon = item.icon;
@@ -146,11 +146,11 @@ export const AndreaSidebar: React.FC<AndreaSidebarProps> = ({
                     : 'justify-center md:justify-start p-2.5 md:px-3 md:py-2.5 md:gap-3'
                 } ${
                   isActive
-                    ? 'bg-[#1b2668] text-white shadow-md border border-[#2e40a6]'
-                    : 'text-slate-300 hover:bg-[#131735] hover:text-white'
+                    ? 'bg-[#2a2057] text-white shadow-md border border-[#5A33FF66]'
+                    : 'text-slate-300 border border-transparent hover:bg-[#1A1930] hover:text-white'
                 }`}
               >
-                <Icon className={`w-4 h-4 shrink-0 ${isActive ? 'text-sky-400' : 'text-slate-400'}`} />
+                <Icon className={`w-4 h-4 shrink-0 ${isActive ? 'text-[#a78bfa]' : 'text-slate-400'}`} />
                 {!collapsed && <span className="hidden md:inline truncate">{item.label}</span>}
               </button>
             );
@@ -159,7 +159,7 @@ export const AndreaSidebar: React.FC<AndreaSidebarProps> = ({
       </div>
 
       {/* Footer brand mark */}
-      <div className="p-2 border-t border-[#1a2044] shrink-0 flex items-center justify-center">
+      <div className="p-2.5 border-t border-[#5A33FF33] shrink-0 flex items-center justify-center">
         {collapsed ? (
           <img src="/logo_andrea.svg" alt="Andrea" className="w-6 h-6 object-contain opacity-90" />
         ) : (

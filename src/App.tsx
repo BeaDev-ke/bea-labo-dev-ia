@@ -199,7 +199,7 @@ export default function App() {
 
   // PAGE 2: Portail Dev sur "/portail-dev"
   return (
-    <div className="h-screen overflow-hidden bg-[#070914] text-slate-100 flex flex-col font-sans antialiased selection:bg-[#3b82f6] selection:text-white">
+    <div className="h-[100dvh] overflow-hidden bg-[#0F0E1E] text-slate-100 flex flex-col font-sans antialiased selection:bg-[#5A33FF] selection:text-white">
       <AndreaHeader
         onOpenProfile={() => setIsOnboardingOpen(true)}
         onLogout={handleLogout}
@@ -224,7 +224,7 @@ export default function App() {
           collapsed={sidebarCollapsed}
         />
 
-        <main className="flex-1 min-w-0 min-h-0 overflow-y-auto md:overflow-hidden overflow-x-hidden p-2 sm:p-3 bg-[#090d1f] flex flex-col">
+        <main className="flex-1 min-w-0 min-h-0 overflow-y-auto md:overflow-hidden overflow-x-hidden p-2 sm:p-4 bg-[#0F0E1E] flex flex-col">
           {activeCodeProject ? (
             <CodeWorkspacePage
               project={activeCodeProject}
